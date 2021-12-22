@@ -12,6 +12,8 @@ _✨ NoneBot2 简易群管_ ✨_
 
 踢 改 禁
 
+**权限说明：permission=SUPERUSER**
+
 ## 安装💿
 `pip install nonebot-plugin-admin`
 
