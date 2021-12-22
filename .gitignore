@@ -1,0 +1,4 @@
+build/
+dist/
+nonebot_plugin_admin.egg-info/
+setup.py
