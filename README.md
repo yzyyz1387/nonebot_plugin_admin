@@ -11,6 +11,7 @@ _✨ NoneBot2 简易群管_ ✨_
 </div>
 
 踢 改 禁
+**欢迎issue pr**
 
 **权限说明：permission=SUPERUSER**
 
