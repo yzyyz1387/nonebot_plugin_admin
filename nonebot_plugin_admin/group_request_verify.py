@@ -25,11 +25,15 @@ async def verify(word:str,group_id:str) -> Optional[bool]:
     async with aiofiles.open(config_json, mode='r') as f:
         anwsers_ = await f.read()
         anwsers = json.loads(anwsers_)
-    anwser=anwsers[group_id]
-    suggestions = fuzzyfinder(word, anwser)
-    result=list(suggestions)
-    if result and len(word)>=len(result[0])/2:
-        return True
+    if group_id in anwsers:
+        anwser=anwsers[group_id]
+        suggestions = fuzzyfinder(word, anwser)
+        result=list(suggestions)
+        if result and len(word)>=len(result[0])/2:
+            return True
+        else:
+            return False
     else:
-        return False
+        logger.info(f'群{group_id}从未配置审批词条，不进行操作')
+        return None
 

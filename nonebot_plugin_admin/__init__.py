@@ -168,7 +168,7 @@ async def gr_(bot:Bot,event:GroupRequestEvent,state:T_State):
                                         )
             for q in su:
                 await bot.send_msg(user_id=int(q),message=f'同意{uid}加入群 {gid},验证消息为 “{word}”')
-        else:
+        elif compared==False:
             logger.info(f'拒绝{uid}加入群 {gid},验证消息为 “{word}”')
             await bot.set_group_add_request(
                                         flag=flag,
@@ -178,6 +178,8 @@ async def gr_(bot:Bot,event:GroupRequestEvent,state:T_State):
                                     )
             for q in su:
                 await bot.send_msg(user_id=int(q),message=f'拒绝{uid}加入群 {gid},验证消息为 “{word}”')
+        elif compared==None:
+            await group_req.finish()
 
 
 
@@ -466,6 +468,8 @@ __usage__ = """
     /删头衔
   踢出：
     /踢 @某人
+  提出并拉黑：
+   /黑 @某人
 """
 __help_plugin_name__ = "简易群管"
 
