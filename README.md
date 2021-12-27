@@ -59,7 +59,7 @@ _✨ NoneBot2 简易群管_ ✨_
     /all 解
   改名片
     /改 @某人 名片
-  改头衔（又没用？）
+  改头衔
     /头衔 @某人 头衔
     /删头衔
   踢出：
@@ -85,7 +85,7 @@ _✨ NoneBot2 简易群管_ ✨_
 
 ##  更新
 
-**0.1.0** [issue#1]([功能建议 · Issue #1 · yzyyz1387/nonebot_plugin_admin (github.com)](https://github.com/yzyyz1387/nonebot_plugin_admin/issues/1))
+**0.1.0** [issue#1](https://github.com/yzyyz1387/nonebot_plugin_admin/issues/1)
 
 支持入群自动审批
 
