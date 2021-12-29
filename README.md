@@ -35,18 +35,21 @@ _✨ NoneBot2 简易群管_ ✨_
 
 ## 指令💻
 ```
-【superuser】：
-  /susp  查看所有审批词条   或/su审批
-  /susp+ [群号] [词条]增加指定群审批词条 或/sp审批+
-  /susp- [群号] [词条]删除指定群审批词条 或/sp审批-
-  自动审批处理结果将发送给superuser
-  
+【初始化】：
+  /spinit
+
 【加群自动审批】：
 群内发送 permission=GROUP_ADMIN | GROUP_OWNER | SUPERUSER
   /审批  查看本群审批词条   或/sp
   /审批+ [词条]增加审批词条 或/sp+
   /审批- [词条]删除审批词条 或/sp-
-  
+
+【superuser】：
+  /susp  查看所有审批词条   或/su审批
+  /susp+ [群号] [词条]增加指定群审批词条 或/sp审批+
+  /susp- [群号] [词条]删除指定群审批词条 或/sp审批-
+  自动审批处理结果将发送给superuser
+
 【群管】：
 权限：permission=SUPERUSER
   禁言:
@@ -59,7 +62,7 @@ _✨ NoneBot2 简易群管_ ✨_
     /all 解
   改名片
     /改 @某人 名片
-  改头衔
+  改头衔（又没用？）
     /头衔 @某人 头衔
     /删头衔
   踢出：
@@ -84,6 +87,12 @@ _✨ NoneBot2 简易群管_ ✨_
 
 
 ##  更新
+
+**0.1.9**
+
+修复初始化功能
+
+
 
 **0.1.0** [issue#1](https://github.com/yzyyz1387/nonebot_plugin_admin/issues/1)
 
