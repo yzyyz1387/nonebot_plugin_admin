@@ -29,7 +29,7 @@ chushihua = on_command("/spinit", priority=1)
 
 
 @chushihua.handle()
-async def init():
+async def init(bot: Bot, event: MessageEvent, state: dict):
     """
     初始化配置文件
     :return:
@@ -509,4 +509,4 @@ __usage__ = """
 __help_plugin_name__ = "简易群管"
 
 __permission__ = 1
-__help__version__ = '0.1.9'
+__help__version__ = '0.2.0'
