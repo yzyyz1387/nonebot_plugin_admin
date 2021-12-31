@@ -32,8 +32,9 @@ _✨ NoneBot2 简易群管_ ✨_
 `nonebot.load_plugin("nonebot_plugin_admin")`
 
 ## TODO
-/sp在未配置群聊中的提示  
-/删头衔bug修复
+ - /sp在未配置群聊中的提示  
+ - /删头衔bug修复  
+ - 加群处理状态分群分用户发送  
 
 ## 指令💻
 ```
