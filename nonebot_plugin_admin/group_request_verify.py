@@ -13,6 +13,8 @@ import aiofiles
 from os.path import dirname
 config_path=dirname(__file__)+"/config/"
 config_json=config_path+"admin.json"
+config_group=config_path+"group_admin.json"
+
 
 
 async def verify(word:str,group_id:str) -> Optional[bool]:
@@ -23,10 +25,10 @@ async def verify(word:str,group_id:str) -> Optional[bool]:
     :return: bool
     """
     async with aiofiles.open(config_json, mode='r') as f:
-        anwsers_ = await f.read()
-        anwsers = json.loads(anwsers_)
-    if group_id in anwsers:
-        anwser=anwsers[group_id]
+        answers_ = await f.read()
+        answers = json.loads(answers_)
+    if group_id in answers:
+        anwser=answers[group_id]
         suggestions = fuzzyfinder(word, anwser)
         result=list(suggestions)
         if result and len(word)>=len(result[0])/2:

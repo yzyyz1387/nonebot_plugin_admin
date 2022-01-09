@@ -32,27 +32,37 @@ _✨ NoneBot2 简易群管_ ✨_
 `nonebot.load_plugin("nonebot_plugin_admin")`
 
 ## TODO
- - /sp在未配置群聊中的提示  
- - /删头衔bug修复  
- - 加群处理状态分群分用户发送  
+ - 其他功能...  
+
+   
 
 ## 指令💻
 ```
 【初始化】：
   /spinit
-
+  
 【加群自动审批】：
 群内发送 permission=GROUP_ADMIN | GROUP_OWNER | SUPERUSER
-  /审批  查看本群审批词条   或/sp
-  /审批+ [词条]增加审批词条 或/sp+
-  /审批- [词条]删除审批词条 或/sp-
-
+  /sp  查看本群审批词条   或/审批
+  /sp+ [词条]增加审批词条 或/审批+
+  /sp- [词条]删除审批词条 或/审批-
+  
 【superuser】：
   /susp  查看所有审批词条   或/su审批
-  /susp+ [群号] [词条]增加指定群审批词条 或/sp审批+
-  /susp- [群号] [词条]删除指定群审批词条 或/sp审批-
+  /susp+ [群号] [词条]增加指定群审批词条 或/su审批+
+  /susp- [群号] [词条]删除指定群审批词条 或/su审批-
   自动审批处理结果将发送给superuser
 
+【分群管理设置】
+群内发送 permission=GROUP_ADMIN | GROUP_OWNER | SUPERUSER
+  /gad+ [user] user可用@或qq 添加分群管理
+  /gad- [user] 删除分群管理
+  /gad 查看本群分群管理
+  
+群内或私聊 permission=SUPERUSER
+  /sugad 查看所有分群管理
+  /sumsg 打开或关闭超管消息接收（关闭则加群处理结果不会发送给superusers）
+    
 【群管】：
 权限：permission=SUPERUSER
   禁言:
@@ -65,12 +75,12 @@ _✨ NoneBot2 简易群管_ ✨_
     /all 解
   改名片
     /改 @某人 名片
-  改头衔（又没用？）
+  改头衔
     /头衔 @某人 头衔
     /删头衔
   踢出：
     /踢 @某人
-  提出并拉黑：
+  踢出并拉黑：
    /黑 @某人
 ```
 
@@ -91,27 +101,35 @@ _✨ NoneBot2 简易群管_ ✨_
 
 ##  更新
 
-**0.2.1**
+- 0.2.2	（适配 nonebot b1)
 
-修复requiers
+  - **更新后请初始化**:`/spinit`
 
-
-
-**0.1.9**
-
-修复初始化功能
-
-
-
-**0.1.0** [issue#1](https://github.com/yzyyz1387/nonebot_plugin_admin/issues/1)
-
-支持入群自动审批
-
-支持在线对不同群的关键词进行增减操作
+  - 修复未配置时`/sp`，命令出现错误
+  - 修复`/删头衔`的bug
+  - 增加分群管理，加群请求处理结果将发送给分群管理 
+  - 加群处理结果消息对 superuser 可开启或关闭: `/sumsg`
 
 
 
-**0.0.1-4**
+- **0.2.1**
+  - 修复requiers
 
-支持 踢 、禁 、改 、头衔
+
+
+- **0.1.9**
+  - 修复初始化功能
+
+
+
+- **0.1.0** [issue#1](https://github.com/yzyyz1387/nonebot_plugin_admin/issues/1)
+
+  - 支持入群自动审批
+
+  - 支持在线对不同群的关键词进行增减操作
+
+
+
+- **0.0.1-4**
+  - 支持 踢 、禁 、改 、头衔
 
