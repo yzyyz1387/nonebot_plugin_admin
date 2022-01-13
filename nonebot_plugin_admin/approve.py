@@ -10,19 +10,22 @@ import aiofiles
 from os.path import dirname
 import json
 from nonebot import logger
-config_path=dirname(__file__)+"/config/"
-config_json=config_path+"admin.json"
-config_group=config_path+"group_admin.json"
 
-async def load()->Optional[dict]:
+config_path = dirname(__file__) + "/config/"
+config_json = config_path + "admin.json"
+config_group = config_path + "group_admin.json"
+
+
+async def load() -> Optional[dict]:
     """
     加载配置
     :return:dict
     """
     async with aiofiles.open(config_json, mode='r') as f:
         contents_ = await f.read()
-        contents=json.loads(contents_)
+        contents = json.loads(contents_)
         return contents
+
 
 async def gadmin():
     """
@@ -33,22 +36,24 @@ async def gadmin():
         admins = json.loads(admins_)
     return admins
 
-async def gadmin_add(gid:str,qq:int) -> Optional[bool]:
+
+async def gadmin_add(gid: str, qq: int) -> Optional[bool]:
     """
+
     添加分群管理（处理加群请求时接收处理结果）
     :param gid: 群号
     :param qq: qq
     :return: bool
     """
-    admins=await gadmin()
+    admins = await gadmin()
     if gid in admins:
         if qq in admins[gid]:
             logger.info(f'{qq}已经是群{gid}的分群管理了')
             return False
         else:
-            gadmins=admins[gid]
+            gadmins = admins[gid]
             gadmins.append(qq)
-            admins[gid]=gadmins
+            admins[gid] = gadmins
             async with aiofiles.open(config_group, mode='w') as c:
                 await c.write(str(json.dumps(admins)))
             logger.info(f"群{gid}添加分群管理：{qq}")
@@ -60,23 +65,24 @@ async def gadmin_add(gid:str,qq:int) -> Optional[bool]:
             await c.write(str(json.dumps(admins)))
         return True
 
-async def gadmin_del(gid:str,qq:int) -> Optional[bool]:
+
+async def gadmin_del(gid: str, qq: int) -> Optional[bool]:
     """
     删除分群管理
     :param gid: 群号
     :param qq: qq
     :return: bool
     """
-    admins=await gadmin()
+    admins = await gadmin()
     if gid in admins:
         if qq in admins[gid]:
             logger.info(f'已删除群{gid}的分群管理{qq}')
-            data=admins[gid]
+            data = admins[gid]
             data.remove(qq)
             if data:
-                admins[gid]=data
+                admins[gid] = data
             else:
-                del(admins[gid])
+                del (admins[gid])
             async with aiofiles.open(config_group, mode='w') as c:
                 await c.write(str(json.dumps(admins)))
             return True
@@ -86,6 +92,7 @@ async def gadmin_del(gid:str,qq:int) -> Optional[bool]:
     else:
         logger.info(f'群{gid}还未添加过分群管理')
         return None
+
 
 async def su_on_off() -> Optional[bool]:
     admins = await gadmin()
@@ -102,14 +109,15 @@ async def su_on_off() -> Optional[bool]:
             await c.write(str(json.dumps(admins)))
         return False
 
-async def wirte(gid:str,anwser:str) -> Optional[bool]:
+
+async def write(gid: str, anwser: str) -> Optional[bool]:
     """
     写入词条
     :param gid: 群号
     :param anwser: 词条
     :return: bool
     """
-    contents=await load()
+    contents = await load()
     if gid in contents:
         data = contents[gid]
         if anwser in data:
@@ -130,29 +138,30 @@ async def wirte(gid:str,anwser:str) -> Optional[bool]:
             await c.write(str(json.dumps(contents)))
         return True
 
-async def delete(gid:str,anwser:str) -> Optional[bool]:
+
+async def delete(gid: str, answer: str) -> Optional[bool]:
     """
     删除词条
     :param gid: 群号
-    :param anwser: 词条
+    :param answer: 词条
     :return: bool
     """
     contents = await load()
     if gid in contents:
-        if anwser in contents[gid]:
+        if answer in contents[gid]:
             data = contents[gid]
-            data.remove(anwser)
+            data.remove(answer)
             if data:
                 contents[gid] = data
             else:
-                del(contents[gid])
+                del (contents[gid])
             async with aiofiles.open(config_json, mode='w') as c:
                 await c.write(str(json.dumps(contents)))
-            logger.info(f'群{gid}删除词条：{anwser}')
+            logger.info(f'群{gid}删除词条：{answer}')
             return True
 
         else:
-            logger.info(f'删除失败，群{gid}不存在词条：{anwser}')
+            logger.info(f'删除失败，群{gid}不存在词条：{answer}')
             return False
     else:
         logger.info(f'群{gid}从未配置过词条')

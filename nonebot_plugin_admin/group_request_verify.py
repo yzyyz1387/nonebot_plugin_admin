@@ -16,7 +16,6 @@ config_json=config_path+"admin.json"
 config_group=config_path+"group_admin.json"
 
 
-
 async def verify(word:str,group_id:str) -> Optional[bool]:
     """
     验证答案，验证消息必须大于等于答案长度的1/2
