@@ -11,11 +11,12 @@ from fuzzyfinder import fuzzyfinder
 import json
 import aiofiles
 from os.path import dirname
-config_path=dirname(__file__)+"/config/"
-config_json=config_path+"admin.json"
+
+config_path = dirname(__file__) + "/config/"
+config_json = config_path + "admin.json"
 
 
-async def verify(word:str,group_id:str) -> Optional[bool]:
+async def verify(word: str, group_id: str) -> Optional[bool]:
     """
     验证答案，验证消息必须大于等于答案长度的1/2
     :param word: 用户答案
@@ -26,14 +27,13 @@ async def verify(word:str,group_id:str) -> Optional[bool]:
         anwsers_ = await f.read()
         anwsers = json.loads(anwsers_)
     if group_id in anwsers:
-        anwser=anwsers[group_id]
+        anwser = anwsers[group_id]
         suggestions = fuzzyfinder(word, anwser)
-        result=list(suggestions)
-        if result and len(word)>=len(result[0])/2:
+        result = list(suggestions)
+        if result and len(word) >= len(result[0]) / 2:
             return True
         else:
             return False
     else:
         logger.info(f'群{group_id}从未配置审批词条，不进行操作')
         return None
-
