@@ -6,7 +6,7 @@
 # @File    : __init__.py.py
 # @Software: PyCharm
 import nonebot
-from nonebot import  on_command, on_request, logger
+from nonebot import on_command, on_request, logger
 from nonebot.adapters.onebot.v11 import Bot, GroupMessageEvent, GroupRequestEvent, MessageEvent
 from nonebot.adapters.onebot.v11.exception import ActionFailed
 from nonebot.adapters.onebot.v11.permission import GROUP_ADMIN, GROUP_OWNER, PRIVATE_FRIEND
@@ -30,7 +30,7 @@ admin_init = on_command("群管初始化", priority=1, block=True)
 
 
 @admin_init.handle()
-async def init(bot: Bot, event: MessageEvent, state: T_State = State()):
+async def init(bot: Bot, event: MessageEvent):
     """
     初始化配置文件
     :return:
@@ -77,7 +77,7 @@ gad = on_command('分管', aliases={"/gad", "/分群管理"}, priority=1, block=
 
 
 @gad.handle()
-async def _(bot: Bot, event: GroupMessageEvent, state: T_State = State()):
+async def _(bot: Bot, event: GroupMessageEvent):
     gid = str(event.group_id)
     admins = await approve.gadmin()
     rely = str(admins[gid])
@@ -89,7 +89,7 @@ su_g_admin = on_command('所有分管', aliases={"/sugad", "/su分群管理"}, p
 
 
 @su_g_admin.handle()
-async def _(bot: Bot, event: MessageEvent, state: T_State = State()):
+async def _(bot: Bot, event: MessageEvent):
     admins = await approve.gadmin()
     admins = str(admins)
     await su_g_admin.send(admins)
@@ -107,16 +107,16 @@ async def _(bot: Bot, event: GroupMessageEvent, state: T_State = State()):
     gid = str(event.group_id)
     if sb and "all" not in sb:
         for qq in sb:
-            gadmin_handle = await approve.gadmin_add(gid, int(qq))
-            if gadmin_handle:
+            g_admin_handle = await approve.gadmin_add(gid, int(qq))
+            if g_admin_handle:
                 await g_admin.send(f"{qq}已成为本群分群管理：将接收加群处理结果")
             else:
                 await g_admin.send(f"用户{qq}已存在")
     else:
         sb = str(state['_prefix']['command_arg']).split(" ")
         for qq in sb:
-            gadmin_handle = await approve.gadmin_add(gid, int(qq))
-            if gadmin_handle:
+            g_admin_handle = await approve.gadmin_add(gid, int(qq))
+            if g_admin_handle:
                 await g_admin.send(f"{qq}已成为本群分群管理：将接收加群处理结果")
             else:
                 await g_admin.send(f"用户{qq}已存在")
@@ -127,7 +127,7 @@ su_gad = g_admin = on_command('接收', priority=1, block=True, permission=SUPER
 
 
 @su_gad.handle()
-async def _(bot: Bot, event: MessageEvent, state: T_State = State()):
+async def _(bot: Bot, event: MessageEvent):
     status = await approve.su_on_off()
     if status:
         await su_gad.finish("已开启超管消息接收")
@@ -147,22 +147,22 @@ async def _(bot: Bot, event: GroupMessageEvent, state: T_State = State()):
     gid = str(event.group_id)
     if sb and "all" not in sb:
         for qq in sb:
-            gadmin_del_handle = await approve.gadmin_del(gid, int(qq))
-            if gadmin_del_handle:
+            g_admin_del_handle = await approve.gadmin_del(gid, int(qq))
+            if g_admin_del_handle:
                 await g_admin_.send(f"{qq}删除成功")
-            elif not gadmin_del_handle:
+            elif not g_admin_del_handle:
                 await g_admin_.send(f'{qq}还不是分群管理')
-            elif gadmin_del_handle is None:
+            elif g_admin_del_handle is None:
                 await g_admin_.send(f"群{gid}未添加过分群管理\n使用/gadmin+ [用户（可@ 可qq）]来添加分群管理")
     else:
         sb = str(state['_prefix']['command_arg']).split(" ")
         for qq in sb:
-            gadmin_del_handle = await approve.gadmin_del(gid, int(qq))
-            if gadmin_del_handle:
+            g_admin_del_handle = await approve.gadmin_del(gid, int(qq))
+            if g_admin_del_handle:
                 await g_admin_.send(f"{qq}删除成功")
-            elif not gadmin_del_handle:
+            elif not g_admin_del_handle:
                 await g_admin_.send(f'{qq}还不是分群管理')
-            elif gadmin_del_handle is None:
+            elif g_admin_del_handle is None:
                 await g_admin_.send(f"群{gid}未添加过分群管理\n使用/gadmin+ [用户（可@ 可qq）]来添加分群管理")
 
 
@@ -171,7 +171,7 @@ super_sp = on_command('所有词条', aliases={"/susp", "/su审批"}, priority=1
 
 
 @super_sp.handle()
-async def _(bot: Bot, event: MessageEvent, state: T_State = State()):
+async def _(bot: Bot, event: MessageEvent):
     answers = await approve.load()
     rely = ""
     for i in answers:
@@ -184,7 +184,7 @@ super_sp_add = on_command('指定词条+', aliases={"/susp+", "/su审批+"}, pri
 
 
 @super_sp_add.handle()
-async def _(bot: Bot, event: MessageEvent, state: T_State = State()):
+async def _(bot: Bot, event: MessageEvent):
     msg = str(event.get_message()).split()
     print(msg)
     logger.info(str(len(msg)), msg)
@@ -209,7 +209,7 @@ super_sp_de = on_command('指定词条-', aliases={"/susp-", "/su审批-"}, prio
 
 
 @super_sp_de.handle()
-async def _(bot: Bot, event: MessageEvent, state: T_State = State()):
+async def _(bot: Bot, event: MessageEvent):
     msg = str(event.get_message()).split()
     if len(msg) == 3:
         gid = msg[1]
@@ -233,7 +233,7 @@ check = on_command('查看词条', aliases={"/sp", "/审批"}, priority=1, block
 
 
 @check.handle()
-async def _(bot: Bot, event: GroupMessageEvent, state: T_State = State()):
+async def _(bot: Bot, event: GroupMessageEvent):
     """
     /sp 查看本群词条
     """
@@ -287,7 +287,7 @@ group_req = on_request(priority=1, block=True)
 
 
 @group_req.handle()
-async def gr_(bot: Bot, event: GroupRequestEvent, state: T_State = State()):
+async def gr_(bot: Bot, event: GroupRequestEvent):
     raw = json.loads(event.json())
     gid = str(event.group_id)
     flag = raw['flag']
@@ -341,7 +341,7 @@ async def gr_(bot: Bot, event: GroupRequestEvent, state: T_State = State()):
             await group_req.finish()
 
 
-async def banSb(gid: int, ban_list: list, time: int):
+async def banSb(gid: int, ban_list: list, **time: int):
     """
     构造禁言
     :param qq: qq
@@ -356,6 +356,8 @@ async def banSb(gid: int, ban_list: list, time: int):
             enable=True
         )
     else:
+        if not time:
+            time = random.randint(1, 2591999)
         for qq in ban_list:
             yield nonebot.get_bot().set_group_ban(
                 group_id=gid,
@@ -364,11 +366,11 @@ async def banSb(gid: int, ban_list: list, time: int):
             )
 
 
-ban = on_command('禁', priority=1, block=True, permission=SUPERUSER)
+ban = on_command('禁', priority=1, block=True, permission=SUPERUSER|GROUP_ADMIN | GROUP_OWNER)
 
 
 @ban.handle()
-async def _(bot: Bot, event: GroupMessageEvent, state: T_State = State()):
+async def _(bot: Bot, event: GroupMessageEvent):
     """
     /禁 @user 禁言
     """
@@ -386,33 +388,27 @@ async def _(bot: Bot, event: GroupMessageEvent, state: T_State = State()):
                     except ActionFailed:
                         await ban.finish("权限不足")
                     else:
-                        logger.info("操作成功")
+                        logger.info("禁言操作成功")
         else:
-            if 'all' not in sb:
-                time = random.randint(1, 2591999)
-                baning = banSb(gid, ban_list=sb, time=time)
-                async for baned in baning:
-                    if baned:
-                        try:
-                            await baned
-                        except ActionFailed:
-                            await ban.finish("权限不足")
-                        else:
-                            await ban.finish(f"该用户已被随机禁{time}秒")
-            else:
-                await bot.set_group_whole_ban(
-                    group_id=gid,
-                    enable=True
-                )
+            baning = banSb(gid, ban_list=sb)
+            async for baned in baning:
+                if baned:
+                    try:
+                        await baned
+                    except ActionFailed:
+                        await ban.finish("权限不足")
+                    else:
+                        logger.info("禁言操作成功")
+                await ban.send(f"该用户已被禁言随机时长")
     else:
         pass
 
 
-unban = on_command("解", priority=1, block=True, permission=SUPERUSER)
+unban = on_command("解", priority=1, block=True, permission=SUPERUSER|GROUP_ADMIN | GROUP_OWNER)
 
 
 @unban.handle()
-async def _(bot: Bot, event: GroupMessageEvent, state: T_State = State()):
+async def _(bot: Bot, event: GroupMessageEvent):
     """
     /解 @user 解禁
     """
@@ -429,14 +425,14 @@ async def _(bot: Bot, event: GroupMessageEvent, state: T_State = State()):
                     except ActionFailed:
                         await ban.finish("权限不足")
                     else:
-                        logger.info("操作成功")
+                        logger.info("解禁操作成功")
 
 
-all = on_command("/all", permission=SUPERUSER, priority=1, block=True)
+ban_all = on_command("/all", permission=SUPERUSER | GROUP_ADMIN | GROUP_OWNER, priority=1, block=True)
 
 
-@all.handle()
-async def _(bot: Bot, event: GroupMessageEvent, state: T_State = State()):
+@ban_all.handle()
+async def _(bot: Bot, event: GroupMessageEvent):
     """
     （测试时没用..）
     /all 全员禁言
@@ -458,11 +454,11 @@ async def _(bot: Bot, event: GroupMessageEvent, state: T_State = State()):
         logger.info(f"全体操作成功 {str(enable)}")
 
 
-change = on_command('改', permission=SUPERUSER, priority=1, block=True)
+change = on_command('改', permission=SUPERUSER|GROUP_ADMIN | GROUP_OWNER, priority=1, block=True)
 
 
 @change.handle()
-async def _(bot: Bot, event: GroupMessageEvent, state: T_State = State()):
+async def _(bot: Bot, event: GroupMessageEvent):
     """
     /改 @user xxx 改群昵称
     """
@@ -486,11 +482,11 @@ async def _(bot: Bot, event: GroupMessageEvent, state: T_State = State()):
             await change.finish("一次仅可更改一位群员的昵称")
 
 
-title = on_command('头衔', permission=SUPERUSER, priority=1, block=True)
+title = on_command('头衔', permission=SUPERUSER | GROUP_OWNER, priority=1, block=True)
 
 
 @title.handle()
-async def _(bot: Bot, event: GroupMessageEvent, state: T_State = State()):
+async def _(bot: Bot, event: GroupMessageEvent):
     """
     /头衔 @user  xxx  给某人头衔
     """
@@ -517,11 +513,11 @@ async def _(bot: Bot, event: GroupMessageEvent, state: T_State = State()):
             await title.finish("未填写头衔名称 或 不能含有@全体成员")
 
 
-title_ = on_command('删头衔', permission=SUPERUSER, priority=1, block=True)
+title_ = on_command('删头衔', permission=SUPERUSER|GROUP_ADMIN | GROUP_OWNER, priority=1, block=True)
 
 
 @title_.handle()
-async def _(bot: Bot, event: GroupMessageEvent, state: T_State = State()):
+async def _(bot: Bot, event: GroupMessageEvent):
     """
     /删头衔 @user 删除头衔
     """
@@ -531,7 +527,7 @@ async def _(bot: Bot, event: GroupMessageEvent, state: T_State = State()):
     sb = At(event.json())
     gid = event.group_id
     if sb:
-        if len(msg.split()) == len(sb) and 'all' not in sb:
+        if len(msg.split()) == len(sb) + 1 and 'all' not in sb:
             try:
                 for qq in sb:
                     await bot.set_group_special_title(
@@ -548,11 +544,11 @@ async def _(bot: Bot, event: GroupMessageEvent, state: T_State = State()):
             await title_.finish("未填写头衔名称 或 不能含有@全体成员")
 
 
-kick = on_command('踢', permission=SUPERUSER, priority=1, block=True)
+kick = on_command('踢', permission=SUPERUSER|GROUP_ADMIN | GROUP_OWNER, priority=1, block=True)
 
 
 @kick.handle()
-async def _(bot: Bot, event: GroupMessageEvent, state: T_State = State()):
+async def _(bot: Bot, event: GroupMessageEvent):
     """
     /踢 @user 踢出某人
     """
@@ -560,7 +556,7 @@ async def _(bot: Bot, event: GroupMessageEvent, state: T_State = State()):
     sb = At(event.json())
     gid = event.group_id
     if sb:
-        if len(msg.split()) == len(sb) and 'all' not in sb:
+        if len(msg.split()) == len(sb) + 1 and 'all' not in sb:
             try:
                 for qq in sb:
                     await bot.set_group_kick(
@@ -576,19 +572,19 @@ async def _(bot: Bot, event: GroupMessageEvent, state: T_State = State()):
             await kick.finish("不能含有@全体成员")
 
 
-kick_ = on_command('黑', permission=SUPERUSER, priority=1, block=True)
+kick_ = on_command('黑', permission=SUPERUSER|GROUP_ADMIN | GROUP_OWNER, priority=1, block=True)
 
 
 @kick_.handle()
-async def _(bot: Bot, event: GroupMessageEvent, state: T_State = State()):
+async def _(bot: Bot, event: GroupMessageEvent):
     """
-    /黑 @user 踢出并拉黑某人
+    黑 @user 踢出并拉黑某人
     """
     msg = str(event.get_message())
     sb = At(event.json())
     gid = event.group_id
     if sb:
-        if len(msg.split()) == len(sb) and 'all' not in sb:
+        if len(msg.split()) == len(sb) + 1 and 'all' not in sb:
             try:
                 for qq in sb:
                     await bot.set_group_kick(
@@ -604,34 +600,76 @@ async def _(bot: Bot, event: GroupMessageEvent, state: T_State = State()):
             await kick_.finish("不能含有@全体成员")
 
 
+set_g_admin = on_command("管理员+", permission=SUPERUSER | GROUP_OWNER, block=True)
+
+
+@set_g_admin.handle()
+async def _(bot: Bot, event: GroupMessageEvent):
+    """
+    管理员+ @user 添加群管理员
+    """
+    msg = str(event.get_message())
+    logger.info(msg)
+    logger.info(msg.split())
+    sb = At(event.json())
+    logger.info(sb)
+    gid = event.group_id
+    if sb:
+        if len(msg.split()) == len(sb) + 1 and 'all' not in sb:
+            try:
+                for qq in sb:
+                    await bot.set_group_admin(
+                        group_id=gid,
+                        user_id=int(qq),
+                        enable=True
+                    )
+            except ActionFailed:
+                await set_g_admin.finish("权限不足")
+            else:
+                logger.info(f"设置管理员操作成功")
+                await set_g_admin.finish("设置管理员操作成功")
+        else:
+            await set_g_admin.finish("指令不正确 或 不能含有@全体成员")
+
+
+unset_g_admin = on_command("管理员-", permission=SUPERUSER | GROUP_OWNER, block=True)
+
+
+@unset_g_admin.handle()
+async def _(bot: Bot, event: GroupMessageEvent):
+    """
+    管理员+ @user 添加群管理员
+    """
+    msg = str(event.get_message())
+    logger.info(msg)
+    logger.info(msg.split())
+    sb = At(event.json())
+    logger.info(sb)
+    gid = event.group_id
+    if sb:
+        if len(msg.split()) == len(sb) + 1 and 'all' not in sb:
+            try:
+                for qq in sb:
+                    await bot.set_group_admin(
+                        group_id=gid,
+                        user_id=int(qq),
+                        enable=True
+                    )
+            except ActionFailed:
+                await unset_g_admin.finish("权限不足")
+            else:
+                logger.info(f"取消管理员操作成功")
+                await unset_g_admin.finish("取消管理员操作成功")
+        else:
+            await unset_g_admin.finish("指令不正确 或 不能含有@全体成员")
+
+
 __usage__ = """
 【初始化】：
   群管初始化 ：初始化插件
-  
-【加群自动审批】：
-群内发送 permission=GROUP_ADMIN | GROUP_OWNER | SUPERUSER
-  查看词条 ： 查看本群审批词条   或/审批
-  词条+ [词条] ：增加审批词条 或/审批+
-  词条- [词条] ：删除审批词条 或/审批-
-  
-【superuser】：
-  所有词条 ：  查看所有审批词条   或/su审批
-  指定词条+ [群号] [词条] ：增加指定群审批词条 或/su审批+
-  指定词条- [群号] [词条] ：删除指定群审批词条 或/su审批-
-  自动审批处理结果将发送给superuser
 
-【分群管理员设置】
-群内发送 permission=GROUP_ADMIN | GROUP_OWNER | SUPERUSER
-  分管+ [user] ：user可用@或qq 添加分群管理员
-  分管- [user] ：删除分群管理员
-  查看分管 ：查看本群分群管理员
-  
-群内或私聊 permission=SUPERUSER
-  所有分管 ：查看所有分群管理员
-  群管接收 ：打开或关闭超管消息接收（关闭则审批结果不会发送给superusers）
-    
 【群管】：
-权限：permission=SUPERUSER
+权限：permission=SUPERUSER | GROUP_ADMIN | GROUP_OWNER
   禁言:
     禁 @某人 时间（s）[1,2591999]
     禁 @某人 缺省时间则随机
@@ -649,6 +687,32 @@ __usage__ = """
     踢 @某人
   踢出并拉黑：
    黑 @某人
+   
+【管理员】permission=SUPERUSER | GROUP_OWNER
+  管理员+ @xxx 设置某人为管理员
+  管医院- @xxx 取消某人管理员
+  
+【加群自动审批】：
+群内发送 permission=GROUP_ADMIN | GROUP_OWNER | SUPERUSER
+  查看词条 ： 查看本群审批词条   或/审批
+  词条+ [词条] ：增加审批词条 或/审批+
+  词条- [词条] ：删除审批词条 或/审批-
+
+【superuser】：
+  所有词条 ：  查看所有审批词条   或/su审批
+  指定词条+ [群号] [词条] ：增加指定群审批词条 或/su审批+
+  指定词条- [群号] [词条] ：删除指定群审批词条 或/su审批-
+  自动审批处理结果将发送给superuser
+
+【分群管理员设置】*分管：可以接受加群处理结果消息的用户
+群内发送 permission=GROUP_ADMIN | GROUP_OWNER | SUPERUSER
+  分管+ [user] ：user可用@或qq 添加分群管理员
+  分管- [user] ：删除分群管理员
+  查看分管 ：查看本群分群管理员
+
+群内或私聊 permission=SUPERUSER
+  所有分管 ：查看所有分群管理员
+  群管接收 ：打开或关闭超管消息接收（关闭则审批结果不会发送给superusers）
 """
 __help_plugin_name__ = "简易群管"
 
