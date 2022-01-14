@@ -62,7 +62,7 @@ _✨ NoneBot2 简易群管_ ✨_
    
 【管理员】permission=SUPERUSER | GROUP_OWNER
   管理员+ @xxx 设置某人为管理员
-  管医院- @xxx 取消某人管理员
+  管理员- @xxx 取消某人管理员
   
 【加群自动审批】：
 群内发送 permission=GROUP_ADMIN | GROUP_OWNER | SUPERUSER
