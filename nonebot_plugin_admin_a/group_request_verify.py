@@ -24,11 +24,11 @@ async def verify(word: str, group_id: str) -> Optional[bool]:
     :return: bool
     """
     async with aiofiles.open(config_json, mode='r') as f:
-        anwsers_ = await f.read()
-        anwsers = json.loads(anwsers_)
-    if group_id in anwsers:
-        anwser = anwsers[group_id]
-        suggestions = fuzzyfinder(word, anwser)
+        answers_ = await f.read()
+        answers = json.loads(answers_)
+    if group_id in answers:
+        answer = answers[group_id]
+        suggestions = fuzzyfinder(word, answer)
         result = list(suggestions)
         if result and len(word) >= len(result[0]) / 2:
             return True

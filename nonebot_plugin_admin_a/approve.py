@@ -27,7 +27,7 @@ async def load() -> Optional[dict]:
         return contents
 
 
-async def gadmin():
+async def g_admin():
     """
     :return : 分群管理json对象
     """
@@ -37,7 +37,7 @@ async def gadmin():
     return admins
 
 
-async def gadmin_add(gid: str, qq: int) -> Optional[bool]:
+async def g_admin_add(gid: str, qq: int) -> Optional[bool]:
     """
 
     添加分群管理（处理加群请求时接收处理结果）
@@ -45,15 +45,15 @@ async def gadmin_add(gid: str, qq: int) -> Optional[bool]:
     :param qq: qq
     :return: bool
     """
-    admins = await gadmin()
+    admins = await g_admin()
     if gid in admins:
         if qq in admins[gid]:
             logger.info(f'{qq}已经是群{gid}的分群管理了')
             return False
         else:
-            gadmins = admins[gid]
-            gadmins.append(qq)
-            admins[gid] = gadmins
+            g_admins = admins[gid]
+            g_admins.append(qq)
+            admins[gid] = g_admins
             async with aiofiles.open(config_group, mode='w') as c:
                 await c.write(str(json.dumps(admins)))
             logger.info(f"群{gid}添加分群管理：{qq}")
@@ -66,14 +66,14 @@ async def gadmin_add(gid: str, qq: int) -> Optional[bool]:
         return True
 
 
-async def gadmin_del(gid: str, qq: int) -> Optional[bool]:
+async def g_admin_del(gid: str, qq: int) -> Optional[bool]:
     """
     删除分群管理
     :param gid: 群号
     :param qq: qq
     :return: bool
     """
-    admins = await gadmin()
+    admins = await g_admin()
     if gid in admins:
         if qq in admins[gid]:
             logger.info(f'已删除群{gid}的分群管理{qq}')
@@ -95,7 +95,7 @@ async def gadmin_del(gid: str, qq: int) -> Optional[bool]:
 
 
 async def su_on_off() -> Optional[bool]:
-    admins = await gadmin()
+    admins = await g_admin()
     if admins['su'] == 'False':
         admins['su'] = 'True'
         logger.info("打开超管消息接收")
@@ -110,30 +110,30 @@ async def su_on_off() -> Optional[bool]:
         return False
 
 
-async def write(gid: str, anwser: str) -> Optional[bool]:
+async def write(gid: str, answer: str) -> Optional[bool]:
     """
     写入词条
     :param gid: 群号
-    :param anwser: 词条
+    :param answer: 词条
     :return: bool
     """
     contents = await load()
     if gid in contents:
         data = contents[gid]
-        if anwser in data:
-            logger.info(f'{anwser} 已存在于群{gid}的词条中')
+        if answer in data:
+            logger.info(f'{answer} 已存在于群{gid}的词条中')
             return False
         else:
-            data.append(anwser)
+            data.append(answer)
             contents[gid] = data
             async with aiofiles.open(config_json, mode='w') as c:
                 await c.write(str(json.dumps(contents)))
-            logger.info(f"群{gid}添加入群审批词条：{anwser}")
+            logger.info(f"群{gid}添加入群审批词条：{answer}")
             return True
 
     else:
-        logger.info(f'群{gid}第一次配置此词条：{anwser}')
-        contents.update({gid: [anwser]})
+        logger.info(f'群{gid}第一次配置此词条：{answer}')
+        contents.update({gid: [answer]})
         async with aiofiles.open(config_json, mode='w') as c:
             await c.write(str(json.dumps(contents)))
         return True
