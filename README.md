@@ -90,7 +90,7 @@ _✨ NoneBot2 简易群管_ ✨_
 【群词云统计】
 该功能所用库 wordcloud 未写入依赖，请自行安装
 群内发送：
-  记录本群 ： 开始统计本群信息
+  记录本群 ： 开始统计本群信息 permission=GROUP_ADMIN | GROUP_OWNER | SUPERUSER
   群词云 ： 发送词云图片
 ```
 
