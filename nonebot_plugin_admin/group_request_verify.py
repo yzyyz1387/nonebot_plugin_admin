@@ -28,8 +28,8 @@ async def verify(word: str, group_id: str) -> Optional[bool]:
         answers_ = await f.read()
         answers = json.loads(answers_)
     if group_id in answers:
-        anwser = answers[group_id]
-        suggestions = fuzzyfinder(word, anwser)
+        answer = answers[group_id]
+        suggestions = fuzzyfinder(word, answer)
         result = list(suggestions)
         if result and len(word) >= len(result[0]) / 2:
             return True
