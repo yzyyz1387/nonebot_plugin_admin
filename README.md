@@ -99,6 +99,8 @@ _✨ NoneBot2 简易群管_ ✨_
 ## TODO
 
 - 潜水查询
+- 关键词禁言，图片鉴黄，恶意检测[#issues3](https://github.com/yzyyz1387/nonebot_plugin_admin/issues/3)
+- 群聊内容分析
 - 其他功能...  
 
 ##  更新
