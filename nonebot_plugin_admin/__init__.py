@@ -14,11 +14,9 @@ from nonebot.permission import SUPERUSER
 from . import approve
 from .utils import At, banSb
 from .group_request_verify import verify
-from os.path import dirname
+from . import approve, group_request_verify, group_request, notice, utils, word_analyze
 
-nonebot.load_plugins(dirname(__file__))
 su = nonebot.get_driver().config.superusers
-
 ban = on_command('禁', priority=1, block=True, permission=SUPERUSER | GROUP_ADMIN | GROUP_OWNER)
 
 
