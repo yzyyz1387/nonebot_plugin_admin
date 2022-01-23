@@ -7,7 +7,7 @@
 # @Software: PyCharm
 
 from nonebot import on_command, logger, on_message
-from nonebot.adapters.cqhttp import Bot, GroupMessageEvent, MessageSegment
+from nonebot.adapters.onebot.v11 import Bot, GroupMessageEvent, MessageSegment
 from nonebot.adapters.onebot.v11.permission import GROUP_ADMIN, GROUP_OWNER
 from nonebot.permission import SUPERUSER
 from .utils import init, replace_tmr
