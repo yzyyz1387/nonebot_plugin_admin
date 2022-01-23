@@ -35,7 +35,7 @@ _✨ NoneBot2 简易群管_ ✨_
 
 - 关于命令，对/sp这类`斜杠+英文`的命令做了保留，汉字命令去除了`/`若使用者担心错误触发，可下载源码自行修改`__init__.py`
 - 为了防止错误触发，相同操作的` +` ` -`都写(复制)了两段代码 
-- 群词云功能所用库 wordcloud 未写入依赖，请自行安装：[WordCloud 第三方库安装失败原因及解决方法](https://www.freesion.com/article/4756295761/)
+- 群词云功能所用库 wordcloud 未写入依赖，请自行安装：`pip install wordcloud` 安装失败参考：[WordCloud 第三方库安装失败原因及解决方法](https://www.freesion.com/article/4756295761/)
 
 ```
 【初始化】：
@@ -90,7 +90,7 @@ _✨ NoneBot2 简易群管_ ✨_
 【群词云统计】
 该功能所用库 wordcloud 未写入依赖，请自行安装
 群内发送：
-  记录本群 ： 开始统计本群信息
+  记录本群 ： 开始统计本群信息 permission=GROUP_ADMIN | GROUP_OWNER | SUPERUSER
   群词云 ： 发送词云图片
 ```
 
