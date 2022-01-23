@@ -10,11 +10,11 @@ from typing import Optional
 from fuzzyfinder import fuzzyfinder
 import json
 import aiofiles
-from os.path import dirname
+from pathlib import Path
 
-config_path = dirname(__file__) + "/config/"
-config_json = config_path + "admin.json"
-config_group = config_path + "group_admin.json"
+config_path = Path() / "config"
+config_json = config_path / "admin.json"
+config_group = config_path / "group_admin.json"
 
 
 async def verify(word: str, group_id: str) -> Optional[bool]:

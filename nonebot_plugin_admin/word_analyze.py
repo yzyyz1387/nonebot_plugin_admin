@@ -14,11 +14,12 @@ from .utils import init, replace_tmr
 from pathlib import Path
 import os
 from os.path import dirname
+from pathlib import Path
 
-config_path = dirname(__file__) + "/config/"
-word_path = config_path + "word_config.txt"
-words_path = config_path = dirname(__file__) + "/config/words/"
-img_path = dirname(__file__) + "/resource/imgs/"
+config_path = Path() / "config"
+word_path = config_path / "word_config.txt"
+words_path = Path() / "config" / "words"
+img_path = Path() / "resource" / "imgs"
 
 word_start = on_command("记录本群", block=True, priority=2, permission=GROUP_ADMIN | GROUP_OWNER | SUPERUSER)
 
@@ -53,7 +54,7 @@ async def _(bot: Bot, event: GroupMessageEvent):
     """
     gid = str(event.group_id)
     msg = str(event.get_message()).replace(" ", "")
-    path_temp = config_path + str(gid) + ".txt"
+    path_temp = config_path / f"{str(gid)}.txt"
     txt = open(word_path, "r", encoding="utf-8").read().split("\n")
     if gid in txt:
         msg = await replace_tmr(msg)
@@ -68,18 +69,18 @@ cloud = on_command("群词云", priority=3)
 async def _(bot: Bot, event: GroupMessageEvent):
     from wordcloud import WordCloud
     import jieba
-    ttf_name = dirname(__file__) + "/resource/msyhblod.ttf"
+    ttf_name = Path() / "resource" / "msyhblod.ttf"
     gid = str(event.group_id)
-    path_temp = words_path + str(gid) + ".txt"
+    path_temp = words_path / f"{str(gid)}.txt"
     dir_list = os.listdir(words_path)
     if gid + ".txt" in dir_list:
         text = open(path_temp).read()
         txt = jieba.lcut(text)
         string = " ".join(txt)
         try:
-            wc = WordCloud(font_path=ttf_name, width=800, height=600, mode='RGBA', background_color="#ffffff").generate(
+            wc = WordCloud(font_path=str(ttf_name.resolve()), width=800, height=600, mode='RGBA', background_color="#ffffff").generate(
                 string)
-            img = Path(img_path + gid + ".png")
+            img = Path(img_path / f"{gid}.png")
             wc.to_file(img)
             await cloud.send(MessageSegment.image(img))
         except Exception as err:

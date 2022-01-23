@@ -10,18 +10,18 @@ import nonebot
 import random
 import os
 import re
-from os.path import dirname
 from nonebot import logger
 import httpx
+from pathlib import Path
 
-config_path = dirname(__file__) + "/config/"
-config_json = config_path + "admin.json"
-config_group = config_path + "group_admin.json"
-word_path = config_path + "word_config.txt"
-words_path = dirname(__file__) + "/config/words/"
-res_path = dirname(__file__) + "/resource/"
-re_img_path = dirname(__file__) + "/resource/imgs"
-ttf_name = dirname(__file__) + "/resource/msyhblod.ttf"
+config_path = Path() / "config"
+config_json = config_path / "admin.json"
+config_group = config_path / "group_admin.json"
+word_path = config_path / "word_config.txt"
+words_path = Path() / "config" / "words"
+res_path = Path() / "resource"
+re_img_path = Path() / "resource" / "imgs"
+ttf_name = Path() / "resource" / "msyhblod.ttf"
 
 
 def At(data: str):

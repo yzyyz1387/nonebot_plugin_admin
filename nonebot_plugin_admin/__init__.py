@@ -7,7 +7,7 @@
 # @Software: PyCharm
 import nonebot
 from nonebot import on_command, logger
-from nonebot.adapters.onebot.v11 import Bot, GroupMessageEvent, MessageEvent
+from nonebot.adapters.onebot.v11 import Bot, GroupMessageEvent
 from nonebot.adapters.onebot.v11.exception import ActionFailed
 from nonebot.adapters.onebot.v11.permission import GROUP_ADMIN, GROUP_OWNER
 from nonebot.permission import SUPERUSER
@@ -15,8 +15,8 @@ from . import approve
 from .utils import At, banSb
 from .group_request_verify import verify
 from . import approve, group_request_verify, group_request, notice, utils, word_analyze
-
 su = nonebot.get_driver().config.superusers
+
 ban = on_command('禁', priority=1, block=True, permission=SUPERUSER | GROUP_ADMIN | GROUP_OWNER)
 
 
@@ -327,7 +327,7 @@ __usage__ = """
     禁 @某人 0 可解禁
     解 @某人
   全群禁言（好像没用？）
-    /all 
+    /all
     /all 解
   改名片
     改 @某人 名片
@@ -338,11 +338,11 @@ __usage__ = """
     踢 @某人
   踢出并拉黑：
    黑 @某人
-   
+
 【管理员】permission=SUPERUSER | GROUP_OWNER
   管理员+ @xxx 设置某人为管理员
   管医院- @xxx 取消某人管理员
-  
+
 【加群自动审批】：
 群内发送 permission=GROUP_ADMIN | GROUP_OWNER | SUPERUSER
   查看词条 ： 查看本群审批词条   或/审批

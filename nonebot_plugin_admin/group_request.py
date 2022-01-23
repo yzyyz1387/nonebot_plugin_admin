@@ -16,13 +16,13 @@ from . import approve
 from .group_request_verify import verify
 import json
 import re
-from os.path import dirname
+from pathlib import Path
 
 su = nonebot.get_driver().config.superusers
-config_path = dirname(__file__) + "/config/"
-config_json = config_path + "admin.json"
-config_group = config_path + "group_admin.json"
-word_path = config_path + "word_config.txt"
+config_path = Path() / "config"
+config_json = config_path / "admin.json"
+config_group = config_path / "group_admin.json"
+word_path = config_path / "word_config.txt"
 
 # 查看所有审批词条
 super_sp = on_command('所有词条', aliases={"/susp", "/su审批"}, priority=1, block=True, permission=SUPERUSER)

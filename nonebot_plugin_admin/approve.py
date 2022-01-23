@@ -8,14 +8,14 @@
 import os.path
 from typing import Optional
 import aiofiles
-from os.path import dirname
 import json
 from nonebot import logger
 from .utils import init
+from pathlib import Path
 
-config_path = dirname(__file__) + "/config/"
-config_json = config_path + "admin.json"
-config_group = config_path + "group_admin.json"
+config_path = Path() / "config"
+config_json = config_path / "admin.json"
+config_group = config_path / "group_admin.json"
 
 
 async def load() -> Optional[dict]:
