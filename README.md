@@ -104,12 +104,14 @@ _✨ NoneBot2 简易群管_ ✨_
 暂无
 
 ## TODO
-
-- 潜水查询
-- 关键词禁言，图片鉴黄，恶意检测[#issues3](https://github.com/yzyyz1387/nonebot_plugin_admin/issues/3)
-- 群聊内容分析
-- b1改名片bug
-- 其他功能...  
+- [x] 加群自动审批[#issues1](https://github.com/yzyyz1387/nonebot_plugin_admin/issues/1)
+- [x] /sp在未配置群聊中的提示  
+- [x] /删头衔bug修复  
+- [x] 加群处理状态分群分用户发送[#issues2](https://github.com/yzyyz1387/nonebot_plugin_admin/issues/2)
+- [ ] 潜水查询
+- [ ] 关键词禁言，图片鉴黄，恶意检测[#issues3](https://github.com/yzyyz1387/nonebot_plugin_admin/issues/3)
+- [ ] 群聊内容分析
+- [ ] 其他功能...  
 
 ##  更新
 
