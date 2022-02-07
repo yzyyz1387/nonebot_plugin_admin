@@ -17,7 +17,7 @@ from .utils import init, banSb
 config_path = Path() / "config"
 limit_word_path = config_path / "违禁词.txt"
 
-f_word = on_message(priority=1)
+f_word = on_message(priority=1,block=False)
 
 
 @f_word.handle()
@@ -31,13 +31,13 @@ async def _(bot: Bot, event: GroupMessageEvent):
     if not os.path.exists(limit_word_path):
         await init()
     gid = event.group_id
-    uid = [event.get_user_id]
+    uid = [event.get_user_id()]
     eid = event.message_id
     msg = str(event.get_message()).replace(" ", "")
     f_words = open(limit_word_path, 'r', encoding='utf-8').read().split('\n')
     for words in f_words:
         if words and words in msg:
-            logger.info(f"敏感词触发{words}")
+            logger.info(f"敏感词触发:\"{words}\"")
             try:
                 await bot.delete_msg(message_id=eid)
                 logger.info('检测到违禁词，撤回')

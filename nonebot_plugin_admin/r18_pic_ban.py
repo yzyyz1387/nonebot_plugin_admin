@@ -11,7 +11,7 @@ from nonebot.adapters.onebot.v11.exception import ActionFailed
 
 from .utils import pic_ban_cof, banSb
 
-find_pic = on_message(priority=1, block=False)
+find_pic = on_message(priority=2, block=False)
 
 
 @find_pic.handle()
@@ -19,7 +19,6 @@ async def check_pic(bot: Bot, event: GroupMessageEvent):
     uid = [event.get_user_id()]
     gid = event.group_id
     eid = event.message_id
-    print(uid)
     if isinstance(event, MessageEvent):
         for msg in event.message:
             if msg.type == "image":
