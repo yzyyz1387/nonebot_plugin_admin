@@ -6,7 +6,7 @@
 
 # 简易群管
 
-_✨ NoneBot2 简易群管_ ✨_
+_✨ NoneBot2 (有点不)简易群管_ ✨_
 
 </div>
 
@@ -18,7 +18,7 @@ _✨ NoneBot2 简易群管_ ✨_
 ## 安装💿
 `pip install nonebot-plugin-admin`
 
-请注意与nonebot版本适配，匹配请查看：[更新](https://github.com/yzyyz1387/nonebot_plugin_admin#%E6%9B%B4%E6%96%B0-1)
+请注意与nonebot版本适配，匹配请查看：[更新](#%E6%9B%B4%E6%96%B0-1)
 
 ## 更新
 
@@ -36,7 +36,7 @@ _✨ NoneBot2 简易群管_ ✨_
 - 关于命令，对/sp这类`斜杠+英文`的命令做了保留，汉字命令去除了`/`若使用者担心错误触发，可下载源码自行修改`__init__.py`
 - 为了防止错误触发，相同操作的` +` ` -`都写(复制)了两段代码 
 - 群词云功能所用库 wordcloud 未写入依赖，请自行安装：`pip install wordcloud` 安装失败参考：[WordCloud 第三方库安装失败原因及解决方法](https://www.freesion.com/article/4756295761/)
-
+- 除了记录聊天的matcher权重为**10**，其他功能权重皆为**1**
 ```
 【初始化】：
   群管初始化 ：初始化插件
@@ -90,36 +90,50 @@ _✨ NoneBot2 简易群管_ ✨_
 【群词云统计】
 该功能所用库 wordcloud 未写入依赖，请自行安装
 群内发送：
-  记录本群 ： 开始统计本群信息 permission=GROUP_ADMIN | GROUP_OWNER | SUPERUSER
+  记录本群 ： 开始统计聊天记录 permission=GROUP_ADMIN | GROUP_OWNER | SUPERUSER
+  停止记录本群 ：停止统计聊天记录
   群词云 ： 发送词云图片
+  
+【被动识别】
+涩图检测：将禁言随机时间
+违禁词检测：将禁言随机时间
 ```
 
 **给个star吧~**
 
-其他插件
-[it咨询](https://github.com/yzyyz1387/nonebot_plugin_itnews "it资讯")  [工作性价比](https://github.com/yzyyz1387/nonebot_plugin_workscore)  [在线运行代码](https://github.com/yzyyz1387/nonebot_plugin_code)
+### 其他插件
+- [随机黑丝](https://github.com/yzyyz1387/nonebot_plugin_heisi "随机黑丝") 
+- [工作性价比](https://github.com/yzyyz1387/nonebot_plugin_workscore) 
+- [在线运行代码](https://github.com/yzyyz1387/nonebot_plugin_code)
 
 ## 截图🖼
 
 暂无
 
 ## TODO
-
-- 潜水查询
-- 关键词禁言，图片鉴黄，恶意检测[#issues3](https://github.com/yzyyz1387/nonebot_plugin_admin/issues/3)
-- 群聊内容分析
-- b1改名片bug
-- 其他功能...  
+- [x] 加群自动审批[#issues1](https://github.com/yzyyz1387/nonebot_plugin_admin/issues/1)
+- [x] /sp在未配置群聊中的提示  
+- [x] /删头衔bug修复  
+- [x] 加群处理状态分群分用户发送[#issues2](https://github.com/yzyyz1387/nonebot_plugin_admin/issues/2)
+- [ ] 潜水查询
+- [ ] 关键词禁言，图片鉴黄，恶意检测[#issues3](https://github.com/yzyyz1387/nonebot_plugin_admin/issues/3)
+- [ ] 群聊内容分析
+- [ ] 其他功能...
 
 ##  更新
+
+- 0.3.8（b1）
+  - 修复启动时`word_analyze`报错
+  - 修复词云路径错误
+  - 分词优化
+  - 图片鉴黄
+  - 违禁词检测 违禁词词库整理上传于：[f_words](https://github.com/yzyyz1387/nwafu/tree/main/f_words)
 
 - 0.3.6（b1)
   - 修复适配错误
   - 补充依赖
-
 - 0.3.5（a16）
   - 补充依赖（谁教教我项目管理..
-
 - 0.3.4 （b1)
 - 0.3.3（a16)
   - 修复导入错误
