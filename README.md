@@ -115,8 +115,9 @@ _✨ NoneBot2 (有点不)简易群管_ ✨_
 - [x] /sp在未配置群聊中的提示  
 - [x] /删头衔bug修复  
 - [x] 加群处理状态分群分用户发送[#issues2](https://github.com/yzyyz1387/nonebot_plugin_admin/issues/2)
-- [x] 关键词禁言，图片鉴黄，[#issues3](https://github.com/yzyyz1387/nonebot_plugin_admin/issues/3)
+- [x] 关键词禁言，图片鉴黄（简单实现），[#issues3](https://github.com/yzyyz1387/nonebot_plugin_admin/issues/3)
 - [ ] 恶意检测， [#issues3](https://github.com/yzyyz1387/nonebot_plugin_admin/issues/3)
+- [ ] 鉴黄置信度呈现
 - [ ] 潜水查询
 - [ ] 群聊内容分析
 - [ ] 其他功能...
