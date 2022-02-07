@@ -25,6 +25,9 @@ res_path = Path() / "resource"
 re_img_path = Path() / "resource" / "imgs"
 ttf_name = Path() / "resource" / "msyhblod.ttf"
 limit_word_path = config_path / "违禁词.txt"
+limit_word_path_easy = config_path / "违禁词_简单.txt"
+limit_level = config_path / "违禁词监控等级.json"
+
 
 
 def At(data: str):
@@ -87,12 +90,30 @@ async def init():
             tfn.write(r)
             tfn.close()
     if not os.path.exists(limit_word_path):
-        logger.info("下载违禁词库")
+        logger.info("下载严格违禁词库")
         async with httpx.AsyncClient() as client:
-            r = (await client.get(url="https://cdn.jsdelivr.net/gh/yzyyz1387/nwafu/f_words/f_word")).text
+            r = (await client.get(url="https://cdn.jsdelivr.net/gh/yzyyz1387/nwafu/f_words/f_word_s")).text
         with open(limit_word_path, "w",encoding='utf-8') as lwp:
             lwp.write(r)
             lwp.close()
+    if not os.path.exists(limit_word_path_easy):
+        logger.info("下载简单违禁词库")
+        async with httpx.AsyncClient() as client:
+            r = (await client.get(url="https://cdn.jsdelivr.net/gh/yzyyz1387/nwafu/f_words/f_word_easy")).text
+        with open(limit_word_path_easy, "w",encoding='utf-8') as lwp:
+            lwp.write(r)
+            lwp.close()
+    if not os.path.exists(limit_level):
+        bot = nonebot.get_bot()
+        logger.info("创建违禁词监控等级配置文件,分群设置,默认easy")
+        g_list = (await bot.get_group_list())
+        level_dict={}
+        for group in g_list:
+            level_dict.update({str(group['group_id']):"easy"})
+        with open(limit_level, "w", encoding='utf-8') as lwp:
+            lwp.write(f'{json.dumps(level_dict)}')
+            lwp.close()
+
     logger.info("Admin 插件 初始化检测完成")
 
 

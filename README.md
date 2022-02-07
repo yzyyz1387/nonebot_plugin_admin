@@ -96,7 +96,11 @@ _✨ NoneBot2 (有点不)简易群管_ ✨_
   
 【被动识别】
 涩图检测：将禁言随机时间
+
 违禁词检测：将禁言随机时间
+群内发送：
+  简单违禁词 ：简单级别过滤
+  严格违禁词 ：严格级别过滤
 ```
 
 **给个star吧~**
@@ -118,18 +122,21 @@ _✨ NoneBot2 (有点不)简易群管_ ✨_
 - [x] 关键词禁言，图片鉴黄（简单实现），[#issues3](https://github.com/yzyyz1387/nonebot_plugin_admin/issues/3)
 - [ ] 恶意检测， [#issues3](https://github.com/yzyyz1387/nonebot_plugin_admin/issues/3)
 - [ ] 鉴黄置信度呈现
+- [ ] 词云停用词优化
+- [ ] 违禁词优化
 - [ ] 潜水查询
 - [ ] 群聊内容分析
 - [ ] 其他功能...
 
 ##  更新
 
-- ~~0.3.8 0.3.10~~ 0.3.12（b1）
+-  0.3.14（b1）
   - 修复启动时`word_analyze`报错
   - 修复词云路径错误
   - 分词优化
   - 图片鉴黄
-  - 违禁词检测 违禁词词库整理上传于：[f_words](https://github.com/yzyyz1387/nwafu/tree/main/f_words)
+  - 违禁词检测 违禁词词库整理上传于：[f_words](https://github.com/yzyyz1387/nwafu/tree/main/f_words) 
+    - 词库有赘余，欢迎大神pr精简
 
 - 0.3.6（b1)
   - 修复适配错误
