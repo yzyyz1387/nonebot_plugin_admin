@@ -169,7 +169,7 @@ async def participle_simple_handle() -> set:
     return sum_
 
 
-async def pic_cof(data: str, **kwargs) -> Optional[json]:
+async def pic_cof(data: str, **kwargs) -> Optional[dict]:
     try:
         if kwargs['mode'] == 'url':
             async with httpx.AsyncClient() as client:
