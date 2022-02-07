@@ -4,9 +4,7 @@
     <list default="true" id="beab5d81-30f5-4c1c-945d-d917c49cb5dc" name="变更" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/nonebot_plugin_admin/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/nonebot_plugin_admin/__init__.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/nonebot_plugin_admin/auto_ban.py" beforeDir="false" afterPath="$PROJECT_DIR$/nonebot_plugin_admin/auto_ban.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/nonebot_plugin_admin/utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/nonebot_plugin_admin/utils.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -56,7 +54,7 @@
       <workItem from="1643521926510" duration="6732000" />
       <workItem from="1644000194874" duration="5745000" />
       <workItem from="1644047686304" duration="3116000" />
-      <workItem from="1644220306815" duration="21883000" />
+      <workItem from="1644220306815" duration="23383000" />
     </task>
     <servers />
   </component>

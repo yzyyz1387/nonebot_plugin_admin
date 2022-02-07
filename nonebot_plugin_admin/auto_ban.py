@@ -40,9 +40,9 @@ async def _(bot: Bot, event: GroupMessageEvent):
     level = (await load_level())
     if str(gid) in level:
         if level[str(gid)] == 'easy':
-            limit_path = limit_word_path
-        else:
             limit_path = limit_word_path_easy
+        else:
+            limit_path = limit_word_path
         f_words = open(limit_path, 'r', encoding='utf-8').read().split('\n')
         for words in f_words:
             if words and words in msg:
