@@ -12,10 +12,17 @@ from nonebot.adapters.onebot.v11.exception import ActionFailed
 from nonebot.adapters.onebot.v11.permission import GROUP_ADMIN, GROUP_OWNER
 from nonebot.permission import SUPERUSER
 from . import approve
-from .utils import At, banSb
+from .utils import At, banSb, init
 from .group_request_verify import verify
-from . import approve, group_request_verify, group_request, notice, utils, word_analyze
+from . import approve, group_request_verify, group_request, notice, utils, word_analyze, r18_pic_ban
 su = nonebot.get_driver().config.superusers
+
+admin_init =  on_command('群管初始化', priority=1, block=True, permission=SUPERUSER | GROUP_ADMIN | GROUP_OWNER)
+
+
+@admin_init.handle()
+async def _(bot: Bot, event: GroupMessageEvent):
+    await init()
 
 ban = on_command('禁', priority=1, block=True, permission=SUPERUSER | GROUP_ADMIN | GROUP_OWNER)
 
@@ -251,7 +258,7 @@ async def _(bot: Bot, event: GroupMessageEvent):
             await kick_.finish("不能含有@全体成员")
 
 
-set_g_admin = on_command("管理员+", permission=SUPERUSER | GROUP_OWNER, block=True)
+set_g_admin = on_command("管理员+", permission=SUPERUSER | GROUP_OWNER, priority=1, block=True)
 
 
 @set_g_admin.handle()
@@ -283,7 +290,7 @@ async def _(bot: Bot, event: GroupMessageEvent):
             await set_g_admin.finish("指令不正确 或 不能含有@全体成员")
 
 
-unset_g_admin = on_command("管理员-", permission=SUPERUSER | GROUP_OWNER, block=True)
+unset_g_admin = on_command("管理员-", permission=SUPERUSER | GROUP_OWNER, priority=1, block=True)
 
 
 @unset_g_admin.handle()
@@ -327,7 +334,7 @@ __usage__ = """
     禁 @某人 0 可解禁
     解 @某人
   全群禁言（好像没用？）
-    /all
+    /all 
     /all 解
   改名片
     改 @某人 名片
@@ -338,11 +345,11 @@ __usage__ = """
     踢 @某人
   踢出并拉黑：
    黑 @某人
-
+   
 【管理员】permission=SUPERUSER | GROUP_OWNER
   管理员+ @xxx 设置某人为管理员
-  管医院- @xxx 取消某人管理员
-
+  管理员- @xxx 取消某人管理员
+  
 【加群自动审批】：
 群内发送 permission=GROUP_ADMIN | GROUP_OWNER | SUPERUSER
   查看词条 ： 查看本群审批词条   或/审批
@@ -364,6 +371,13 @@ __usage__ = """
 群内或私聊 permission=SUPERUSER
   所有分管 ：查看所有分群管理员
   群管接收 ：打开或关闭超管消息接收（关闭则审批结果不会发送给superusers）
+  
+【群词云统计】
+该功能所用库 wordcloud 未写入依赖，请自行安装
+群内发送：
+  记录本群 ： 开始统计聊天记录 permission=GROUP_ADMIN | GROUP_OWNER | SUPERUSER
+  停止记录本群 ：停止统计聊天记录
+  群词云 ： 发送词云图片
 """
 __help_plugin_name__ = "简易群管"
 

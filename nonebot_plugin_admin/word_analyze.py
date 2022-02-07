@@ -5,23 +5,21 @@
 # @Email   :  youzyyz1384@qq.com
 # @File    : word_analyze.py
 # @Software: PyCharm
-
 from nonebot import on_command, logger, on_message
 from nonebot.adapters.onebot.v11 import Bot, GroupMessageEvent, MessageSegment
 from nonebot.adapters.onebot.v11.permission import GROUP_ADMIN, GROUP_OWNER
 from nonebot.permission import SUPERUSER
-from .utils import init, replace_tmr
+from .utils import init, replace_tmr, participle_simple_handle
 from pathlib import Path
 import os
-from os.path import dirname
-from pathlib import Path
+
 
 config_path = Path() / "config"
 word_path = config_path / "word_config.txt"
 words_path = Path() / "config" / "words"
 img_path = Path() / "resource" / "imgs"
 
-word_start = on_command("记录本群", block=True, priority=2, permission=GROUP_ADMIN | GROUP_OWNER | SUPERUSER)
+word_start = on_command("记录本群", block=True, priority=1, permission=GROUP_ADMIN | GROUP_OWNER | SUPERUSER)
 
 
 @word_start.handle()
@@ -41,6 +39,25 @@ async def _(bot: Bot, event: GroupMessageEvent):
             await word_start.finish(f"{gid}已存在")
 
 
+word_stop = on_command("停止记录本群", block=True, priority=1, permission=GROUP_ADMIN | GROUP_OWNER | SUPERUSER)
+
+
+@word_stop.handle()
+async def _(bot: Bot, event: GroupMessageEvent):
+    gid = str(event.group_id)
+    if not os.path.exists(word_path):
+        await init()
+    txt = open(word_path, 'r', encoding='utf-8').read()
+    if gid in txt:
+        with open(word_path,'w',encoding='utf-8') as c:
+            c.write(txt.replace(gid,""))
+            c.close()
+            logger.info(f"停止记录{gid}")
+            await word_start.finish("成功，曾经的记录不会被删除")
+    else:
+        logger.info(f"停用失败：{gid}不存在")
+        await word_start.finish(f"停用失败：{gid}不存在")
+
 word = on_message(priority=10)
 
 
@@ -55,6 +72,8 @@ async def _(bot: Bot, event: GroupMessageEvent):
     gid = str(event.group_id)
     msg = str(event.get_message()).replace(" ", "")
     path_temp = config_path / f"{str(gid)}.txt"
+    if not os.path.exists(word_path):
+        await init()
     txt = open(word_path, "r", encoding="utf-8").read().split("\n")
     if gid in txt:
         msg = await replace_tmr(msg)
@@ -62,7 +81,7 @@ async def _(bot: Bot, event: GroupMessageEvent):
             c.write(msg + "\n")
 
 
-cloud = on_command("群词云", priority=3)
+cloud = on_command("群词云", priority=1)
 
 
 @cloud.handle()
@@ -76,10 +95,11 @@ async def _(bot: Bot, event: GroupMessageEvent):
     if gid + ".txt" in dir_list:
         text = open(path_temp).read()
         txt = jieba.lcut(text)
+        stop_ = await participle_simple_handle()
         string = " ".join(txt)
         try:
-            wc = WordCloud(font_path=str(ttf_name.resolve()), width=800, height=600, mode='RGBA', background_color="#ffffff").generate(
-                string)
+            wc = WordCloud(font_path=str(ttf_name.resolve()), width=800, height=600, mode='RGBA',
+                           background_color="#ffffff", stopwords=stop_).generate(string)
             img = Path(img_path / f"{gid}.png")
             wc.to_file(img)
             await cloud.send(MessageSegment.image(img))
