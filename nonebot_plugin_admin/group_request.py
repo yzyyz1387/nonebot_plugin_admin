@@ -12,17 +12,14 @@ from nonebot.adapters.onebot.v11.permission import GROUP_ADMIN, GROUP_OWNER
 from nonebot.permission import SUPERUSER
 from nonebot.typing import T_State
 from nonebot.params import State
+
 from . import approve
 from .group_request_verify import verify
 import json
 import re
-from pathlib import Path
-
+from .path import *
+from .utils import load, check_func_status
 su = nonebot.get_driver().config.superusers
-config_path = Path() / "config"
-config_json = config_path / "admin.json"
-config_group = config_path / "group_admin.json"
-word_path = config_path / "word_config.txt"
 
 # 查看所有审批词条
 super_sp = on_command('所有词条', aliases={"/susp", "/su审批"}, priority=1, block=True, permission=SUPERUSER)
@@ -30,7 +27,7 @@ super_sp = on_command('所有词条', aliases={"/susp", "/su审批"}, priority=1
 
 @super_sp.handle()
 async def _(bot: Bot, event: MessageEvent):
-    answers = await approve.load()
+    answers = (await load(config_admin))
     rely = ""
     for i in answers:
         rely += i + " : " + str(answers[i]) + "\n"
@@ -95,13 +92,17 @@ async def _(bot: Bot, event: GroupMessageEvent):
     """
     /sp 查看本群词条
     """
-    a_config = await approve.load()
+    a_config = (await load(config_admin))
     gid = str(event.group_id)
-    if gid in a_config:
-        this_config = a_config[gid]
-        await check.send(f"当前群审批词条：{this_config}")
+    status = await check_func_status("requests", str(gid))
+    if status:
+        if gid in a_config:
+            this_config = a_config[gid]
+            await check.send(f"当前群审批词条：{this_config}")
+        else:
+            await check.send("当前群从未配置过审批词条")
     else:
-        await check.send("当前群从未配置过审批词条")
+        await check.send("本群未开启审批功能，发送【开关加群审批】开启")
 
 
 config = on_command('词条+', aliases={'/sp+', '/审批+'}, priority=1, block=True,
@@ -115,11 +116,15 @@ async def _(bot: Bot, event: GroupMessageEvent, state: T_State = State()):
     """
     msg = str(state['_prefix']['command_arg'])
     sp_write = await approve.write(str(event.group_id), msg)
-    if sp_write:
-        await config.send(f"群{event.group_id}添加词条：{msg}")
+    gid = str(event.group_id)
+    status = await check_func_status("requests", str(gid))
+    if status:
+        if sp_write:
+            await config.send(f"群{event.group_id}添加词条：{msg}")
+        else:
+            await config.send(f"{msg} 已存在于群{event.group_id}的词条中")
     else:
-        await config.send(f"{msg} 已存在于群{event.group_id}的词条中")
-
+        await check.send("本群未开启审批功能，发送【开关加群审批】开启")
 
 config_ = on_command('词条-', aliases={'/sp-', '/审批-'}, priority=1, block=True,
                      permission=GROUP_ADMIN | GROUP_OWNER | SUPERUSER)
@@ -132,13 +137,17 @@ async def _(bot: Bot, event: GroupMessageEvent, state: T_State = State()):
     """
     msg = str(state['_prefix']['command_arg'])
     sp_delete = await approve.delete(str(event.group_id), msg)
-    if sp_delete:
-        await config_.send(f"群{event.group_id}删除入群审批词条：{msg}")
-    elif not sp_delete:
-        await config_.send('当前群不存在此词条')
-    elif sp_delete is None:
-        await config_.send(f'当前群从未配置过词条')
-
+    gid = str(event.group_id)
+    status = await check_func_status("requests", str(gid))
+    if status:
+        if sp_delete:
+            await config_.send(f"群{event.group_id}删除入群审批词条：{msg}")
+        elif not sp_delete:
+            await config_.send('当前群不存在此词条')
+        elif sp_delete is None:
+            await config_.send(f'当前群从未配置过词条')
+    else:
+        await check.send("本群未开启审批功能，发送【开关加群审批】开启")
 
 # 加群审批
 group_req = on_request(priority=1, block=True)
@@ -151,49 +160,47 @@ async def gr_(bot: Bot, event: GroupRequestEvent):
     flag = raw['flag']
     logger.info('flag:', str(flag))
     sub_type = raw['sub_type']
-    if sub_type == 'add':
-        comment = raw['comment']
-        word = re.findall(re.compile('答案：(.*)'), comment)[0]
-        compared = await verify(word, gid)
-        uid = event.user_id
-        if compared:
-            logger.info(f'同意{uid}加入群 {gid},验证消息为 “{word}”')
-            await bot.set_group_add_request(
-                flag=flag,
-                sub_type=sub_type,
-                approve=True,
-                reason=" ",
-            )
-            with open(config_group, mode='r') as f:
-                admins_ = f.read()
-                admins = json.loads(admins_)
-                f.close()
-            if admins['su'] == "True":
-                for q in su:
-                    await bot.send_msg(user_id=int(q), message=f'同意{uid}加入群 {gid},验证消息为 “{word}”')
-            if gid in admins:
-                for q in admins[gid]:
-                    await bot.send_msg(message_type="private", user_id=q, group_id=int(gid),
-                                       message=f'同意{uid}加入群 {gid},验证消息为 “{word}”')
+    status = await check_func_status("requests", str(gid))
+    if status:
+        if sub_type == 'add':
+            comment = raw['comment']
+            word = re.findall(re.compile('答案：(.*)'), comment)[0]
+            compared = await verify(word, gid)
+            uid = event.user_id
+            if compared:
+                logger.info(f'同意{uid}加入群 {gid},验证消息为 “{word}”')
+                await bot.set_group_add_request(
+                    flag=flag,
+                    sub_type=sub_type,
+                    approve=True,
+                    reason=" ",
+                )
+                admins = load(config_group_admin)
+                if admins['su'] == "True":
+                    for q in su:
+                        await bot.send_msg(user_id=int(q), message=f'同意{uid}加入群 {gid},验证消息为 “{word}”')
+                if gid in admins:
+                    for q in admins[gid]:
+                        await bot.send_msg(message_type="private", user_id=q, group_id=int(gid),
+                                           message=f'同意{uid}加入群 {gid},验证消息为 “{word}”')
 
-        elif not compared:
-            logger.info(f'拒绝{uid}加入群 {gid},验证消息为 “{word}”')
-            await bot.set_group_add_request(
-                flag=flag,
-                sub_type=sub_type,
-                approve=False,
-                reason="答案未通过群管验证，可修改答案后再次申请",
-            )
-            with open(config_group, mode='r') as f:
-                admins_ = f.read()
-                admins = json.loads(admins_)
-                f.close()
-            if admins['su'] == "True":
-                for q in su:
-                    await bot.send_msg(user_id=int(q), message=f'拒绝{uid}加入群 {gid},验证消息为 “{word}”')
-            if gid in admins:
-                for q in admins[gid]:
-                    await bot.send_msg(message_type="private", user_id=q, group_id=int(gid),
-                                       message=f'拒绝{uid}加入群 {gid},验证消息为 “{word}”')
-        elif compared is None:
-            await group_req.finish()
+            elif not compared:
+                logger.info(f'拒绝{uid}加入群 {gid},验证消息为 “{word}”')
+                await bot.set_group_add_request(
+                    flag=flag,
+                    sub_type=sub_type,
+                    approve=False,
+                    reason="答案未通过群管验证，可修改答案后再次申请",
+                )
+                admins = load(config_group_admin)
+                if admins['su'] == "True":
+                    for q in su:
+                        await bot.send_msg(user_id=int(q), message=f'拒绝{uid}加入群 {gid},验证消息为 “{word}”')
+                if gid in admins:
+                    for q in admins[gid]:
+                        await bot.send_msg(message_type="private", user_id=q, group_id=int(gid),
+                                           message=f'拒绝{uid}加入群 {gid},验证消息为 “{word}”')
+            elif compared is None:
+                await group_req.finish()
+    else:
+        logger.info("本群未开启审批功能，发送【开关加群审批】开启")

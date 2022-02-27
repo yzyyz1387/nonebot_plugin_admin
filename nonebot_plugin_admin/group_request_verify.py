@@ -10,11 +10,7 @@ from typing import Optional
 from fuzzyfinder import fuzzyfinder
 import json
 import aiofiles
-from pathlib import Path
-
-config_path = Path() / "config"
-config_json = config_path / "admin.json"
-config_group = config_path / "group_admin.json"
+from .path import *
 
 
 async def verify(word: str, group_id: str) -> Optional[bool]:
@@ -24,7 +20,7 @@ async def verify(word: str, group_id: str) -> Optional[bool]:
     :param group_id: 群号
     :return: bool
     """
-    async with aiofiles.open(config_json, mode='r') as f:
+    async with aiofiles.open(config_admin, mode='r') as f:
         answers_ = await f.read()
         answers = json.loads(answers_)
     if group_id in answers:

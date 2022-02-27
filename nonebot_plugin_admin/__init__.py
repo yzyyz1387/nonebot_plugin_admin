@@ -12,9 +12,9 @@ from nonebot.adapters.onebot.v11.exception import ActionFailed
 from nonebot.adapters.onebot.v11.permission import GROUP_ADMIN, GROUP_OWNER
 from nonebot.permission import SUPERUSER
 from . import approve
-from .utils import At, banSb, init
+from .utils import At, banSb, init, check_func_status
 from .group_request_verify import verify
-from . import approve, group_request_verify, group_request, notice, utils, word_analyze, r18_pic_ban, auto_ban
+from . import approve, group_request_verify, group_request, notice, utils, word_analyze, r18_pic_ban, auto_ban, switcher
 su = nonebot.get_driver().config.superusers
 
 admin_init =  on_command('群管初始化', priority=1, block=True, permission=SUPERUSER | GROUP_ADMIN | GROUP_OWNER)
@@ -35,31 +35,35 @@ async def _(bot: Bot, event: GroupMessageEvent):
     msg = str(event.get_message())
     sb = At(event.json())
     gid = event.group_id
-    if sb:
-        if len(msg.split()) == len(sb) + 1:
-            time = int(msg.split()[-1:][0])
-            baning = banSb(gid, ban_list=sb, time=time)
-            async for baned in baning:
-                if baned:
-                    try:
-                        await baned
-                    except ActionFailed:
-                        await ban.finish("权限不足")
-                    else:
-                        logger.info("禁言操作成功")
+    status = await check_func_status("admin", str(gid))
+    if status:
+        if sb:
+            if len(msg.split()) > len(sb):
+                time = int(msg.split()[-1:][0])
+                baning = banSb(gid, ban_list=sb, time=time)
+                async for baned in baning:
+                    if baned:
+                        try:
+                            await baned
+                        except ActionFailed:
+                            await ban.finish("权限不足")
+                        else:
+                            logger.info("禁言操作成功")
+            else:
+                baning = banSb(gid, ban_list=sb)
+                async for baned in baning:
+                    if baned:
+                        try:
+                            await baned
+                        except ActionFailed:
+                            await ban.finish("权限不足")
+                        else:
+                            logger.info("禁言操作成功")
+                    await ban.send(f"该用户已被禁言随机时长")
         else:
-            baning = banSb(gid, ban_list=sb)
-            async for baned in baning:
-                if baned:
-                    try:
-                        await baned
-                    except ActionFailed:
-                        await ban.finish("权限不足")
-                    else:
-                        logger.info("禁言操作成功")
-                await ban.send(f"该用户已被禁言随机时长")
+            pass
     else:
-        pass
+        await ban.send(f"功能处于关闭状态，发送【开关管理】开启")
 
 
 unban = on_command("解", priority=1, block=True, permission=SUPERUSER | GROUP_ADMIN | GROUP_OWNER)
@@ -73,8 +77,10 @@ async def _(bot: Bot, event: GroupMessageEvent):
     msg = str(event.get_message())
     sb = At(event.json())
     gid = event.group_id
-    if sb:
-        if len(msg.split()) == len(sb):
+    status = await check_func_status("admin", str(gid))
+    if status:
+        if sb:
+            # if len(msg.split()) == len(sb):
             baning = banSb(gid, ban_list=sb, time=0)
             async for baned in baning:
                 if baned:
@@ -84,6 +90,8 @@ async def _(bot: Bot, event: GroupMessageEvent):
                         await ban.finish("权限不足")
                     else:
                         logger.info("解禁操作成功")
+    else:
+        await ban.send(f"功能处于关闭状态，发送【开关管理】开启")
 
 
 ban_all = on_command("/all", permission=SUPERUSER | GROUP_ADMIN | GROUP_OWNER, priority=1, block=True)
@@ -124,20 +132,22 @@ async def _(bot: Bot, event: GroupMessageEvent):
     logger.info(msg.split())
     sb = At(event.json())
     gid = event.group_id
-    if sb:
-        if len(msg.split()) == 2:
+    status = await check_func_status("admin", str(gid))
+    if status:
+        if sb:
             try:
-                await bot.set_group_card(
-                    group_id=gid,
-                    user_id=int(sb[0]),
-                    card=msg.split()[-1:][0]
-                )
+                for user_ in sb:
+                    await bot.set_group_card(
+                        group_id=gid,
+                        user_id=int(user_),
+                        card=msg.split()[-1:][0]
+                    )
             except ActionFailed:
                 await change.finish("权限不足")
             else:
                 logger.info("改名片操作成功")
-        else:
-            await change.finish("一次仅可更改一位群员的昵称")
+    else:
+        await ban.send(f"功能处于关闭状态，发送【开关管理】开启")
 
 
 title = on_command('头衔', permission=SUPERUSER | GROUP_OWNER, priority=1, block=True)
@@ -153,22 +163,26 @@ async def _(bot: Bot, event: GroupMessageEvent):
     logger.info(str(msg.split()), stitle)
     sb = At(event.json())
     gid = event.group_id
-    if sb:
-        if len(msg.split()) == len(sb) + 1 and 'all' not in sb:
-            try:
-                for qq in sb:
-                    await bot.set_group_special_title(
-                        group_id=gid,
-                        user_id=int(qq),
-                        special_title=stitle,
-                        duration=-1,
-                    )
-            except ActionFailed:
-                await title.finish("权限不足")
+    status = await check_func_status("admin", str(gid))
+    if status:
+        if sb:
+            if 'all' not in sb:
+                try:
+                    for qq in sb:
+                        await bot.set_group_special_title(
+                            group_id=gid,
+                            user_id=int(qq),
+                            special_title=stitle,
+                            duration=-1,
+                        )
+                except ActionFailed:
+                    await title.finish("权限不足")
+                else:
+                    logger.info(f"改头衔操作成功{stitle}")
             else:
-                logger.info(f"改头衔操作成功{stitle}")
-        else:
-            await title.finish("未填写头衔名称 或 不能含有@全体成员")
+                await title.finish("未填写头衔名称 或 不能含有@全体成员")
+    else:
+        await ban.send(f"功能处于关闭状态，发送【开关管理】开启")
 
 
 title_ = on_command('删头衔', permission=SUPERUSER | GROUP_ADMIN | GROUP_OWNER, priority=1, block=True)
@@ -184,22 +198,26 @@ async def _(bot: Bot, event: GroupMessageEvent):
     logger.info(str(msg.split()), stitle)
     sb = At(event.json())
     gid = event.group_id
-    if sb:
-        if len(msg.split()) == len(sb) + 1 and 'all' not in sb:
-            try:
-                for qq in sb:
-                    await bot.set_group_special_title(
-                        group_id=gid,
-                        user_id=int(qq),
-                        special_title="",
-                        duration=-1,
-                    )
-            except ActionFailed:
-                await title_.finish("权限不足")
+    status = await check_func_status("admin", str(gid))
+    if status:
+        if sb:
+            if 'all' not in sb:
+                try:
+                    for qq in sb:
+                        await bot.set_group_special_title(
+                            group_id=gid,
+                            user_id=int(qq),
+                            special_title="",
+                            duration=-1,
+                        )
+                except ActionFailed:
+                    await title_.finish("权限不足")
+                else:
+                    logger.info(f"改头衔操作成功{stitle}")
             else:
-                logger.info(f"改头衔操作成功{stitle}")
-        else:
-            await title_.finish("未填写头衔名称 或 不能含有@全体成员")
+                await title_.finish("有什么输入错误 或 不能含有@全体成员")
+    else:
+        await ban.send(f"功能处于关闭状态，发送【开关管理】开启")
 
 
 kick = on_command('踢', permission=SUPERUSER | GROUP_ADMIN | GROUP_OWNER, priority=1, block=True)
@@ -213,21 +231,25 @@ async def _(bot: Bot, event: GroupMessageEvent):
     msg = str(event.get_message())
     sb = At(event.json())
     gid = event.group_id
-    if sb:
-        if len(msg.split()) == len(sb) + 1 and 'all' not in sb:
-            try:
-                for qq in sb:
-                    await bot.set_group_kick(
-                        group_id=gid,
-                        user_id=int(qq),
-                        reject_add_request=False
-                    )
-            except ActionFailed:
-                await kick.finish("权限不足")
+    status = await check_func_status("admin", str(gid))
+    if status:
+        if sb:
+            if 'all' not in sb:
+                try:
+                    for qq in sb:
+                        await bot.set_group_kick(
+                            group_id=gid,
+                            user_id=int(qq),
+                            reject_add_request=False
+                        )
+                except ActionFailed:
+                    await kick.finish("权限不足")
+                else:
+                    logger.info(f"踢人操作成功")
             else:
-                logger.info(f"踢人操作成功")
-        else:
-            await kick.finish("不能含有@全体成员")
+                await kick.finish("不能含有@全体成员")
+    else:
+        await ban.send(f"功能处于关闭状态，发送【开关管理】开启")
 
 
 kick_ = on_command('黑', permission=SUPERUSER | GROUP_ADMIN | GROUP_OWNER, priority=1, block=True)
@@ -241,21 +263,25 @@ async def _(bot: Bot, event: GroupMessageEvent):
     msg = str(event.get_message())
     sb = At(event.json())
     gid = event.group_id
-    if sb:
-        if len(msg.split()) == len(sb) + 1 and 'all' not in sb:
-            try:
-                for qq in sb:
-                    await bot.set_group_kick(
-                        group_id=gid,
-                        user_id=int(qq),
-                        reject_add_request=True
-                    )
-            except ActionFailed:
-                await kick_.finish("权限不足")
+    status = await check_func_status("admin", str(gid))
+    if status:
+        if sb:
+            if 'all' not in sb:
+                try:
+                    for qq in sb:
+                        await bot.set_group_kick(
+                            group_id=gid,
+                            user_id=int(qq),
+                            reject_add_request=True
+                        )
+                except ActionFailed:
+                    await kick_.finish("权限不足")
+                else:
+                    logger.info(f"踢人并拉黑操作成功")
             else:
-                logger.info(f"踢人并拉黑操作成功")
-        else:
-            await kick_.finish("不能含有@全体成员")
+                await kick_.finish("不能含有@全体成员")
+    else:
+        await ban.send(f"功能处于关闭状态，发送【开关管理】开启")
 
 
 set_g_admin = on_command("管理员+", permission=SUPERUSER | GROUP_OWNER, priority=1, block=True)
@@ -272,22 +298,26 @@ async def _(bot: Bot, event: GroupMessageEvent):
     sb = At(event.json())
     logger.info(sb)
     gid = event.group_id
-    if sb:
-        if len(msg.split()) == len(sb) + 1 and 'all' not in sb:
-            try:
-                for qq in sb:
-                    await bot.set_group_admin(
-                        group_id=gid,
-                        user_id=int(qq),
-                        enable=True
-                    )
-            except ActionFailed:
-                await set_g_admin.finish("权限不足")
+    status = await check_func_status("admin", str(gid))
+    if status:
+        if sb:
+            if 'all' not in sb:
+                try:
+                    for qq in sb:
+                        await bot.set_group_admin(
+                            group_id=gid,
+                            user_id=int(qq),
+                            enable=True
+                        )
+                except ActionFailed:
+                    await set_g_admin.finish("权限不足")
+                else:
+                    logger.info(f"设置管理员操作成功")
+                    await set_g_admin.finish("设置管理员操作成功")
             else:
-                logger.info(f"设置管理员操作成功")
-                await set_g_admin.finish("设置管理员操作成功")
-        else:
-            await set_g_admin.finish("指令不正确 或 不能含有@全体成员")
+                await set_g_admin.finish("指令不正确 或 不能含有@全体成员")
+    else:
+        await ban.send(f"功能处于关闭状态，发送【开关管理】开启")
 
 
 unset_g_admin = on_command("管理员-", permission=SUPERUSER | GROUP_OWNER, priority=1, block=True)
@@ -304,22 +334,26 @@ async def _(bot: Bot, event: GroupMessageEvent):
     sb = At(event.json())
     logger.info(sb)
     gid = event.group_id
-    if sb:
-        if len(msg.split()) == len(sb) + 1 and 'all' not in sb:
-            try:
-                for qq in sb:
-                    await bot.set_group_admin(
-                        group_id=gid,
-                        user_id=int(qq),
-                        enable=True
-                    )
-            except ActionFailed:
-                await unset_g_admin.finish("权限不足")
+    status = await check_func_status("admin", str(gid))
+    if status:
+        if sb:
+            if 'all' not in sb:
+                try:
+                    for qq in sb:
+                        await bot.set_group_admin(
+                            group_id=gid,
+                            user_id=int(qq),
+                            enable=False
+                        )
+                except ActionFailed:
+                    await unset_g_admin.finish("权限不足")
+                else:
+                    logger.info(f"取消管理员操作成功")
+                    await unset_g_admin.finish("取消管理员操作成功")
             else:
-                logger.info(f"取消管理员操作成功")
-                await unset_g_admin.finish("取消管理员操作成功")
-        else:
-            await unset_g_admin.finish("指令不正确 或 不能含有@全体成员")
+                await unset_g_admin.finish("指令不正确 或 不能含有@全体成员")
+    else:
+        await ban.send(f"功能处于关闭状态，发送【开关管理】开启")
 
 
 __usage__ = """
@@ -385,7 +419,21 @@ __usage__ = """
 违禁词检测：将禁言随机时间
 群内发送：
   简单违禁词 ：简单级别过滤
-  严格违禁词 ：严格级别过滤
+  严格违禁词 ：严格级别过滤(不建议)
+  更新违禁词库 ：手动更新词库
+    违禁词库每周一自动更新
+    
+【功能开关】
+群内发送：
+  开关xx : 对某功能进行开/关  permission=SUPERUSER | GROUP_ADMIN | GROUP_OWNER
+  开关状态 ： 查看各功能的状态
+  xx in ：
+    ['管理', '踢', '禁', '改', '基础群管']  #基础功能 踢、禁、改、管理员+-
+    ['加群', '审批', '加群审批', '自动审批'] #加群审批
+    ['词云', '群词云', 'wordcloud'] #群词云
+    ['违禁词', '违禁词检测'] #违禁词检测
+    ['图片检测', '图片鉴黄', '涩图检测', '色图检测'] #图片检测
+所有功能默认开
 """
 __help_plugin_name__ = "简易群管"
 
