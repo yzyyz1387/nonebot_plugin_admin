@@ -1,10 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="beab5d81-30f5-4c1c-945d-d917c49cb5dc" name="变更" comment="">
+    <list default="true" id="711a6f12-7622-4150-9a7d-0fef48179cf3" name="变更" comment="">
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LICENSE" beforeDir="false" afterPath="$PROJECT_DIR$/LICENSE" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/nonebot_plugin_admin/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/nonebot_plugin_admin/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/nonebot_plugin_admin/approve.py" beforeDir="false" afterPath="$PROJECT_DIR$/nonebot_plugin_admin/approve.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/nonebot_plugin_admin/auto_ban.py" beforeDir="false" afterPath="$PROJECT_DIR$/nonebot_plugin_admin/auto_ban.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/nonebot_plugin_admin/group_request.py" beforeDir="false" afterPath="$PROJECT_DIR$/nonebot_plugin_admin/group_request.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/nonebot_plugin_admin/group_request_verify.py" beforeDir="false" afterPath="$PROJECT_DIR$/nonebot_plugin_admin/group_request_verify.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/nonebot_plugin_admin/notice.py" beforeDir="false" afterPath="$PROJECT_DIR$/nonebot_plugin_admin/notice.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/nonebot_plugin_admin/r18_pic_ban.py" beforeDir="false" afterPath="$PROJECT_DIR$/nonebot_plugin_admin/r18_pic_ban.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/nonebot_plugin_admin/utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/nonebot_plugin_admin/utils.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/nonebot_plugin_admin/word_analyze.py" beforeDir="false" afterPath="$PROJECT_DIR$/nonebot_plugin_admin/word_analyze.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/nonebot_plugin_admin_a/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/nonebot_plugin_admin_a/approve.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/nonebot_plugin_admin_a/auto_ban.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/nonebot_plugin_admin_a/group_request.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/nonebot_plugin_admin_a/group_request_verify.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/nonebot_plugin_admin_a/notice.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/nonebot_plugin_admin_a/r18_pic_ban.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/nonebot_plugin_admin_a/utils.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/nonebot_plugin_admin_a/word_analyze.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -15,6 +35,7 @@
     <option name="RECENT_TEMPLATES">
       <list>
         <option value="Python Script" />
+        <option value="HTML File" />
       </list>
     </option>
   </component>
@@ -32,29 +53,41 @@
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
   </component>
-  <component name="ProjectId" id="24PAT1up0S683ffJSOzeHSogAkW" />
+  <component name="ProjectId" id="24v2JDElBPLkT6FuQPALDu5BxQp" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent">
+    <property name="DefaultHtmlFileTemplate" value="HTML File" />
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="settings.editor.selected.configurable" value="preferences.lookFeel" />
+    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="应用程序级" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="默认任务">
-      <changelist id="beab5d81-30f5-4c1c-945d-d917c49cb5dc" name="变更" comment="" />
-      <created>1643521853942</created>
+      <changelist id="711a6f12-7622-4150-9a7d-0fef48179cf3" name="变更" comment="" />
+      <created>1644496672516</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
-      <updated>1643521853942</updated>
-      <workItem from="1643521926510" duration="6732000" />
-      <workItem from="1644000194874" duration="5745000" />
-      <workItem from="1644047686304" duration="3116000" />
-      <workItem from="1644220306815" duration="23383000" />
+      <updated>1644496672516</updated>
+      <workItem from="1644496674331" duration="39000" />
+      <workItem from="1645032756017" duration="105000" />
+      <workItem from="1645033079950" duration="110000" />
+      <workItem from="1645034055614" duration="2206000" />
+      <workItem from="1645036372399" duration="89000" />
+      <workItem from="1645365376130" duration="600000" />
+      <workItem from="1645366414187" duration="64000" />
+      <workItem from="1645439545085" duration="6075000" />
+      <workItem from="1645536351065" duration="8940000" />
+      <workItem from="1645689078894" duration="7323000" />
+      <workItem from="1645711366268" duration="2806000" />
+      <workItem from="1645798843349" duration="5763000" />
+      <workItem from="1645852925434" duration="9923000" />
+      <workItem from="1645882448762" duration="10377000" />
+      <workItem from="1645946819987" duration="8300000" />
     </task>
     <servers />
   </component>
