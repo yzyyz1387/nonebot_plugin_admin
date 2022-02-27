@@ -5,34 +5,36 @@
 # @Email   :  youzyyz1384@qq.com
 # @File    : utils.py
 # @Software: PyCharm
-import os
-import re
-import json
-import httpx
-import random
+import asyncio
 import base64
+import json
+import os
+import random
+import re
+from typing import Union, Optional
+import aiofiles
+import httpx
 import nonebot
-from pathlib import Path
-from nonebot import logger
-from typing import Optional
+from nonebot import logger, require
+from tencentcloud.common import credential
+from tencentcloud.common.exception.tencent_cloud_sdk_exception import (
+    TencentCloudSDKException,
+)
+from tencentcloud.common.profile.client_profile import ClientProfile
+from tencentcloud.common.profile.http_profile import HttpProfile
+from tencentcloud.ims.v20201229 import ims_client, models
+from .path import *
 
-config_path = Path() / "config"
-config_json = config_path / "admin.json"
-config_group = config_path / "group_admin.json"
-word_path = config_path / "word_config.txt"
-words_path = Path() / "config" / "words"
-res_path = Path() / "resource"
-re_img_path = Path() / "resource" / "imgs"
-ttf_name = Path() / "resource" / "msyhblod.ttf"
-limit_word_path = config_path / "违禁词.txt"
-limit_word_path_easy = config_path / "违禁词_简单.txt"
-limit_level = config_path / "违禁词监控等级.json"
-
+TencentID = nonebot.get_driver().config.tenid
+TencentKeys = nonebot.get_driver().config.tenkeys
+su = nonebot.get_driver().config.superusers
 
 
 def At(data: str):
     """
-    检测at了谁
+    检测at了谁，返回[qq, qq, qq,...]
+    包含全体成员直接返回['all']
+    如果没有at任何人，返回[]
     :param data: event.json
     :return: list
     """
@@ -56,65 +58,91 @@ async def init():
     :return:
     """
     if not os.path.exists(config_path):
-        os.mkdir(config_path)
-        logger.info("创建 config 文件夹")
-    if not os.path.exists(config_json):
-        with open(config_json, 'w', encoding='utf-8') as c:
-            c.write('{"1008611":["This_is_an_example"]}')
-            c.close()
-            logger.info("创建admin.json")
-    if not os.path.exists(config_group):
-        with open(config_group, 'w', encoding='utf-8') as c:
-            c.write('{"su":"True"}')
-            c.close()
-            logger.info("创建group_admin.json")
+        await mk("dir", config_path, mode=None, )
+    if not os.path.exists(template_path):
+        await mk("dir", template_path, mode=None, )
+    if not os.path.exists(config_admin):
+        await mk("file", config_admin, "w", content='{"1008611":["This_is_an_example"]}')
+    if not os.path.exists(config_group_admin):
+        await mk("file", config_group_admin, "w", content='{"su":"True"}')
     if not os.path.exists(word_path):
-        with open(word_path, 'w', encoding='utf-8') as c:
-            c.write('123456789\n')
-            c.close()
-            logger.info("创建word_config.txt")
-    if not os.path.exists(words_path):
-        os.mkdir(words_path)
-        logger.info("创建/config/words/")
+        await mk("file", word_path, "w", content='123456789\n')
+    if not os.path.exists(words_contents_path):
+        await mk("dir", words_contents_path, mode=None)
     if not os.path.exists(res_path):
-        os.mkdir(res_path)
-        logger.info("创建/resource")
+        await mk("dir", res_path, mode=None)
     if not os.path.exists(re_img_path):
-        os.mkdir(re_img_path)
-        logger.info("创建/resource/imgs")
+        await mk("dir", re_img_path, mode=None)
     if not os.path.exists(ttf_name):
-        logger.info("下载资源字体")
-        async with httpx.AsyncClient() as client:
-            r = (await client.get(url="https://cdn.jsdelivr.net/gh/yzyyz1387/blogimages/msyhblod.ttf")).content
-        with open(ttf_name, "wb") as tfn:
-            tfn.write(r)
-            tfn.close()
+        await mk("file", ttf_name, "wb", url="https://cdn.jsdelivr.net/gh/yzyyz1387/blogimages/msyhblod.ttf",
+                 dec="资源字体")
     if not os.path.exists(limit_word_path):
-        logger.info("下载严格违禁词库")
-        async with httpx.AsyncClient() as client:
-            r = (await client.get(url="https://cdn.jsdelivr.net/gh/yzyyz1387/nwafu/f_words/f_word_s")).text
-        with open(limit_word_path, "w",encoding='utf-8') as lwp:
-            lwp.write(r)
-            lwp.close()
+        await mk("file", limit_word_path, "w", url="https://cdn.jsdelivr.net/gh/yzyyz1387/nwafu/f_words/f_word_s",
+                 dec="严格违禁词词库")
     if not os.path.exists(limit_word_path_easy):
-        logger.info("下载简单违禁词库")
-        async with httpx.AsyncClient() as client:
-            r = (await client.get(url="https://cdn.jsdelivr.net/gh/yzyyz1387/nwafu/f_words/f_word_easy")).text
-        with open(limit_word_path_easy, "w",encoding='utf-8') as lwp:
-            lwp.write(r)
-            lwp.close()
+        await mk("file", limit_word_path_easy, "w",
+                 url="https://cdn.jsdelivr.net/gh/yzyyz1387/nwafu/f_words/f_word_easy",
+                 dec="简单违禁词词库")
     if not os.path.exists(limit_level):
         bot = nonebot.get_bot()
         logger.info("创建违禁词监控等级配置文件,分群设置,默认easy")
         g_list = (await bot.get_group_list())
-        level_dict={}
+        level_dict = {}
         for group in g_list:
-            level_dict.update({str(group['group_id']):"easy"})
+            level_dict.update({str(group['group_id']): "easy"})
         with open(limit_level, "w", encoding='utf-8') as lwp:
             lwp.write(f'{json.dumps(level_dict)}')
             lwp.close()
-
+    if not os.path.exists(switcher_path):
+        bot = nonebot.get_bot()
+        logger.info("创建开关配置文件,分群设置,默认开")
+        g_list = (await bot.get_group_list())
+        switcher_dict = {}
+        for group in g_list:
+            switcher_dict.update({str(group['group_id']): {"admin": True, "requests": True, "wordcloud": True,
+                                                           "auto_ban": True, "img_check": True}})
+        with open(switcher_path, "w", encoding='utf-8') as swp:
+            swp.write(f'{json.dumps(switcher_dict)}')
+            swp.close()
     logger.info("Admin 插件 初始化检测完成")
+
+
+async def mk(type_, path_, *mode, **kwargs):
+    """
+    创建文件夹 下载文件
+    :param type_: ['dir', 'file']
+    :param path_: Path
+    :param mode: ['wb', 'w']
+    :param kwargs: ['url', 'content', 'dec', 'info'] 文件地址 写入内容 描述信息 和 额外信息
+    :return: None
+    """
+    if 'info' in kwargs:
+        logger.info(kwargs['info'])
+    if type_ == "dir":
+        os.mkdir(path_)
+        logger.info(f"创建文件夹{path_}")
+    elif type_ == "file":
+        if 'url' in kwargs:
+            if kwargs['dec']:
+                logger.info(f"开始下载文件{kwargs['dec']}")
+            async with httpx.AsyncClient() as client:
+                r = await client.get(kwargs['url'])
+                if mode[0] == "w":
+                    with open(path_, "w") as f:
+                        f.write(r.text)
+                elif mode[0] == "wb":
+                    with open(path_, "wb") as f:
+                        f.write(r.content)
+                logger.info(f"下载文件 {kwargs['dec']} 到 {path_}")
+        else:
+            if mode:
+                with open(path_, mode[0]) as f:
+                    f.write(kwargs["content"])
+                logger.info(f"创建文件{path_}")
+            else:
+                raise Exception("mode 不能为空")
+    else:
+        raise Exception("type_参数错误")
 
 
 async def banSb(gid: int, ban_list: list, **time: int):
@@ -136,11 +164,14 @@ async def banSb(gid: int, ban_list: list, **time: int):
         else:
             time = time['time']
         for qq in ban_list:
-            yield nonebot.get_bot().set_group_ban(
-                group_id=gid,
-                user_id=qq,
-                duration=time,
-            )
+            if int(qq) in su or str(qq) in su:
+                logger.info(f"SUPERUSER无法被禁言")
+            else:
+                yield nonebot.get_bot().set_group_ban(
+                    group_id=gid,
+                    user_id=qq,
+                    duration=time,
+                )
 
 
 async def replace_tmr(msg: str) -> str:
@@ -190,43 +221,156 @@ async def participle_simple_handle() -> set:
     return sum_
 
 
-async def pic_cof(data: str, **kwargs) -> Optional[dict]:
+# async def pic_cof(data: str, **kwargs) -> Optional[dict]:
+#     try:
+#         if kwargs['mode'] == 'url':
+#             async with httpx.AsyncClient() as client:
+#                 data_ = str(base64.b64encode((await client.get(url=data)).content), encoding='utf-8')
+#             json_ = {"data": [f"data:image/png;base64,{data_}"]}
+#         else:
+#             json_ = {"data": [f"data:image/png;base64,{data}"]}
+#     except Exception as err:
+#         json_ = {"data": ["data:image/png;base64,"]}
+#         print(err)
+#     try:
+#         async with httpx.AsyncClient() as client:
+#             r = (await client.post(
+#                 url='https://hf.space/gradioiframe/mayhug/rainchan-image-porn-detection/+/api/predict/',
+#                 json=json_)).json()
+#         if 'error' in r:
+#             return None
+#         else:
+#             return r
+#     except Exception as err:
+#         logger.debug(f'于"utils.py"中的 pic_cof 发生错误：{err}')
+#         return None
+#
+#
+# async def pic_ban_cof(**data) -> Optional[bool]:
+#     global result
+#     if data:
+#         if 'url' in data:
+#             result = await pic_cof(data=data['url'], mode='url')
+#         if 'base64' in data:
+#             result = await pic_cof(data=data['data'], mode='default')
+#         if result:
+#             if result['data'][0]['label'] != 'safe':
+#                 return True
+#             else:
+#                 return False
+#         else:
+#             return None
+
+
+# TENCENT 图片检测 @A60 https://github.com/djkcyl/ABot-Graia
+def image_moderation(img):
     try:
-        if kwargs['mode'] == 'url':
-            async with httpx.AsyncClient() as client:
-                data_ = str(base64.b64encode((await client.get(url=data)).content),encoding='utf-8')
-            json_ = {"data": [f"data:image/png;base64,{data_}"]}
-        else:
-            json_ = {"data": [f"data:image/png;base64,{data}"]}
-    except Exception as err:
-        json_ = {"data": ["data:image/png;base64,"]}
-        print(err)
+        cred = credential.Credential(
+            TencentID,
+            TencentKeys,
+        )
+        httpProfile = HttpProfile()
+        httpProfile.endpoint = "ims.tencentcloudapi.com"
+
+        clientProfile = ClientProfile()
+        clientProfile.httpProfile = httpProfile
+        client = ims_client.ImsClient(cred, "ap-shanghai", clientProfile)
+
+        req = models.ImageModerationRequest()
+        params = (
+            {"BizType": "group_recall", "FileUrl": img}
+            if type(img) == str
+            else {"BizType": "group_recall", "FileContent": bytes_to_base64(img)}
+        )
+        req.from_json_string(json.dumps(params))
+
+        resp = client.ImageModeration(req)
+        return json.loads(resp.to_json_string())
+
+    except TencentCloudSDKException as err:
+        return err
+    except KeyError as kerr:
+        return kerr
+
+
+async def image_moderation_async(img: Union[str, bytes]) -> dict:
     try:
-        async with httpx.AsyncClient() as client:
-            r = (await client.post(
-                url='https://hf.space/gradioiframe/mayhug/rainchan-image-porn-detection/+/api/predict/',
-                json=json_)).json()
-        if 'error' in r:
-            return None
+        resp = await asyncio.to_thread(image_moderation, img)
+        if resp["Suggestion"] != "Pass":
+            return {"status": False, "message": resp["Label"]}
         else:
-            return r
-    except Exception as err:
-        logger.debug(f'于"utils.py"中的 pic_cof 发生错误：{err}')
+            return {"status": True, "message": None}
+    except Exception as e:
+        return {"status": "error", "message": e}
+
+
+def bytes_to_base64(data):
+    return base64.b64encode(data).decode("utf-8")
+
+
+async def auto_upload_f_words():
+    logger.info("自动更新严格违禁词库...")
+    async with httpx.AsyncClient() as client:
+        try:
+            r = (await client.get(url="https://cdn.jsdelivr.net/gh/yzyyz1387/nwafu/f_words/f_word_s")).text
+        except Exception as err:
+            logger.error(f"自动更新严格违禁词库失败：{err}")
+            return True
+    with open(limit_word_path, "w", encoding='utf-8') as lwp:
+        lwp.write(r)
+        lwp.close()
+    logger.info("正在更新简单违禁词库")
+    async with httpx.AsyncClient() as client:
+        try:
+            r = (await client.get(url="https://cdn.jsdelivr.net/gh/yzyyz1387/nwafu/f_words/f_word_easy")).text
+        except Exception as err:
+            logger.error(f"自动更新简单违禁词库失败：{err}")
+            return True
+    with open(limit_word_path_easy, "w", encoding='utf-8') as lwp:
+        lwp.write(r)
+        lwp.close()
+    logger.info("更新完成")
+
+scheduler = require("nonebot_plugin_apscheduler").scheduler
+# 每周一更新违禁词库
+scheduler.add_job(auto_upload_f_words, 'cron', day_of_week='mon', hour=0, minute=0, second=0, id='auto_upload_f_words')
+
+
+async def load(path) -> Optional[dict]:
+    """
+    加载json文件
+    :return: Optional[dict]
+    """
+    try:
+        async with aiofiles.open(path, mode='r', encoding="utf-8") as f:
+            contents_ = await f.read()
+            contents = json.loads(contents_)
+            await f.close()
+            return contents
+    except FileNotFoundError:
         return None
 
 
-async def pic_ban_cof(**data) -> Optional[bool]:
-    global result
-    if data:
-        if 'url' in data:
-            result = await pic_cof(data=data['url'], mode='url')
-        if 'base64' in data:
-            result = await pic_cof(data=data['data'], mode='default')
-        if result:
-            if result['data'][0]['label'] != 'safe':
-                return True
-            else:
-                return False
-        else:
-            return None
+async def upload(path, dict_content) -> None:
+    """
+    更新json文件
+    :param path: 路径
+    :param dict_content: python对象，字典
+    """
+    async with aiofiles.open(path, mode='w', encoding="utf-8") as c:
+        await c.write(str(json.dumps(dict_content)))
+        await c.close()
 
+
+async def check_func_status(func_name: str, gid: str) -> bool:
+    """
+    检查某个群的某个功能是否开启
+    :param func_name: 功能名
+    :param gid: 群号
+    :return: bool
+    """
+    funcs_status = (await load(switcher_path))
+    if funcs_status[gid][func_name]:
+        return True
+    else:
+        return False
