@@ -128,7 +128,7 @@ async def mk(type_, path_, *mode, **kwargs):
             async with httpx.AsyncClient() as client:
                 r = await client.get(kwargs['url'])
                 if mode[0] == "w":
-                    with open(path_, "w") as f:
+                    with open(path_, "w", encoding='utf-8') as f:
                         f.write(r.text)
                 elif mode[0] == "wb":
                     with open(path_, "wb") as f:
