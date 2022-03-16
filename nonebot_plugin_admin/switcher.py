@@ -53,7 +53,7 @@ async def _(bot: Bot, event: GroupMessageEvent):
         env = Environment(loader=FileSystemLoader(str(dirname(__file__))))
         template = env.get_template('switcher.html')
         html = template.render(funcs_status=funcs_status[gid], funcs_name=admin_funcs, gid=gid)
-        with open((template_path / f"{gid}.html").resolve(), 'w') as f:
+        with open((template_path / f"{gid}.html").resolve(), 'w', encoding='utf-8') as f:
             f.write(html)
             f.close()
         await save_image(f"file:///{(template_path / f'{gid}.html').resolve()}",
@@ -74,7 +74,7 @@ async def save_image(url, img_path):
     :param img_path: 图片存放位置
     :return:
     """
-    browser = await launch(options={'args': ['--no-sandbox']})
+    browser = await launch(options={'args': ['--no-sandbox']}, handleSIGINT=False)
     page = await browser.newPage()
     # 加载指定的网页url
     await page.goto(url)
