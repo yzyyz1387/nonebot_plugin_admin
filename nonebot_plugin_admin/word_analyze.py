@@ -62,7 +62,7 @@ async def _(bot: Bot, event: GroupMessageEvent):
     else:
         await word_start.finish("请先发送【开关群词云】开启此功能")
 
-word = on_message(priority=10)
+word = on_message(priority=10, block=False)
 
 
 @word.handle()
