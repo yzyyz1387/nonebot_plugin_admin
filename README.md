@@ -5,8 +5,8 @@
 ------
 
 <div align="center">
-
-# 简易群管
+  
+# 简易群管 （考研停更）
 
 _✨ NoneBot2 (有点不)简易群管_ ✨  
 [![wakatime](https://wakatime.com/badge/user/e4795d94-d154-4c3d-a94b-b655c82e57f4/project/d4a8cb5e-ee86-4ad9-99e5-48873f38c3bd.svg)](https://wakatime.com/badge/user/e4795d94-d154-4c3d-a94b-b655c82e57f4/project/d4a8cb5e-ee86-4ad9-99e5-48873f38c3bd)
