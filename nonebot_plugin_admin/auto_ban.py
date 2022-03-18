@@ -43,30 +43,36 @@ async def _(bot: Bot, event: GroupMessageEvent, matcher: Matcher):
                 limit_path = limit_word_path_easy
             else:
                 limit_path = limit_word_path
-            f_words = open(limit_path, 'r', encoding='utf-8').read().split('\n')
+            rules = [re.sub(r'\t+', '\t', rule).split('\t') for rule in open(limit_path, 'r', encoding='utf-8').read().split('\n')]
             msg = re.sub(r'\s', '', str(event.get_message()))
             logger.info(f"收到消息: \"{msg}\"")
-            for words in f_words:
-                if words and re.search(words, msg):
+            for rule in rules:
+                if rule[0] and re.search(rule[0], msg):
                     uid = event.get_user_id()
-                    logger.info(f"敏感词触发: \"{words}\"")
+                    logger.info(f"敏感词触发: \"{rule[0]}\"")
                     matcher.stop_propagation()
-                    try:
-                        await bot.delete_msg(message_id=event.message_id)
-                        logger.info('消息已撤回')
-                    except ActionFailed:
-                        logger.info('消息撤回失败')
-                    baning = banSb(gid, ban_list=[uid])
-                    async for baned in baning:
-                        if baned:
-                            try:
-                                await baned
-                            except ActionFailed:
-                                logger.info('禁言失败，权限不足')
-                                await f_word.send('禁言失败，权限不足')
-                            else:
-                                logger.info(f"禁言成功，用户: {uid}")
-                                await f_word.send('你发送了违禁词,现在进行处罚,如有异议请联系管理员', at_sender=True)
+                    delete, ban = True, True
+                    if len(rule) > 1:
+                        delete = rule[1].find('$撤回') != -1
+                        ban = rule[1].find('$禁言') != -1
+                    if delete:
+                        try:
+                            await bot.delete_msg(message_id=event.message_id)
+                            logger.info('消息已撤回')
+                        except ActionFailed:
+                            logger.info('消息撤回失败')
+                    if ban:
+                        baning = banSb(gid, ban_list=[uid])
+                        async for baned in baning:
+                            if baned:
+                                try:
+                                    await baned
+                                except ActionFailed:
+                                    logger.info('禁言失败，权限不足')
+                                    await f_word.send('禁言失败，权限不足')
+                                else:
+                                    logger.info(f"禁言成功，用户: {uid}")
+                                    await f_word.send('你发送了违禁词,现在进行处罚,如有异议请联系管理员', at_sender=True)
                     break
         else:
             await f_word.finish('本群未配置检测级别，指令如下：\n1.简单违禁词:简单级别\n2.严格违禁词：严格级别\n3.群管初始化：一键配置所有群聊为简单级别\n若重复出现此信息推荐发送【简单违禁词】')
