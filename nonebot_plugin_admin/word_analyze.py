@@ -81,7 +81,7 @@ async def _(bot: Bot, event: GroupMessageEvent):
     txt = open(word_path, "r", encoding="utf-8").read().split("\n")
     if gid in txt:
         msg = await replace_tmr(msg)
-        with open(path_temp, "a+") as c:
+        with open(path_temp, "a+" ,encoding="utf-8") as c:
             c.write(msg + "\n")
 
 

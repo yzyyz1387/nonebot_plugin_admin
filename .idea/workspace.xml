@@ -2,29 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="711a6f12-7622-4150-9a7d-0fef48179cf3" name="变更" comment="">
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/LICENSE" beforeDir="false" afterPath="$PROJECT_DIR$/LICENSE" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/nonebot_plugin_admin/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/nonebot_plugin_admin/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/nonebot_plugin_admin/approve.py" beforeDir="false" afterPath="$PROJECT_DIR$/nonebot_plugin_admin/approve.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/nonebot_plugin_admin/auto_ban.py" beforeDir="false" afterPath="$PROJECT_DIR$/nonebot_plugin_admin/auto_ban.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/nonebot_plugin_admin/group_request.py" beforeDir="false" afterPath="$PROJECT_DIR$/nonebot_plugin_admin/group_request.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/nonebot_plugin_admin/group_request_verify.py" beforeDir="false" afterPath="$PROJECT_DIR$/nonebot_plugin_admin/group_request_verify.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/nonebot_plugin_admin/notice.py" beforeDir="false" afterPath="$PROJECT_DIR$/nonebot_plugin_admin/notice.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/nonebot_plugin_admin/r18_pic_ban.py" beforeDir="false" afterPath="$PROJECT_DIR$/nonebot_plugin_admin/r18_pic_ban.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/nonebot_plugin_admin/utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/nonebot_plugin_admin/utils.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/nonebot_plugin_admin/word_analyze.py" beforeDir="false" afterPath="$PROJECT_DIR$/nonebot_plugin_admin/word_analyze.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/nonebot_plugin_admin_a/__init__.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/nonebot_plugin_admin_a/approve.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/nonebot_plugin_admin_a/auto_ban.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/nonebot_plugin_admin_a/group_request.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/nonebot_plugin_admin_a/group_request_verify.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/nonebot_plugin_admin_a/notice.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/nonebot_plugin_admin_a/r18_pic_ban.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/nonebot_plugin_admin_a/utils.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/nonebot_plugin_admin_a/word_analyze.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -49,6 +27,9 @@
       <filtered-out-file-type name="TAG" />
       <filtered-out-file-type name="COMMIT_BY_MESSAGE" />
     </file-type-list>
+  </component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="file://D:/bot/botb1venv/Lib/site-packages/nonebot/matcher.py" root0="SKIP_INSPECTION" />
   </component>
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
@@ -87,7 +68,9 @@
       <workItem from="1645798843349" duration="5763000" />
       <workItem from="1645852925434" duration="9923000" />
       <workItem from="1645882448762" duration="10377000" />
-      <workItem from="1645946819987" duration="8300000" />
+      <workItem from="1645946819987" duration="10007000" />
+      <workItem from="1646042666739" duration="1291000" />
+      <workItem from="1652503289545" duration="2565000" />
     </task>
     <servers />
   </component>
