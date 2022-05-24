@@ -2,13 +2,17 @@
   <a href="https://v2.nonebot.dev/"><img src="https://v2.nonebot.dev/logo.png" width="200" height="200" alt="nonebot"></a>
 </p>
 
-------
 
-<div align="center">
+
+<div align="center">  
   
-# 简易群管 （考研停更）
+**你的star是我的动力**  
+**↓**  
+<img src="https://img.shields.io/github/stars/yzyyz1387/nonebot_plugin_admin.svg?style=social">  
+# 简易群管 （考研缓更）
+  _✨ NoneBot2 (有点不)简易群管✨ _  
 
-_✨ NoneBot2 (有点不)简易群管_ ✨  
+  
 [![wakatime](https://wakatime.com/badge/user/e4795d94-d154-4c3d-a94b-b655c82e57f4/project/d4a8cb5e-ee86-4ad9-99e5-48873f38c3bd.svg)](https://wakatime.com/badge/user/e4795d94-d154-4c3d-a94b-b655c82e57f4/project/d4a8cb5e-ee86-4ad9-99e5-48873f38c3bd)
 
 
@@ -250,3 +254,10 @@ tenkeys="xxxxxx"
 - **0.0.1-4**
   - 支持 踢 、禁 、改 、头衔
 
+
+## 其他插件
+[简易群管](https://github.com/yzyyz1387/nonebot_plugin_admin)
+[在线运行代码](https://github.com/yzyyz1387/nonebot_plugin_code)
+[it咨讯（垃圾插件）](https://github.com/yzyyz1387/nonebot_plugin_itnews "it资讯")
+[工作性价比（还没更新beta不能用）](https://github.com/yzyyz1387/nonebot_plugin_workscore)
+[黑丝插件（jsdelivr问题国内服务器不能用）](https://github.com/yzyyz1387/nonebot_plugin_heisi)
