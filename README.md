@@ -9,8 +9,10 @@
 **你的star是我的动力**  
 **↓**  
 <img src="https://img.shields.io/github/stars/yzyyz1387/nonebot_plugin_admin.svg?style=social">  
-# 简易群管 （考研缓更）
-  _✨ NoneBot2 (有点不)简易群管✨ _  
+# 简易群管 （考研缓更）  
+   **pypi没更 github最新**  
+  _✨ NoneBot2 (有点不)简易群管✨ _    
+
 
   
 [![wakatime](https://wakatime.com/badge/user/e4795d94-d154-4c3d-a94b-b655c82e57f4/project/d4a8cb5e-ee86-4ad9-99e5-48873f38c3bd.svg)](https://wakatime.com/badge/user/e4795d94-d154-4c3d-a94b-b655c82e57f4/project/d4a8cb5e-ee86-4ad9-99e5-48873f38c3bd)
