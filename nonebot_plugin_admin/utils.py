@@ -74,14 +74,14 @@ async def init():
     if not os.path.exists(re_img_path):
         await mk("dir", re_img_path, mode=None)
     if not os.path.exists(ttf_name):
-        await mk("file", ttf_name, "wb", url="https://cdn.jsdelivr.net/gh/yzyyz1387/blogimages/msyhblod.ttf",
+        await mk("file", ttf_name, "wb", url="https://fastly.jsdelivr.net/gh/yzyyz1387/blogimages/msyhblod.ttf",
                  dec="资源字体")
     if not os.path.exists(limit_word_path):
-        await mk("file", limit_word_path, "w", url="https://cdn.jsdelivr.net/gh/yzyyz1387/nwafu/f_words/f_word_s",
+        await mk("file", limit_word_path, "w", url="https://fastly.jsdelivr.net/gh/yzyyz1387/nwafu/f_words/f_word_s",
                  dec="严格违禁词词库")
     if not os.path.exists(limit_word_path_easy):
         await mk("file", limit_word_path_easy, "w",
-                 url="https://cdn.jsdelivr.net/gh/yzyyz1387/nwafu/f_words/f_word_easy",
+                 url="https://fastly.jsdelivr.net/gh/yzyyz1387/nwafu/f_words/f_word_easy",
                  dec="简单违禁词词库")
     if not os.path.exists(limit_level):
         bot = nonebot.get_bot()
@@ -312,7 +312,7 @@ async def auto_upload_f_words():
     logger.info("自动更新严格违禁词库...")
     async with httpx.AsyncClient() as client:
         try:
-            r = (await client.get(url="https://cdn.jsdelivr.net/gh/yzyyz1387/nwafu/f_words/f_word_s")).text
+            r = (await client.get(url="https://fastly.jsdelivr.net/gh/yzyyz1387/nwafu/f_words/f_word_s")).text
         except Exception as err:
             logger.error(f"自动更新严格违禁词库失败：{err}")
             return True
@@ -322,7 +322,7 @@ async def auto_upload_f_words():
     logger.info("正在更新简单违禁词库")
     async with httpx.AsyncClient() as client:
         try:
-            r = (await client.get(url="https://cdn.jsdelivr.net/gh/yzyyz1387/nwafu/f_words/f_word_easy")).text
+            r = (await client.get(url="https://fastly.jsdelivr.net/gh/yzyyz1387/nwafu/f_words/f_word_easy")).text
         except Exception as err:
             logger.error(f"自动更新简单违禁词库失败：{err}")
             return True
