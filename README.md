@@ -24,11 +24,19 @@
 
 **权限说明：见下方指令↓**
 
-## 安装💿
+## 安装💿(pip)
 `pip install nonebot-plugin-admin`
+
+### 导入📲
+在**bot.py** 导入，语句：
+`nonebot.load_plugin("nonebot_plugin_admin")`
 
 请注意与nonebot版本适配，匹配请查看：[更新](#%E6%9B%B4%E6%96%B0-1)
 **Python 3.9+**
+
+## 安装💿(nb plugin)
+`nb plugin install nonebot-plugin-admin`
+
 
 ## 更新
 
@@ -48,9 +56,7 @@ tenkeys="xxxxxx"
 
 ✨Pay tribute to A60 [https://github.com/djkcyl/ABot-Graia](https://github.com/djkcyl/ABot-Graia)
 
-## 导入📲
-在**bot.py** 导入，语句：
-`nonebot.load_plugin("nonebot_plugin_admin")`
+
 
 ## 指令💻
 
