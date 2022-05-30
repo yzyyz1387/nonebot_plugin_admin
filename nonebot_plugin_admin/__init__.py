@@ -32,14 +32,19 @@ async def _(bot: Bot, event: GroupMessageEvent):
     """
     /禁 @user 禁言
     """
-    msg = str(event.get_message())
+    msg = str(event.get_message()).replace(" ", "").split("]")
     sb = At(event.json())
     gid = event.group_id
     status = await check_func_status("admin", str(gid))
     if status:
         if sb:
-            if len(msg.split()) > len(sb):
-                time = int(msg.split()[-1:][0])
+            if len(msg) > len(sb):
+                try:
+                    time = int(msg[-1:][0])
+                except ValueError:
+                    for q in sb:
+                        raw_msg = event.raw_message.replace(" ", "").replace(str(q), "")
+                    time = int(''.join(str(num) for num in list(filter(lambda x: x.isdigit(), raw_msg))))
                 baning = banSb(gid, ban_list=sb, time=time)
                 async for baned in baning:
                     if baned:
