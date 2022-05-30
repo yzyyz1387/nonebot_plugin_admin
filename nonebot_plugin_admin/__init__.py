@@ -87,11 +87,11 @@ async def _(bot: Bot, event: GroupMessageEvent):
                     try:
                         await baned
                     except ActionFailed:
-                        await ban.finish("权限不足")
+                        await unban.finish("权限不足")
                     else:
                         logger.info("解禁操作成功")
     else:
-        await ban.send(f"功能处于关闭状态，发送【开关管理】开启")
+        await unban.send(f"功能处于关闭状态，发送【开关管理】开启")
 
 
 ban_all = on_command("/all", permission=SUPERUSER | GROUP_ADMIN | GROUP_OWNER, priority=1, block=True)
@@ -115,7 +115,7 @@ async def _(bot: Bot, event: GroupMessageEvent):
             enable=enable
         )
     except ActionFailed:
-        await ban.finish("权限不足")
+        await ban_all.finish("权限不足")
     else:
         logger.info(f"全体操作成功 {str(enable)}")
 
@@ -147,7 +147,7 @@ async def _(bot: Bot, event: GroupMessageEvent):
             else:
                 logger.info("改名片操作成功")
     else:
-        await ban.send(f"功能处于关闭状态，发送【开关管理】开启")
+        await change.send(f"功能处于关闭状态，发送【开关管理】开启")
 
 
 title = on_command('头衔', permission=SUPERUSER | GROUP_OWNER, priority=1, block=True)
@@ -182,7 +182,7 @@ async def _(bot: Bot, event: GroupMessageEvent):
             else:
                 await title.finish("未填写头衔名称 或 不能含有@全体成员")
     else:
-        await ban.send(f"功能处于关闭状态，发送【开关管理】开启")
+        await title.send(f"功能处于关闭状态，发送【开关管理】开启")
 
 
 title_ = on_command('删头衔', permission=SUPERUSER | GROUP_ADMIN | GROUP_OWNER, priority=1, block=True)
@@ -217,7 +217,7 @@ async def _(bot: Bot, event: GroupMessageEvent):
             else:
                 await title_.finish("有什么输入错误 或 不能含有@全体成员")
     else:
-        await ban.send(f"功能处于关闭状态，发送【开关管理】开启")
+        await title_.send(f"功能处于关闭状态，发送【开关管理】开启")
 
 
 kick = on_command('踢', permission=SUPERUSER | GROUP_ADMIN | GROUP_OWNER, priority=1, block=True)
@@ -249,7 +249,7 @@ async def _(bot: Bot, event: GroupMessageEvent):
             else:
                 await kick.finish("不能含有@全体成员")
     else:
-        await ban.send(f"功能处于关闭状态，发送【开关管理】开启")
+        await kick.send(f"功能处于关闭状态，发送【开关管理】开启")
 
 
 kick_ = on_command('黑', permission=SUPERUSER | GROUP_ADMIN | GROUP_OWNER, priority=1, block=True)
@@ -281,7 +281,7 @@ async def _(bot: Bot, event: GroupMessageEvent):
             else:
                 await kick_.finish("不能含有@全体成员")
     else:
-        await ban.send(f"功能处于关闭状态，发送【开关管理】开启")
+        await kick_.send(f"功能处于关闭状态，发送【开关管理】开启")
 
 
 set_g_admin = on_command("管理员+", permission=SUPERUSER | GROUP_OWNER, priority=1, block=True)
@@ -317,7 +317,7 @@ async def _(bot: Bot, event: GroupMessageEvent):
             else:
                 await set_g_admin.finish("指令不正确 或 不能含有@全体成员")
     else:
-        await ban.send(f"功能处于关闭状态，发送【开关管理】开启")
+        await set_g_admin.send(f"功能处于关闭状态，发送【开关管理】开启")
 
 
 unset_g_admin = on_command("管理员-", permission=SUPERUSER | GROUP_OWNER, priority=1, block=True)
@@ -353,7 +353,7 @@ async def _(bot: Bot, event: GroupMessageEvent):
             else:
                 await unset_g_admin.finish("指令不正确 或 不能含有@全体成员")
     else:
-        await ban.send(f"功能处于关闭状态，发送【开关管理】开启")
+        await unset_g_admin.send(f"功能处于关闭状态，发送【开关管理】开启")
 
 
 __usage__ = """
