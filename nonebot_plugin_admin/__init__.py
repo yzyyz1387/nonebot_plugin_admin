@@ -32,14 +32,19 @@ async def _(bot: Bot, event: GroupMessageEvent):
     """
     /禁 @user 禁言
     """
-    msg = str(event.get_message())
+    msg = str(event.get_message()).replace(" ", "").split("]")
     sb = At(event.json())
     gid = event.group_id
     status = await check_func_status("admin", str(gid))
     if status:
         if sb:
-            if len(msg.split()) > len(sb):
-                time = int(msg.split()[-1:][0])
+            if len(msg) > len(sb):
+                try:
+                    time = int(msg[-1:][0])
+                except ValueError:
+                    for q in sb:
+                        raw_msg = event.raw_message.replace(" ", "").replace(str(q), "")
+                    time = int(''.join(str(num) for num in list(filter(lambda x: x.isdigit(), raw_msg))))
                 baning = banSb(gid, ban_list=sb, time=time)
                 async for baned in baning:
                     if baned:
@@ -364,6 +369,7 @@ __usage__ = """
 权限：permission=SUPERUSER | GROUP_ADMIN | GROUP_OWNER
   禁言:
     禁 @某人 时间（s）[1,2591999]
+    禁 时间（s）@某人 [1,2591999]
     禁 @某人 缺省时间则随机
     禁 @某人 0 可解禁
     解 @某人
@@ -416,7 +422,8 @@ __usage__ = """
 【被动识别】
 涩图检测：将禁言随机时间
 
-违禁词检测：将禁言随机时间
+违禁词检测：已支持正则表达式，可定义触发违禁词操作(默认为禁言+撤回)
+定义操作方法：用制表符分隔，左边为触发条件，右边为操作定义($禁言、$撤回)
 群内发送：
   简单违禁词 ：简单级别过滤
   严格违禁词 ：严格级别过滤(不建议)

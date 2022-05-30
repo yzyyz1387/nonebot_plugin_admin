@@ -61,10 +61,11 @@ async def _(bot: Bot, event: GroupMessageEvent):
         with open((re_img_path / f"{gid}.png").resolve(), 'rb') as f:
             img_bytes = f.read()
         await switcher_html.send(MessageSegment.image(img_bytes))
-    except:
+    except Exception as e:
         await switcher_html.send(
             "当前群组开关状态：\n" + "\n".join(
                 [f"{admin_funcs[func][0]}：{'开启' if funcs_status[gid][func] else '关闭'}" for func in admin_funcs]))
+        logger.error(f'开关渲染网页并截图失败，已使用文字发送，错误信息：\n{"-"*30}{e}{"-"*30}')
 
 
 async def save_image(url, img_path):
