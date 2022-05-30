@@ -194,6 +194,9 @@ tenkeys="xxxxxx"
 - [ ] 一些大事
 
 ##  更新
+-0.3.21
+  - 优化默认配置；同时增加一个配置项：设置禁言等基础操作是否在 qq 返回操作结果 [#18](https://github.com/yzyyz1387/nonebot_plugin_admin/pull/18)
+  - 修复`禁@xxx`的buggi
 - 0.3.19
   - 修复`__init__.py`中的bug🐛 [PULL#17](https://github.com/yzyyz1387/nonebot_plugin_admin/pull/17) [@tom-snow](https://github.com/tom-snow)
   - 优化`禁@xxx`,改善灵活性 [#15](https://github.com/yzyyz1387/nonebot_plugin_admin/issues/15)
