@@ -40,7 +40,7 @@ async def _(bot: Bot, event: GroupMessageEvent):
     status = await check_func_status("admin", str(gid))
     if status:
         if sb:
-            if len(msg) > len(sb):
+            if len(msg) > len(sb) and msg[-1] != "":
                 try:
                     time = int(msg[-1:][0])
                 except ValueError:
