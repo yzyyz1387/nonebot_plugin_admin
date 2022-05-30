@@ -25,10 +25,11 @@ from tencentcloud.common.profile.http_profile import HttpProfile
 from tencentcloud.ims.v20201229 import ims_client, models
 from .path import *
 
-TencentID = nonebot.get_driver().config.tenid
-TencentKeys = nonebot.get_driver().config.tenkeys
-su = nonebot.get_driver().config.superusers
+from .config import plugin_config, global_config
 
+TencentID = plugin_config.tenid
+TencentKeys = plugin_config.tenkeys
+su = global_config.superusers
 
 def At(data: str):
     """

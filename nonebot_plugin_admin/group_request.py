@@ -5,7 +5,7 @@
 # @Email   :  youzyyz1384@qq.com
 # @File    : group_request.py
 # @Software: PyCharm
-import nonebot
+# import nonebot
 from nonebot import on_command, on_request, logger
 from nonebot.adapters.onebot.v11 import Bot, GroupMessageEvent, GroupRequestEvent, MessageEvent
 from nonebot.adapters.onebot.v11.permission import GROUP_ADMIN, GROUP_OWNER
@@ -19,7 +19,10 @@ import json
 import re
 from .path import *
 from .utils import load, check_func_status
-su = nonebot.get_driver().config.superusers
+
+from .config import global_config
+
+su = global_config.superusers
 
 # 查看所有审批词条
 super_sp = on_command('所有词条', aliases={"/susp", "/su审批"}, priority=1, block=True, permission=SUPERUSER)

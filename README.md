@@ -46,8 +46,8 @@
 鉴黄配置：  
 腾讯云图片安全，开通地址：[https://console.cloud.tencent.com/cms](https://console.cloud.tencent.com/cms)  
 文档：[https://cloud.tencent.com/document/product/1125](https://cloud.tencent.com/document/product/1125)
-注意，在beta2中，若不进行预先配置，启动时会无法导入，请安下方格式配置，若暂时不使用此功能，可以直接复制粘贴下面的内容
-**.env.***:
+
+需要使用此功能时在 `.env.*` 文件中加入以下内容，并且设置你自己的 `api id` 与 `api key`【不需要此功能可以不配置】：
 ```
 # 腾讯云图片安全api
 tenid="xxxxxx"

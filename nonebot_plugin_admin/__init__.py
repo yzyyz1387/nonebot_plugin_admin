@@ -15,7 +15,9 @@ from . import approve
 from .utils import At, banSb, init, check_func_status
 from .group_request_verify import verify
 from . import approve, group_request_verify, group_request, notice, utils, word_analyze, r18_pic_ban, auto_ban, switcher
-su = nonebot.get_driver().config.superusers
+from .config import plugin_config
+
+cb_notice = plugin_config.callback_notice
 
 admin_init =  on_command('群管初始化', priority=1, block=True, permission=SUPERUSER | GROUP_ADMIN | GROUP_OWNER)
 
@@ -54,6 +56,8 @@ async def _(bot: Bot, event: GroupMessageEvent):
                             await ban.finish("权限不足")
                         else:
                             logger.info("禁言操作成功")
+                            if cb_notice:
+                                await ban.finish("禁言操作成功")
             else:
                 baning = banSb(gid, ban_list=sb)
                 async for baned in baning:
@@ -64,6 +68,8 @@ async def _(bot: Bot, event: GroupMessageEvent):
                             await ban.finish("权限不足")
                         else:
                             logger.info("禁言操作成功")
+                            if cb_notice:
+                                await ban.finish("禁言操作成功")
                     await ban.send(f"该用户已被禁言随机时长")
         else:
             pass
@@ -95,6 +101,8 @@ async def _(bot: Bot, event: GroupMessageEvent):
                         await unban.finish("权限不足")
                     else:
                         logger.info("解禁操作成功")
+                        if cb_notice:
+                            await unban.finish("解禁操作成功")
     else:
         await unban.send(f"功能处于关闭状态，发送【开关管理】开启")
 
@@ -123,6 +131,8 @@ async def _(bot: Bot, event: GroupMessageEvent):
         await ban_all.finish("权限不足")
     else:
         logger.info(f"全体操作成功 {str(enable)}")
+        if cb_notice:
+            await ban_all.finish(f"全体操作成功 {str(enable)}")
 
 
 change = on_command('改', permission=SUPERUSER | GROUP_ADMIN | GROUP_OWNER, priority=1, block=True)
@@ -151,6 +161,8 @@ async def _(bot: Bot, event: GroupMessageEvent):
                 await change.finish("权限不足")
             else:
                 logger.info("改名片操作成功")
+                if cb_notice:
+                    await change.finish("改名片操作成功")
     else:
         await change.send(f"功能处于关闭状态，发送【开关管理】开启")
 
@@ -184,6 +196,8 @@ async def _(bot: Bot, event: GroupMessageEvent):
                     await title.finish("权限不足")
                 else:
                     logger.info(f"改头衔操作成功{stitle}")
+                    if cb_notice:
+                        await title.finish(f"改头衔操作成功{stitle}")
             else:
                 await title.finish("未填写头衔名称 或 不能含有@全体成员")
     else:
@@ -219,6 +233,8 @@ async def _(bot: Bot, event: GroupMessageEvent):
                     await title_.finish("权限不足")
                 else:
                     logger.info(f"改头衔操作成功{stitle}")
+                    if cb_notice:
+                        await title_.finish(f"改头衔操作成功{stitle}")
             else:
                 await title_.finish("有什么输入错误 或 不能含有@全体成员")
     else:
@@ -251,6 +267,8 @@ async def _(bot: Bot, event: GroupMessageEvent):
                     await kick.finish("权限不足")
                 else:
                     logger.info(f"踢人操作成功")
+                    if cb_notice:
+                        await kick.finish(f"踢人操作成功")
             else:
                 await kick.finish("不能含有@全体成员")
     else:
@@ -283,6 +301,8 @@ async def _(bot: Bot, event: GroupMessageEvent):
                     await kick_.finish("权限不足")
                 else:
                     logger.info(f"踢人并拉黑操作成功")
+                    if cb_notice:
+                        await kick_.finish(f"踢人并拉黑操作成功")
             else:
                 await kick_.finish("不能含有@全体成员")
     else:
