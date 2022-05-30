@@ -13,18 +13,14 @@ import random
 import re
 from typing import Union, Optional
 import aiofiles
-import httpx
 import nonebot
 from nonebot import logger, require
 from tencentcloud.common import credential
-from tencentcloud.common.exception.tencent_cloud_sdk_exception import (
-    TencentCloudSDKException,
-)
+from tencentcloud.common.exception.tencent_cloud_sdk_exception import TencentCloudSDKException
 from tencentcloud.common.profile.client_profile import ClientProfile
 from tencentcloud.common.profile.http_profile import HttpProfile
 from tencentcloud.ims.v20201229 import ims_client, models
 from .path import *
-
 from .config import plugin_config, global_config
 
 TencentID = plugin_config.tenid
@@ -307,34 +303,6 @@ async def image_moderation_async(img: Union[str, bytes]) -> dict:
 
 def bytes_to_base64(data):
     return base64.b64encode(data).decode("utf-8")
-
-
-async def auto_upload_f_words():
-    logger.info("自动更新严格违禁词库...")
-    async with httpx.AsyncClient() as client:
-        try:
-            r = (await client.get(url="https://fastly.jsdelivr.net/gh/yzyyz1387/nwafu/f_words/f_word_s")).text
-        except Exception as err:
-            logger.error(f"自动更新严格违禁词库失败：{err}")
-            return True
-    with open(limit_word_path, "w", encoding='utf-8') as lwp:
-        lwp.write(r)
-        lwp.close()
-    logger.info("正在更新简单违禁词库")
-    async with httpx.AsyncClient() as client:
-        try:
-            r = (await client.get(url="https://fastly.jsdelivr.net/gh/yzyyz1387/nwafu/f_words/f_word_easy")).text
-        except Exception as err:
-            logger.error(f"自动更新简单违禁词库失败：{err}")
-            return True
-    with open(limit_word_path_easy, "w", encoding='utf-8') as lwp:
-        lwp.write(r)
-        lwp.close()
-    logger.info("更新完成")
-
-scheduler = require("nonebot_plugin_apscheduler").scheduler
-# 每周一更新违禁词库
-scheduler.add_job(auto_upload_f_words, 'cron', day_of_week='mon', hour=0, minute=0, second=0, id='auto_upload_f_words')
 
 
 async def load(path) -> Optional[dict]:

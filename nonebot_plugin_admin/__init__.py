@@ -11,24 +11,19 @@ from nonebot.adapters.onebot.v11 import Bot, GroupMessageEvent
 from nonebot.adapters.onebot.v11.exception import ActionFailed
 from nonebot.adapters.onebot.v11.permission import GROUP_ADMIN, GROUP_OWNER
 from nonebot.permission import SUPERUSER
-from . import approve
+from . import approve, group_request_verify, group_request, notice, utils, word_analyze, r18_pic_ban, auto_ban, switcher
 from .utils import At, banSb, init, check_func_status
 from .group_request_verify import verify
-from . import approve, group_request_verify, group_request, notice, utils, word_analyze, r18_pic_ban, auto_ban, switcher
 from .config import plugin_config
 
 cb_notice = plugin_config.callback_notice
 
 admin_init =  on_command('群管初始化', priority=1, block=True, permission=SUPERUSER | GROUP_ADMIN | GROUP_OWNER)
-
-
 @admin_init.handle()
 async def _(bot: Bot, event: GroupMessageEvent):
     await init()
 
 ban = on_command('禁', priority=1, block=True, permission=SUPERUSER | GROUP_ADMIN | GROUP_OWNER)
-
-
 @ban.handle()
 async def _(bot: Bot, event: GroupMessageEvent):
     """
@@ -78,8 +73,6 @@ async def _(bot: Bot, event: GroupMessageEvent):
 
 
 unban = on_command("解", priority=1, block=True, permission=SUPERUSER | GROUP_ADMIN | GROUP_OWNER)
-
-
 @unban.handle()
 async def _(bot: Bot, event: GroupMessageEvent):
     """
@@ -108,8 +101,6 @@ async def _(bot: Bot, event: GroupMessageEvent):
 
 
 ban_all = on_command("/all", permission=SUPERUSER | GROUP_ADMIN | GROUP_OWNER, priority=1, block=True)
-
-
 @ban_all.handle()
 async def _(bot: Bot, event: GroupMessageEvent):
     """
@@ -136,8 +127,6 @@ async def _(bot: Bot, event: GroupMessageEvent):
 
 
 change = on_command('改', permission=SUPERUSER | GROUP_ADMIN | GROUP_OWNER, priority=1, block=True)
-
-
 @change.handle()
 async def _(bot: Bot, event: GroupMessageEvent):
     """
@@ -168,8 +157,6 @@ async def _(bot: Bot, event: GroupMessageEvent):
 
 
 title = on_command('头衔', permission=SUPERUSER | GROUP_OWNER, priority=1, block=True)
-
-
 @title.handle()
 async def _(bot: Bot, event: GroupMessageEvent):
     """
@@ -205,8 +192,6 @@ async def _(bot: Bot, event: GroupMessageEvent):
 
 
 title_ = on_command('删头衔', permission=SUPERUSER | GROUP_ADMIN | GROUP_OWNER, priority=1, block=True)
-
-
 @title_.handle()
 async def _(bot: Bot, event: GroupMessageEvent):
     """
@@ -242,8 +227,6 @@ async def _(bot: Bot, event: GroupMessageEvent):
 
 
 kick = on_command('踢', permission=SUPERUSER | GROUP_ADMIN | GROUP_OWNER, priority=1, block=True)
-
-
 @kick.handle()
 async def _(bot: Bot, event: GroupMessageEvent):
     """
@@ -276,8 +259,6 @@ async def _(bot: Bot, event: GroupMessageEvent):
 
 
 kick_ = on_command('黑', permission=SUPERUSER | GROUP_ADMIN | GROUP_OWNER, priority=1, block=True)
-
-
 @kick_.handle()
 async def _(bot: Bot, event: GroupMessageEvent):
     """
@@ -310,8 +291,6 @@ async def _(bot: Bot, event: GroupMessageEvent):
 
 
 set_g_admin = on_command("管理员+", permission=SUPERUSER | GROUP_OWNER, priority=1, block=True)
-
-
 @set_g_admin.handle()
 async def _(bot: Bot, event: GroupMessageEvent):
     """
@@ -346,8 +325,6 @@ async def _(bot: Bot, event: GroupMessageEvent):
 
 
 unset_g_admin = on_command("管理员-", permission=SUPERUSER | GROUP_OWNER, priority=1, block=True)
-
-
 @unset_g_admin.handle()
 async def _(bot: Bot, event: GroupMessageEvent):
     """
