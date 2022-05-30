@@ -74,6 +74,7 @@ tenkeys="xxxxxx"
 权限：permission=SUPERUSER | GROUP_ADMIN | GROUP_OWNER
   禁言:
     禁 @某人 时间（s）[1,2591999]
+    禁 时间（s）@某人 [1,2591999]
     禁 @某人 缺省时间则随机
     禁 @某人 0 可解禁
     解 @某人
@@ -194,6 +195,20 @@ tenkeys="xxxxxx"
 
 
 ##  更新
+- 0.3.19
+  - 修复`__init__.py`中的bug🐛 [PULL#17](https://github.com/yzyyz1387/nonebot_plugin_admin/pull/17) [@tom-snow](https://github.com/tom-snow)
+  - 优化`禁@xxx`,改善灵活性 [#15](https://github.com/yzyyz1387/nonebot_plugin_admin/issues/15)
+  - `switcher.py`网页截图错误捕捉
+  - 修改cdn地址
+  - 修聊天记录编码问题
+  - 改善违禁词检测功能的灵活性[@lakwsh](https://github.com/yzyyz1387/nonebot_plugin_admin/commits?author=lakwsh)
+    - 违禁词检测：已支持正则表达式，可定义触发违禁词操作(默认为禁言+撤回)  
+    - 定义操作方法：用制表符分隔，左边为触发条件，右边为操作定义($禁言、$撤回)
+- 修复触发违禁词不会阻止事件传播的问题[@lakwsh](https://github.com/yzyyz1387/nonebot_plugin_admin/commits?author=lakwsh)
+- 修复可能会导致其他插件无法捕获消息的问题[@lakwsh](https://github.com/yzyyz1387/nonebot_plugin_admin/commits?author=lakwsh)
+- 修复部分文件编码错误，开关状态图片乱码及SIGINT信号被劫持的问题[@lakwsh](https://github.com/yzyyz1387/nonebot_plugin_admin/commits?author=lakwsh)
+
+
 - 0.3.18（beta）
   - update LICENSE to AGPL-3.0
   - 🐛修复`管理员-`无效的bug
