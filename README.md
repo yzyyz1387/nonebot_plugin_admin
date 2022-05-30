@@ -193,7 +193,6 @@ tenkeys="xxxxxx"
 - [ ] 写一个文档
 - [ ] 一些大事
 
-
 ##  更新
 - 0.3.19
   - 修复`__init__.py`中的bug🐛 [PULL#17](https://github.com/yzyyz1387/nonebot_plugin_admin/pull/17) [@tom-snow](https://github.com/tom-snow)
