@@ -41,7 +41,7 @@ async def _(bot: Bot, event: GroupMessageEvent, matcher: Matcher):
     level = await load(limit_level)
     status = await check_func_status('auto_ban', str(gid))
     if not status:
-        f_word.finish()
+        await f_word.finish()
     if str(gid) in level:
         if level[str(gid)] == 'easy':
             limit_path = limit_word_path_easy
