@@ -41,47 +41,27 @@ async def _(bot: Bot, event: GroupMessageEvent):
     status = await check_func_status("admin", str(gid))
     if status:
         if sb:
-            # if len(msg) > len(sb) and msg[-1] != "":
-            #     try:
-            #         time = int(msg[-1:][0])
-            #     except ValueError:
-            #         for q in sb:
-            #             raw_msg = event.raw_message.replace(" ", "").replace(str(q), "")
-            #         time = int(''.join(str(num) for num in list(filter(lambda x: x.isdigit(), raw_msg))))
             if len(msg.split(" ")) > 1:
-                try: # counts = n
+                try:
                     time = int(msg.split(" ")[-1])
                 except ValueError:
                     time = None # 出现错误就默认随机 【理论上除非是 /撤回 @user n 且 n 不是数值时才有可能触发】
             else:
                 time = None
             baning = banSb(gid, ban_list=sb, time=time)
-            async for baned in baning:
-                if baned:
-                    try:
+            try:
+                async for baned in baning:
+                    if baned:
                         await baned
-                    except ActionFailed:
-                        await ban.finish("权限不足")
+            except ActionFailed:
+                await ban.finish("权限不足")
+            else:
+                logger.info("禁言操作成功")
+                if cb_notice: # 迭代结束再通知
+                    if time is not None:
+                        await ban.finish("禁言操作成功")
                     else:
-                        logger.info("禁言操作成功")
-                        if cb_notice:
-                            if time:
-                                await ban.finish("禁言操作成功")
-                            else:
-                                await ban.finish("该用户已被禁言随机时长")
-            # else:
-            #     baning = banSb(gid, ban_list=sb)
-            #     async for baned in baning:
-            #         if baned:
-            #             try:
-            #                 await baned
-            #             except ActionFailed:
-            #                 await ban.finish("权限不足")
-            #             else:
-            #                 logger.info("禁言操作成功")
-            #                 if cb_notice:
-            #                     await ban.finish("禁言操作成功")
-            #         await ban.send(f"该用户已被禁言随机时长")
+                        await ban.finish("该用户已被禁言随机时长")
         else:
             pass
     else:
@@ -94,33 +74,32 @@ async def _(bot: Bot, event: GroupMessageEvent):
     """
     /解 @user 解禁
     """
-    msg = str(event.get_message())
     sb = At(event.json())
     gid = event.group_id
     status = await check_func_status("admin", str(gid))
     if status:
         if sb:
-            # if len(msg.split()) == len(sb):
             baning = banSb(gid, ban_list=sb, time=0)
-            async for baned in baning:
-                if baned:
-                    try:
+            try:
+                async for baned in baning:
+                    if baned:
                         await baned
-                    except ActionFailed:
-                        await unban.finish("权限不足")
-                    else:
-                        logger.info("解禁操作成功")
-                        if cb_notice:
-                            await unban.finish("解禁操作成功")
+            except ActionFailed:
+                await unban.finish("权限不足")
+            else:
+                logger.info("解禁操作成功")
+                if cb_notice: # 迭代结束再通知
+                    await unban.finish("解禁操作成功")
     else:
         await unban.send(f"功能处于关闭状态，发送【开关管理】开启")
 
 
-ban_all = on_command("/all", permission=SUPERUSER | GROUP_ADMIN | GROUP_OWNER, priority=1, block=True)
+ban_all = on_command("/all", aliases={"全员"}, permission=SUPERUSER | GROUP_ADMIN | GROUP_OWNER, priority=1, block=True)
 @ban_all.handle()
 async def _(bot: Bot, event: GroupMessageEvent):
     """
-    （测试时没用..）
+    （测试时没用..） 
+    # note: 如果在 .env.* 文件内设置了 COMMAND_START ，且不包含 "" (即所有指令都有前缀，假设 '/' 是其中一个前缀)，则应该发 //all 触发 
     /all 全员禁言
     /all  解 关闭全员禁言
     """
@@ -137,9 +116,9 @@ async def _(bot: Bot, event: GroupMessageEvent):
     except ActionFailed:
         await ban_all.finish("权限不足")
     else:
-        logger.info(f"全体操作成功 {str(enable)}")
+        logger.info(f"全体操作成功: {'禁言' if enable else '解禁'}")
         if cb_notice:
-            await ban_all.finish(f"全体操作成功 {str(enable)}")
+            await ban_all.finish(f"全体操作成功: {'禁言' if enable else '解禁'}")
 
 
 change = on_command('改', permission=SUPERUSER | GROUP_ADMIN | GROUP_OWNER, priority=1, block=True)

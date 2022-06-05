@@ -188,7 +188,7 @@ async def banSb(gid: int, ban_list: list, time: int = None):
             enable=True
         )
     else:
-        if not time:
+        if time is None:
             time = random.randint(plugin_config.ban_rand_time_min, plugin_config.ban_rand_time_max)
         for qq in ban_list:
             if int(qq) in su or str(qq) in su:
@@ -371,7 +371,23 @@ async def check_func_status(func_name: str, gid: str) -> bool:
     :return: bool
     """
     funcs_status = (await load(switcher_path))
-    if funcs_status[gid][func_name]:
-        return True
-    else:
-        return False
+    if funcs_status is None:
+        raise FileNotFoundError(switcher_path)
+    try:
+        if funcs_status[gid][func_name]:
+            return True
+        else:
+            return False
+    except KeyError: # 新加入的群
+        logger.info(f"本群({gid})尚未初始化！将自动初始化：关闭所有开关且设置过滤级别为简单。\n\n请重新发送指令继续之前的操作")
+        if cb_notice:
+            await nonebot.get_bot().send_group_msg(group_id=gid, message="本群尚未初始化，将自动初始化：开启所有开关且设置过滤级别为简单。\n\n请重新发送指令继续之前的操作")
+        funcs_status.update({str(gid): {"admin": True, "requests": True, "wordcloud": True,
+                                                           "auto_ban": True, "img_check": True}})
+        await upload(switcher_path, funcs_status)
+
+        level = await load(limit_level)
+        level.update({str(gid): "easy"})
+        await upload(limit_level, level)
+        # raise # 抛出异常阻断后面的逻辑代码？
+        return False # 直接返回 false
