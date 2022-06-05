@@ -5,6 +5,11 @@
 # @Email   :  youzyyz1384@qq.com
 # @File    : __init__.py.py
 # @Software: PyCharm
+
+from asyncio import sleep as asleep
+from traceback import print_exc
+from random import randint
+
 import nonebot
 from nonebot import on_command, logger
 from nonebot.adapters.onebot.v11 import Bot, GroupMessageEvent
@@ -12,7 +17,7 @@ from nonebot.adapters.onebot.v11.exception import ActionFailed
 from nonebot.adapters.onebot.v11.permission import GROUP_ADMIN, GROUP_OWNER
 from nonebot.permission import SUPERUSER
 from . import approve, group_request_verify, group_request, notice, utils, word_analyze, r18_pic_ban, auto_ban, switcher
-from .utils import At, banSb, init, check_func_status
+from .utils import At, Reply, MsgText, banSb, init, check_func_status
 from .group_request_verify import verify
 from .config import plugin_config
 
@@ -29,43 +34,54 @@ async def _(bot: Bot, event: GroupMessageEvent):
     """
     /禁 @user 禁言
     """
-    msg = str(event.get_message()).replace(" ", "").split("]")
+    # msg = str(event.get_message()).replace(" ", "").split("]")
+    msg = MsgText(event.json())
     sb = At(event.json())
     gid = event.group_id
     status = await check_func_status("admin", str(gid))
     if status:
         if sb:
-            if len(msg) > len(sb) and msg[-1] != "":
-                try:
-                    time = int(msg[-1:][0])
+            # if len(msg) > len(sb) and msg[-1] != "":
+            #     try:
+            #         time = int(msg[-1:][0])
+            #     except ValueError:
+            #         for q in sb:
+            #             raw_msg = event.raw_message.replace(" ", "").replace(str(q), "")
+            #         time = int(''.join(str(num) for num in list(filter(lambda x: x.isdigit(), raw_msg))))
+            if len(msg.split(" ")) > 1:
+                try: # counts = n
+                    time = int(msg.split(" ")[-1])
                 except ValueError:
-                    for q in sb:
-                        raw_msg = event.raw_message.replace(" ", "").replace(str(q), "")
-                    time = int(''.join(str(num) for num in list(filter(lambda x: x.isdigit(), raw_msg))))
-                baning = banSb(gid, ban_list=sb, time=time)
-                async for baned in baning:
-                    if baned:
-                        try:
-                            await baned
-                        except ActionFailed:
-                            await ban.finish("权限不足")
-                        else:
-                            logger.info("禁言操作成功")
-                            if cb_notice:
-                                await ban.finish("禁言操作成功")
+                    time = None # 出现错误就默认随机 【理论上除非是 /撤回 @user n 且 n 不是数值时才有可能触发】
             else:
-                baning = banSb(gid, ban_list=sb)
-                async for baned in baning:
-                    if baned:
-                        try:
-                            await baned
-                        except ActionFailed:
-                            await ban.finish("权限不足")
-                        else:
-                            logger.info("禁言操作成功")
-                            if cb_notice:
+                time = None
+            baning = banSb(gid, ban_list=sb, time=time)
+            async for baned in baning:
+                if baned:
+                    try:
+                        await baned
+                    except ActionFailed:
+                        await ban.finish("权限不足")
+                    else:
+                        logger.info("禁言操作成功")
+                        if cb_notice:
+                            if time:
                                 await ban.finish("禁言操作成功")
-                    await ban.send(f"该用户已被禁言随机时长")
+                            else:
+                                await ban.finish("该用户已被禁言随机时长")
+            # else:
+            #     baning = banSb(gid, ban_list=sb)
+            #     async for baned in baning:
+            #         if baned:
+            #             try:
+            #                 await baned
+            #             except ActionFailed:
+            #                 await ban.finish("权限不足")
+            #             else:
+            #                 logger.info("禁言操作成功")
+            #                 if cb_notice:
+            #                     await ban.finish("禁言操作成功")
+            #         await ban.send(f"该用户已被禁言随机时长")
         else:
             pass
     else:
@@ -358,6 +374,69 @@ async def _(bot: Bot, event: GroupMessageEvent):
         await unset_g_admin.send(f"功能处于关闭状态，发送【开关管理】开启")
 
 
+msg_recall = on_command("撤回", priority=1, aliases={"删除", "recall"}, block=True, permission=SUPERUSER | GROUP_ADMIN | GROUP_OWNER)
+
+@msg_recall.handle()
+async def _(bot: Bot, event: GroupMessageEvent): # by: @tom-snow
+    """
+    指令格式:
+    /撤回 @user n
+    回复指定消息时撤回该条消息；使用艾特时撤回被艾特的人在本群 n*19 历史消息内的所有消息。
+    不输入 n 则默认 n=5
+    """
+    # msg = str(event.get_message())
+    msg = MsgText(event.json())
+    sb = At(event.json())
+    rp = Reply(event.json())
+    gid = event.group_id
+    if not gid: # FIXME: 有必要吗
+        await msg_recall.finish("请在群内使用！")
+
+    recall_msg_id = []
+    if rp:
+        recall_msg_id.append(rp["message_id"])
+    elif sb:
+        seq = None
+        if len(msg.split(" ")) > 1:
+            try: # counts = n
+                counts = int(msg.split(" ")[-1])
+            except ValueError:
+                counts = 5 # 出现错误就默认为 5 【理论上除非是 /撤回 @user n 且 n 不是数值时才有可能触发】
+        else:
+            counts = 5
+        
+        try:
+            for i in range(counts): # 获取 n 次
+                await asleep(randint(0,10)) # 睡眠随机时间，避免黑号
+                res = await bot.call_api("get_group_msg_history", group_id=gid, message_seq=seq) # 获取历史消息
+                flag = True
+                for message in res["messages"]: # 历史消息列表
+                    if flag:
+                        seq = int(message["message_seq"]) - 1
+                        flag = False
+                    if int(message["user_id"]) in sb: # 将消息id加入列表
+                        recall_msg_id.append(int(message["message_id"]))
+        except ActionFailed as e:
+            await msg_recall.send(f"获取群历史消息时发生错误")
+            logger.error(f"获取群历史消息时发生错误：{e}, seq: {seq}")
+            print_exc()
+    else:
+        await msg_recall.finish("指令格式：\n/撤回 @user n\n回复指定消息时撤回该条消息；使用艾特时撤回被艾特的人在本群 n*19 历史消息内的所有消息。\n不输入 n 则默认 n=5")
+    
+    # 实际进行撤回的部分
+    try:
+        for msg_id in recall_msg_id:
+            await asleep(randint(0,3)) # 睡眠随机时间，避免黑号
+            await bot.call_api("delete_msg", message_id=msg_id)
+    except ActionFailed as e:
+        logger.warning(f"执行失败，可能是我权限不足 {e}")
+        await msg_recall.finish("执行失败，可能是我权限不足")
+    else:
+        logger.info(f"操作成功，一共撤回了 {len(recall_msg_id)} 条消息")
+        if cb_notice:
+            await msg_recall.finish(f"操作成功，一共撤回了 {len(recall_msg_id)} 条消息")
+
+
 __usage__ = """
 【初始化】：
   群管初始化 ：初始化插件
@@ -382,6 +461,9 @@ __usage__ = """
     踢 @某人
   踢出并拉黑：
    黑 @某人
+  撤回:
+   撤回 (回复某条消息即可撤回对应消息)
+   撤回 @user [(可选，默认n=5)历史消息倍数n] (实际检查的历史数为 n*19)
    
 【管理员】permission=SUPERUSER | GROUP_OWNER
   管理员+ @xxx 设置某人为管理员

@@ -48,6 +48,38 @@ def At(data: str):
     except KeyError:
         return []
 
+def Reply(data: str):
+    """
+    检测回复哪条消息，返回 reply 对象
+    如果没有回复任何人，返回 None
+    :param data: event.json()
+    :return: dict | None
+    """
+    try:
+        data = json.loads(data)
+        if data["reply"] and data["reply"]["message_id"]: # 待优化
+            return data["reply"]
+        else:
+            return None
+    except KeyError:
+        return None
+
+def MsgText(data: str):
+    """
+    返回消息文本段内容(即去除 cq 码后的内容)
+    :param data: event.json()
+    :return: str
+    """
+    try:
+        data = json.loads(data)
+        # 过滤出类型为 text 的【并且过滤内容为空的】
+        msg_text_list = filter(lambda x: x["type"] == "text" and x["data"]["text"].replace(" ", "") != "", data["message"])
+        # 拼接成字符串并且去除两端空格
+        msg_text = " ".join(map(lambda x:x["data"]["text"].strip(), msg_text_list)).strip()
+        return msg_text
+    except:
+        return ""
+
 
 async def init():
     """
@@ -142,7 +174,7 @@ async def mk(type_, path_, *mode, **kwargs):
         raise Exception("type_参数错误")
 
 
-async def banSb(gid: int, ban_list: list, **time: int):
+async def banSb(gid: int, ban_list: list, time: int = None):
     """
     构造禁言
     :param gid: 群号
@@ -158,8 +190,6 @@ async def banSb(gid: int, ban_list: list, **time: int):
     else:
         if not time:
             time = random.randint(1, 2591999)
-        else:
-            time = time['time']
         for qq in ban_list:
             if int(qq) in su or str(qq) in su:
                 logger.info(f"SUPERUSER无法被禁言")
