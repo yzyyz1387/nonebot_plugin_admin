@@ -52,6 +52,8 @@
 # 腾讯云图片安全api
 tenid="xxxxxx"
 tenkeys="xxxxxx"
+# 是否开启禁言等操作的成功提示【不开启的话踢人/禁言等成功没有QQ消息提示】
+callback_notice=true # 如果不想开启设置成 false 或者不添加此配置项【默认关闭】
 ```
 
 ✨Pay tribute to A60 [https://github.com/djkcyl/ABot-Graia](https://github.com/djkcyl/ABot-Graia)
@@ -90,6 +92,9 @@ tenkeys="xxxxxx"
     踢 @某人
   踢出并拉黑：
    黑 @某人
+  撤回:
+   撤回 (回复某条消息即可撤回对应消息)
+   撤回 @user [(可选，默认n=5)历史消息倍数n] (实际检查的历史数为 n*19)
    
 【管理员】permission=SUPERUSER | GROUP_OWNER
   管理员+ @xxx 设置某人为管理员
