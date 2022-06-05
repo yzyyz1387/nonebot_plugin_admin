@@ -189,10 +189,12 @@ async def banSb(gid: int, ban_list: list, time: int = None):
         )
     else:
         if not time:
-            time = random.randint(1, 2591999)
+            time = random.randint(plugin_config.ban_rand_time_min, plugin_config.ban_rand_time_max)
         for qq in ban_list:
             if int(qq) in su or str(qq) in su:
-                logger.info(f"SUPERUSER无法被禁言")
+                logger.info(f"SUPERUSER无法被禁言, {qq}")
+                if cb_notice:
+                    await nonebot.get_bot().send_group_msg(group_id=gid, message="SUPERUSER无法被禁言")
             else:
                 yield nonebot.get_bot().set_group_ban(
                     group_id=gid,
