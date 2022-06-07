@@ -113,7 +113,7 @@ config = on_command('词条+', aliases={'/sp+', '/审批+'}, priority=1, block=T
 
 
 @config.handle()
-async def _(bot: Bot, event: GroupMessageEvent, state: T_State = State()):
+async def _(bot: Bot, event: GroupMessageEvent, state: T_State):
     """
     /sp+ 增加本群词条
     """
@@ -134,7 +134,7 @@ config_ = on_command('词条-', aliases={'/sp-', '/审批-'}, priority=1, block=
 
 
 @config_.handle()
-async def _(bot: Bot, event: GroupMessageEvent, state: T_State = State()):
+async def _(bot: Bot, event: GroupMessageEvent, state: T_State):
     """
     /sp- 删除本群某词条
     """

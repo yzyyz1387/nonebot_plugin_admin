@@ -20,7 +20,7 @@ switcher = on_command("开关", priority=1, block=True, permission=SUPERUSER | G
 
 
 @switcher.handle()
-async def _(bot: Bot, event: GroupMessageEvent, state: T_State = State()):
+async def _(bot: Bot, event: GroupMessageEvent, state: T_State):
     gid = str(event.group_id)
     user_input_func_name = str(state['_prefix']['command_arg'])
     for func in admin_funcs:

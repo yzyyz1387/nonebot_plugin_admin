@@ -27,6 +27,7 @@ TencentID = plugin_config.tenid
 TencentKeys = plugin_config.tenkeys
 su = global_config.superusers
 
+
 def At(data: str):
     """
     检测at了谁，返回[qq, qq, qq,...]
@@ -48,6 +49,7 @@ def At(data: str):
     except KeyError:
         return []
 
+
 def Reply(data: str):
     """
     检测回复哪条消息，返回 reply 对象
@@ -57,12 +59,13 @@ def Reply(data: str):
     """
     try:
         data = json.loads(data)
-        if data["reply"] and data["reply"]["message_id"]: # 待优化
+        if data["reply"] and data["reply"]["message_id"]:  # 待优化
             return data["reply"]
         else:
             return None
     except KeyError:
         return None
+
 
 def MsgText(data: str):
     """
@@ -73,9 +76,10 @@ def MsgText(data: str):
     try:
         data = json.loads(data)
         # 过滤出类型为 text 的【并且过滤内容为空的】
-        msg_text_list = filter(lambda x: x["type"] == "text" and x["data"]["text"].replace(" ", "") != "", data["message"])
+        msg_text_list = filter(lambda x: x["type"] == "text" and x["data"]["text"].replace(" ", "") != "",
+                               data["message"])
         # 拼接成字符串并且去除两端空格
-        msg_text = " ".join(map(lambda x:x["data"]["text"].strip(), msg_text_list)).strip()
+        msg_text = " ".join(map(lambda x: x["data"]["text"].strip(), msg_text_list)).strip()
         return msg_text
     except:
         return ""
@@ -378,16 +382,17 @@ async def check_func_status(func_name: str, gid: str) -> bool:
             return True
         else:
             return False
-    except KeyError: # 新加入的群
+    except KeyError:  # 新加入的群
         logger.info(f"本群({gid})尚未初始化！将自动初始化：关闭所有开关且设置过滤级别为简单。\n\n请重新发送指令继续之前的操作")
         if cb_notice:
-            await nonebot.get_bot().send_group_msg(group_id=gid, message="本群尚未初始化，将自动初始化：开启所有开关且设置过滤级别为简单。\n\n请重新发送指令继续之前的操作")
+            await nonebot.get_bot().send_group_msg(group_id=gid, message="本群尚未初始化，将自动初始化：开启所有开关且设置过滤级别为简单。\n\n"
+                                                                         "请重新发送指令继续之前的操作")
         funcs_status.update({str(gid): {"admin": True, "requests": True, "wordcloud": True,
-                                                           "auto_ban": True, "img_check": True}})
+                                        "auto_ban": True, "img_check": True}})
         await upload(switcher_path, funcs_status)
 
         level = await load(limit_level)
         level.update({str(gid): "easy"})
         await upload(limit_level, level)
         # raise # 抛出异常阻断后面的逻辑代码？
-        return False # 直接返回 false
+        return False  # 直接返回 false

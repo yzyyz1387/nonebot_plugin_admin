@@ -25,6 +25,8 @@ cron_update = plugin_config.cron_update
 paths_ = [config_path, limit_word_path, limit_word_path_easy, limit_level]
 
 f_word = on_message(priority=0, block=False)
+
+
 @f_word.handle()
 async def _(bot: Bot, event: GroupMessageEvent, matcher: Matcher):
     """
@@ -47,7 +49,8 @@ async def _(bot: Bot, event: GroupMessageEvent, matcher: Matcher):
             limit_path = limit_word_path_easy
         else:
             limit_path = limit_word_path
-        rules = [re.sub(r'\t+', '\t', rule).split('\t') for rule in open(limit_path, 'r', encoding='utf-8').read().split('\n')]
+        rules = [re.sub(r'\t+', '\t', rule).split('\t') for rule in
+                 open(limit_path, 'r', encoding='utf-8').read().split('\n')]
         msg = re.sub(r'\s', '', str(event.get_message()))
         logger.info(f"收到消息: \"{msg}\"")
         for rule in rules:
@@ -81,7 +84,10 @@ async def _(bot: Bot, event: GroupMessageEvent, matcher: Matcher):
     elif cb_notice:
         await f_word.send('本群未配置检测级别，指令如下：\n1.简单违禁词:简单级别\n2.严格违禁词：严格级别\n3.群管初始化：一键配置所有群聊为简单级别\n若重复出现此信息推荐发送【简单违禁词】')
 
+
 set_level_easy = on_command("简单违禁词", priority=1, permission=GROUP_ADMIN | GROUP_OWNER | SUPERUSER)
+
+
 @set_level_easy.handle()
 async def _(bot: Bot, event: GroupMessageEvent):
     gid = str(event.group_id)
@@ -101,6 +107,8 @@ async def _(bot: Bot, event: GroupMessageEvent):
 
 
 set_level_rigorous = on_command("严格违禁词", priority=1, permission=GROUP_ADMIN | GROUP_OWNER | SUPERUSER)
+
+
 @set_level_rigorous.handle()
 async def _(bot: Bot, event: GroupMessageEvent):
     gid = str(event.group_id)
@@ -117,6 +125,7 @@ async def _(bot: Bot, event: GroupMessageEvent):
     else:
         if cb_notice:
             await set_level_easy.finish("本群未开启此功能，发送【开关违禁词】开启")
+
 
 if cron_update:
     async def auto_upload_f_words():
@@ -140,11 +149,15 @@ if cron_update:
             await f.write(r)
         logger.info("更新完成")
 
+
     scheduler = require("nonebot_plugin_apscheduler").scheduler
     # 每周一更新违禁词库
-    scheduler.add_job(auto_upload_f_words, 'cron', day_of_week='mon', hour=0, minute=0, second=0, id='auto_upload_f_words')
+    scheduler.add_job(auto_upload_f_words, 'cron', day_of_week='mon', hour=0, minute=0, second=0,
+                      id='auto_upload_f_words')
 
     update_f_words = on_command("更新违禁词库", priority=1, permission=GROUP_ADMIN | GROUP_OWNER | SUPERUSER)
+
+
     @update_f_words.handle()
     async def _(bot: Bot):
         upload_ = await auto_upload_f_words()

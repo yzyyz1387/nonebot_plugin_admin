@@ -23,12 +23,17 @@ from .config import plugin_config
 
 cb_notice = plugin_config.callback_notice
 
-admin_init =  on_command('群管初始化', priority=1, block=True, permission=SUPERUSER | GROUP_ADMIN | GROUP_OWNER)
+admin_init = on_command('群管初始化', priority=1, block=True, permission=SUPERUSER | GROUP_ADMIN | GROUP_OWNER)
+
+
 @admin_init.handle()
 async def _(bot: Bot, event: GroupMessageEvent):
     await init()
 
+
 ban = on_command('禁', priority=1, block=True, permission=SUPERUSER | GROUP_ADMIN | GROUP_OWNER)
+
+
 @ban.handle()
 async def _(bot: Bot, event: GroupMessageEvent):
     """
@@ -45,7 +50,7 @@ async def _(bot: Bot, event: GroupMessageEvent):
                 try:
                     time = int(msg.split(" ")[-1])
                 except ValueError:
-                    time = None # 出现错误就默认随机 【理论上除非是 /撤回 @user n 且 n 不是数值时才有可能触发】
+                    time = None  # 出现错误就默认随机 【理论上除非是 /撤回 @user n 且 n 不是数值时才有可能触发】
             else:
                 time = None
             baning = banSb(gid, ban_list=sb, time=time)
@@ -57,7 +62,7 @@ async def _(bot: Bot, event: GroupMessageEvent):
                 await ban.finish("权限不足")
             else:
                 logger.info("禁言操作成功")
-                if cb_notice: # 迭代结束再通知
+                if cb_notice:  # 迭代结束再通知
                     if time is not None:
                         await ban.finish("禁言操作成功")
                     else:
@@ -69,6 +74,8 @@ async def _(bot: Bot, event: GroupMessageEvent):
 
 
 unban = on_command("解", priority=1, block=True, permission=SUPERUSER | GROUP_ADMIN | GROUP_OWNER)
+
+
 @unban.handle()
 async def _(bot: Bot, event: GroupMessageEvent):
     """
@@ -88,13 +95,15 @@ async def _(bot: Bot, event: GroupMessageEvent):
                 await unban.finish("权限不足")
             else:
                 logger.info("解禁操作成功")
-                if cb_notice: # 迭代结束再通知
+                if cb_notice:  # 迭代结束再通知
                     await unban.finish("解禁操作成功")
     else:
         await unban.send(f"功能处于关闭状态，发送【开关管理】开启")
 
 
 ban_all = on_command("/all", aliases={"全员"}, permission=SUPERUSER | GROUP_ADMIN | GROUP_OWNER, priority=1, block=True)
+
+
 @ban_all.handle()
 async def _(bot: Bot, event: GroupMessageEvent):
     """
@@ -122,6 +131,8 @@ async def _(bot: Bot, event: GroupMessageEvent):
 
 
 change = on_command('改', permission=SUPERUSER | GROUP_ADMIN | GROUP_OWNER, priority=1, block=True)
+
+
 @change.handle()
 async def _(bot: Bot, event: GroupMessageEvent):
     """
@@ -152,6 +163,8 @@ async def _(bot: Bot, event: GroupMessageEvent):
 
 
 title = on_command('头衔', permission=SUPERUSER | GROUP_OWNER, priority=1, block=True)
+
+
 @title.handle()
 async def _(bot: Bot, event: GroupMessageEvent):
     """
@@ -187,6 +200,8 @@ async def _(bot: Bot, event: GroupMessageEvent):
 
 
 title_ = on_command('删头衔', permission=SUPERUSER | GROUP_ADMIN | GROUP_OWNER, priority=1, block=True)
+
+
 @title_.handle()
 async def _(bot: Bot, event: GroupMessageEvent):
     """
@@ -222,6 +237,8 @@ async def _(bot: Bot, event: GroupMessageEvent):
 
 
 kick = on_command('踢', permission=SUPERUSER | GROUP_ADMIN | GROUP_OWNER, priority=1, block=True)
+
+
 @kick.handle()
 async def _(bot: Bot, event: GroupMessageEvent):
     """
@@ -254,6 +271,8 @@ async def _(bot: Bot, event: GroupMessageEvent):
 
 
 kick_ = on_command('黑', permission=SUPERUSER | GROUP_ADMIN | GROUP_OWNER, priority=1, block=True)
+
+
 @kick_.handle()
 async def _(bot: Bot, event: GroupMessageEvent):
     """
@@ -286,6 +305,8 @@ async def _(bot: Bot, event: GroupMessageEvent):
 
 
 set_g_admin = on_command("管理员+", permission=SUPERUSER | GROUP_OWNER, priority=1, block=True)
+
+
 @set_g_admin.handle()
 async def _(bot: Bot, event: GroupMessageEvent):
     """
@@ -320,6 +341,8 @@ async def _(bot: Bot, event: GroupMessageEvent):
 
 
 unset_g_admin = on_command("管理员-", permission=SUPERUSER | GROUP_OWNER, priority=1, block=True)
+
+
 @unset_g_admin.handle()
 async def _(bot: Bot, event: GroupMessageEvent):
     """
@@ -353,10 +376,12 @@ async def _(bot: Bot, event: GroupMessageEvent):
         await unset_g_admin.send(f"功能处于关闭状态，发送【开关管理】开启")
 
 
-msg_recall = on_command("撤回", priority=1, aliases={"删除", "recall"}, block=True, permission=SUPERUSER | GROUP_ADMIN | GROUP_OWNER)
+msg_recall = on_command("撤回", priority=1, aliases={"删除", "recall"}, block=True,
+                        permission=SUPERUSER | GROUP_ADMIN | GROUP_OWNER)
+
 
 @msg_recall.handle()
-async def _(bot: Bot, event: GroupMessageEvent): # by: @tom-snow
+async def _(bot: Bot, event: GroupMessageEvent):  # by: @tom-snow
     """
     指令格式:
     /撤回 @user n
@@ -368,7 +393,7 @@ async def _(bot: Bot, event: GroupMessageEvent): # by: @tom-snow
     sb = At(event.json())
     rp = Reply(event.json())
     gid = event.group_id
-    if not gid: # FIXME: 有必要吗
+    if not gid:  # fix
         await msg_recall.finish("请在群内使用！")
 
     recall_msg_id = []
@@ -377,23 +402,23 @@ async def _(bot: Bot, event: GroupMessageEvent): # by: @tom-snow
     elif sb:
         seq = None
         if len(msg.split(" ")) > 1:
-            try: # counts = n
+            try:  # counts = n
                 counts = int(msg.split(" ")[-1])
             except ValueError:
-                counts = 5 # 出现错误就默认为 5 【理论上除非是 /撤回 @user n 且 n 不是数值时才有可能触发】
+                counts = 5  # 出现错误就默认为 5 【理论上除非是 /撤回 @user n 且 n 不是数值时才有可能触发】
         else:
             counts = 5
-        
+
         try:
-            for i in range(counts): # 获取 n 次
-                await asleep(randint(0,10)) # 睡眠随机时间，避免黑号
-                res = await bot.call_api("get_group_msg_history", group_id=gid, message_seq=seq) # 获取历史消息
+            for i in range(counts):  # 获取 n 次
+                await asleep(randint(0, 10))  # 睡眠随机时间，避免黑号
+                res = await bot.call_api("get_group_msg_history", group_id=gid, message_seq=seq)  # 获取历史消息
                 flag = True
-                for message in res["messages"]: # 历史消息列表
+                for message in res["messages"]:  # 历史消息列表
                     if flag:
                         seq = int(message["message_seq"]) - 1
                         flag = False
-                    if int(message["user_id"]) in sb: # 将消息id加入列表
+                    if int(message["user_id"]) in sb:  # 将消息id加入列表
                         recall_msg_id.append(int(message["message_id"]))
         except ActionFailed as e:
             await msg_recall.send(f"获取群历史消息时发生错误")
@@ -401,11 +426,11 @@ async def _(bot: Bot, event: GroupMessageEvent): # by: @tom-snow
             print_exc()
     else:
         await msg_recall.finish("指令格式：\n/撤回 @user n\n回复指定消息时撤回该条消息；使用艾特时撤回被艾特的人在本群 n*19 历史消息内的所有消息。\n不输入 n 则默认 n=5")
-    
+
     # 实际进行撤回的部分
     try:
         for msg_id in recall_msg_id:
-            await asleep(randint(0,3)) # 睡眠随机时间，避免黑号
+            await asleep(randint(0, 3))  # 睡眠随机时间，避免黑号
             await bot.call_api("delete_msg", message_id=msg_id)
     except ActionFailed as e:
         logger.warning(f"执行失败，可能是我权限不足 {e}")
