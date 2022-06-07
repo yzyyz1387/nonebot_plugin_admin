@@ -14,7 +14,7 @@ import re
 from typing import Union, Optional
 import aiofiles
 import nonebot
-from nonebot import logger, require
+from nonebot import logger
 from tencentcloud.common import credential
 from tencentcloud.common.exception.tencent_cloud_sdk_exception import TencentCloudSDKException
 from tencentcloud.common.profile.client_profile import ClientProfile

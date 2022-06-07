@@ -5,7 +5,7 @@
 # @Email   :  youzyyz1384@qq.com
 # @File    : auto_ban.py
 # @Software: PyCharm
-from nonebot import logger, on_message, on_command
+from nonebot import logger, on_message, on_command, require
 from nonebot.adapters.onebot.v11 import Bot, GroupMessageEvent
 from nonebot.adapters.onebot.v11.exception import ActionFailed
 from nonebot.adapters.onebot.v11.permission import GROUP_ADMIN, GROUP_OWNER
@@ -119,9 +119,6 @@ async def _(bot: Bot, event: GroupMessageEvent):
             await set_level_easy.finish("本群未开启此功能，发送【开关违禁词】开启")
 
 if cron_update:
-    scheduler = require("nonebot_plugin_apscheduler").scheduler
-    # 每周一更新违禁词库
-    scheduler.add_job(auto_upload_f_words, 'cron', day_of_week='mon', hour=0, minute=0, second=0, id='auto_upload_f_words')
     async def auto_upload_f_words():
         logger.info("自动更新严格违禁词库...")
         async with AsyncClient() as client:
@@ -142,6 +139,10 @@ if cron_update:
         async with a_open(limit_word_path_easy, "w", encoding='utf-8') as f:
             await f.write(r)
         logger.info("更新完成")
+
+    scheduler = require("nonebot_plugin_apscheduler").scheduler
+    # 每周一更新违禁词库
+    scheduler.add_job(auto_upload_f_words, 'cron', day_of_week='mon', hour=0, minute=0, second=0, id='auto_upload_f_words')
 
     update_f_words = on_command("更新违禁词库", priority=1, permission=GROUP_ADMIN | GROUP_OWNER | SUPERUSER)
     @update_f_words.handle()
