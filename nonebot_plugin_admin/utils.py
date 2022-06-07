@@ -26,6 +26,7 @@ from .config import plugin_config, global_config
 TencentID = plugin_config.tenid
 TencentKeys = plugin_config.tenkeys
 su = global_config.superusers
+cb_notice = plugin_config.callback_notice
 
 
 def At(data: str):
