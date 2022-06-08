@@ -13,6 +13,7 @@ import random
 import re
 from typing import Union, Optional
 import aiofiles
+import httpx
 import nonebot
 from nonebot import logger
 from tencentcloud.common import credential
