@@ -6,21 +6,23 @@
 # @File    : __init__.py.py
 # @Software: PyCharm
 
+import json
 from asyncio import sleep as asleep
 from traceback import print_exc
 from random import randint
 
 import nonebot
-from nonebot import on_command, logger
-from nonebot.adapters.onebot.v11 import Bot, GroupMessageEvent
+from nonebot import on_command, logger, on_notice
+from nonebot.adapters.onebot.v11 import Bot, GroupMessageEvent, NoticeEvent
 from nonebot.adapters.onebot.v11.exception import ActionFailed
 from nonebot.adapters.onebot.v11.permission import GROUP_ADMIN, GROUP_OWNER
 from nonebot.permission import SUPERUSER
 from . import approve, group_request_verify, group_request, notice, utils, word_analyze, r18_pic_ban, auto_ban, switcher
 from .utils import At, Reply, MsgText, banSb, init, check_func_status
 from .group_request_verify import verify
-from .config import plugin_config
+from .config import plugin_config, global_config
 
+su = global_config.superusers
 cb_notice = plugin_config.callback_notice
 
 admin_init = on_command('群管初始化', priority=1, block=True, permission=SUPERUSER | GROUP_ADMIN | GROUP_OWNER)
@@ -393,7 +395,11 @@ async def _(bot: Bot, event: GroupMessageEvent):  # by: @tom-snow
     sb = At(event.json())
     rp = Reply(event.json())
     gid = event.group_id
-    if not gid:  # fix
+    status = await check_func_status("admin", str(gid))
+    if not status:
+        await msg_recall.finish("功能处于关闭状态，发送【开关管理】开启")
+
+    if not gid:  # FIXME: 有必要加吗？
         await msg_recall.finish("请在群内使用！")
 
     recall_msg_id = []
@@ -439,6 +445,40 @@ async def _(bot: Bot, event: GroupMessageEvent):  # by: @tom-snow
         logger.info(f"操作成功，一共撤回了 {len(recall_msg_id)} 条消息")
         if cb_notice:
             await msg_recall.finish(f"操作成功，一共撤回了 {len(recall_msg_id)} 条消息")
+
+
+"""
+! 消息防撤回模块，默认不开启，有需要的自行开启，想对部分群生效也需自行实现(可以并入本插件的开关系统内，也可控制 go-cqhttp 的事件过滤器)
+
+如果在 go-cqhttp 开启了事件过滤器，请确保允许 post_type=notice 通行
+【至少也得允许 notice_type=group_recall 通行】
+"""
+async def _group_recall(bot: Bot, event: NoticeEvent)->bool:
+    # 有需要自行取消注释
+    # if event.notice_type == 'group_recall':
+    #     return True
+    return False
+
+group_recall = on_notice(_group_recall, priority=5)
+
+@group_recall.handle()
+async def _(bot: Bot, event: NoticeEvent):
+    event_obj = json.loads(event.json())
+    user_id = event_obj["user_id"] # 消息发送者
+    operator_id = event_obj["operator_id"] # 撤回消息的人
+    group_id = event_obj["group_id"] # 群号
+    message_id = event_obj["message_id"] # 消息 id
+
+    if int(user_id) != int(operator_id): return # 撤回人不是发消息人，是管理员撤回成员消息，不处理
+    if int(operator_id) in su or str(operator_id) in su: return # 发起撤回的人是超管，不处理
+    # 管理员撤回自己的也不处理
+    operator_info = await bot.get_group_member_info(group_id=group_id, user_id=operator_id, no_cache=True)
+    if operator_info["role"] != "member": return
+    # 防撤回
+    recalled_message = await bot.get_msg(message_id=message_id)
+    recall_notice = f"检测到{ operator_info['card'] if operator_info['card'] else operator_info['nickname'] }({ operator_info['user_id'] })撤回了一条消息：\n\n"
+    await bot.send_group_msg(group_id=group_id, message=recall_notice + recalled_message['message'])
+    await group_recall.finish()
 
 
 __usage__ = """
