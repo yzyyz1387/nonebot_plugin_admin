@@ -157,14 +157,9 @@ callback_notice=true # 如果不想开启设置成 false 或者不添加此配�
 
 ```
 
-**给个star吧~**
 
-### 其他插件
-- [随机黑丝](https://github.com/yzyyz1387/nonebot_plugin_heisi "随机黑丝") 
-- [工作性价比](https://github.com/yzyyz1387/nonebot_plugin_workscore) 
-- [在线运行代码](https://github.com/yzyyz1387/nonebot_plugin_code)
-
-## 截图🖼
+<details>
+  <summary> <h2>截图🖼</h2></summary>   
 **禁 改 踢**   
 ![](https://cdn.jsdelivr.net/gh/yzyyz1387/blogimages/nonebot/ad_kick.gif)
 
@@ -181,7 +176,10 @@ callback_notice=true # 如果不想开启设置成 false 或者不添加此配�
 ![](https://cdn.jsdelivr.net/gh/yzyyz1387/blogimages/nonebot/ad_r18ban.gif)
 
 **功能开关**
-![](https://cdn.jsdelivr.net/gh/yzyyz1387/blogimages/nonebot/ad_switcher.gif)
+![](https://cdn.jsdelivr.net/gh/yzyyz1387/blogimages/nonebot/ad_switcher.gif)  
+  
+</details>
+
 ## TODO
 - [x] 加群自动审批[#issues1](https://github.com/yzyyz1387/nonebot_plugin_admin/issues/1)
 - [x] /sp在未配置群聊中的提示  
@@ -201,8 +199,10 @@ callback_notice=true # 如果不想开启设置成 false 或者不添加此配�
 - [ ] 写一个文档
 - [ ] 一些大事
 
-##  更新
--0.3.21
+<details>
+  <summary> <h2> 更新日志</h2></summary>  
+  
+- 0.3.21
   - 优化默认配置；同时增加一个配置项：设置禁言等基础操作是否在 qq 返回操作结果 [#18](https://github.com/yzyyz1387/nonebot_plugin_admin/pull/18)
   - 修复`禁@xxx`的buggi
 - 0.3.19
@@ -286,7 +286,7 @@ callback_notice=true # 如果不想开启设置成 false 或者不添加此配�
 - 支持在线对不同群的关键词进行增减操作
 - **0.0.1-4**
   - 支持 踢 、禁 、改 、头衔
-
+</details>
 
 ## 其他插件
 [简易群管](https://github.com/yzyyz1387/nonebot_plugin_admin)  
