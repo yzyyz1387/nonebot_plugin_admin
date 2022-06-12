@@ -160,6 +160,7 @@ callback_notice=true # 如果不想开启设置成 false 或者不添加此配�
 
 <details>
   <summary> <h2>截图🖼</h2></summary>   
+  
 **禁 改 踢**   
 ![](https://cdn.jsdelivr.net/gh/yzyyz1387/blogimages/nonebot/ad_kick.gif)
 
