@@ -17,7 +17,21 @@ from nonebot.adapters.onebot.v11 import Bot, GroupMessageEvent, NoticeEvent
 from nonebot.adapters.onebot.v11.exception import ActionFailed
 from nonebot.adapters.onebot.v11.permission import GROUP_ADMIN, GROUP_OWNER
 from nonebot.permission import SUPERUSER
-from . import approve, group_request_verify, group_request, notice, utils, word_analyze, r18_pic_ban, auto_ban, switcher
+from . import (
+    approve,
+    group_request_verify,
+    request,
+    request_manual,
+    notice,
+    utils,
+    word_analyze,
+    wordcloud,
+    img_check,
+    auto_ban,
+    auto_ban_,
+    switcher,
+    func_hook
+)
 from .utils import At, Reply, MsgText, banSb, init, check_func_status
 from .group_request_verify import verify
 from .config import plugin_config, global_config
@@ -45,34 +59,30 @@ async def _(bot: Bot, event: GroupMessageEvent):
     msg = MsgText(event.json())
     sb = At(event.json())
     gid = event.group_id
-    status = await check_func_status("admin", str(gid))
-    if status:
-        if sb:
-            if len(msg.split(" ")) > 1:
-                try:
-                    time = int(msg.split(" ")[-1])
-                except ValueError:
-                    time = None  # 出现错误就默认随机 【理论上除非是 /撤回 @user n 且 n 不是数值时才有可能触发】
-            else:
-                time = None
-            baning = banSb(gid, ban_list=sb, time=time)
+    if sb:
+        if len(msg.split(" ")) > 1:
             try:
-                async for baned in baning:
-                    if baned:
-                        await baned
-            except ActionFailed:
-                await ban.finish("权限不足")
-            else:
-                logger.info("禁言操作成功")
-                if cb_notice:  # 迭代结束再通知
-                    if time is not None:
-                        await ban.finish("禁言操作成功")
-                    else:
-                        await ban.finish("该用户已被禁言随机时长")
+                time = int(msg.split(" ")[-1])
+            except ValueError:
+                time = None  # 出现错误就默认随机 【理论上除非是 /撤回 @user n 且 n 不是数值时才有可能触发】
         else:
-            pass
+            time = None
+        baning = banSb(gid, ban_list=sb, time=time)
+        try:
+            async for baned in baning:
+                if baned:
+                    await baned
+        except ActionFailed:
+            await ban.finish("权限不足")
+        else:
+            logger.info("禁言操作成功")
+            if cb_notice:  # 迭代结束再通知
+                if time is not None:
+                    await ban.finish("禁言操作成功")
+                else:
+                    await ban.finish("该用户已被禁言随机时长")
     else:
-        await ban.send(f"功能处于关闭状态，发送【开关管理】开启")
+        pass
 
 
 unban = on_command("解", priority=1, block=True, permission=SUPERUSER | GROUP_ADMIN | GROUP_OWNER)
@@ -85,22 +95,18 @@ async def _(bot: Bot, event: GroupMessageEvent):
     """
     sb = At(event.json())
     gid = event.group_id
-    status = await check_func_status("admin", str(gid))
-    if status:
-        if sb:
-            baning = banSb(gid, ban_list=sb, time=0)
-            try:
-                async for baned in baning:
-                    if baned:
-                        await baned
-            except ActionFailed:
-                await unban.finish("权限不足")
-            else:
-                logger.info("解禁操作成功")
-                if cb_notice:  # 迭代结束再通知
-                    await unban.finish("解禁操作成功")
-    else:
-        await unban.send(f"功能处于关闭状态，发送【开关管理】开启")
+    if sb:
+        baning = banSb(gid, ban_list=sb, time=0)
+        try:
+            async for baned in baning:
+                if baned:
+                    await baned
+        except ActionFailed:
+            await unban.finish("权限不足")
+        else:
+            logger.info("解禁操作成功")
+            if cb_notice:  # 迭代结束再通知
+                await unban.finish("解禁操作成功")
 
 
 ban_all = on_command("/all", aliases={"全员"}, permission=SUPERUSER | GROUP_ADMIN | GROUP_OWNER, priority=1, block=True)
@@ -144,24 +150,20 @@ async def _(bot: Bot, event: GroupMessageEvent):
     logger.info(msg.split())
     sb = At(event.json())
     gid = event.group_id
-    status = await check_func_status("admin", str(gid))
-    if status:
-        if sb:
-            try:
-                for user_ in sb:
-                    await bot.set_group_card(
-                        group_id=gid,
-                        user_id=int(user_),
-                        card=msg.split()[-1:][0]
-                    )
-            except ActionFailed:
-                await change.finish("权限不足")
-            else:
-                logger.info("改名片操作成功")
-                if cb_notice:
-                    await change.finish("改名片操作成功")
-    else:
-        await change.send(f"功能处于关闭状态，发送【开关管理】开启")
+    if sb:
+        try:
+            for user_ in sb:
+                await bot.set_group_card(
+                    group_id=gid,
+                    user_id=int(user_),
+                    card=msg.split()[-1:][0]
+                )
+        except ActionFailed:
+            await change.finish("权限不足")
+        else:
+            logger.info("改名片操作成功")
+            if cb_notice:
+                await change.finish("改名片操作成功")
 
 
 title = on_command('头衔', permission=SUPERUSER | GROUP_OWNER, priority=1, block=True)
@@ -173,32 +175,28 @@ async def _(bot: Bot, event: GroupMessageEvent):
     /头衔 @user  xxx  给某人头衔
     """
     msg = str(event.get_message())
-    stitle = msg.split()[-1:][0]
-    logger.info(str(msg.split()), stitle)
+    s_title = msg.split()[-1:][0]
+    logger.info(str(msg.split()), s_title)
     sb = At(event.json())
     gid = event.group_id
-    status = await check_func_status("admin", str(gid))
-    if status:
-        if sb:
-            if 'all' not in sb:
-                try:
-                    for qq in sb:
-                        await bot.set_group_special_title(
-                            group_id=gid,
-                            user_id=int(qq),
-                            special_title=stitle,
-                            duration=-1,
-                        )
-                except ActionFailed:
-                    await title.finish("权限不足")
-                else:
-                    logger.info(f"改头衔操作成功{stitle}")
-                    if cb_notice:
-                        await title.finish(f"改头衔操作成功{stitle}")
+    if sb:
+        if 'all' not in sb:
+            try:
+                for qq in sb:
+                    await bot.set_group_special_title(
+                        group_id=gid,
+                        user_id=int(qq),
+                        special_title=s_title,
+                        duration=-1,
+                    )
+            except ActionFailed:
+                await title.finish("权限不足")
             else:
-                await title.finish("未填写头衔名称 或 不能含有@全体成员")
-    else:
-        await title.send(f"功能处于关闭状态，发送【开关管理】开启")
+                logger.info(f"改头衔操作成功{s_title}")
+                if cb_notice:
+                    await title.finish(f"改头衔操作成功{s_title}")
+        else:
+            await title.finish("未填写头衔名称 或 不能含有@全体成员")
 
 
 title_ = on_command('删头衔', permission=SUPERUSER | GROUP_ADMIN | GROUP_OWNER, priority=1, block=True)
@@ -210,32 +208,28 @@ async def _(bot: Bot, event: GroupMessageEvent):
     /删头衔 @user 删除头衔
     """
     msg = str(event.get_message())
-    stitle = msg.split()[-1:][0]
-    logger.info(str(msg.split()), stitle)
+    s_title = msg.split()[-1:][0]
+    logger.info(str(msg.split()), s_title)
     sb = At(event.json())
     gid = event.group_id
-    status = await check_func_status("admin", str(gid))
-    if status:
-        if sb:
-            if 'all' not in sb:
-                try:
-                    for qq in sb:
-                        await bot.set_group_special_title(
-                            group_id=gid,
-                            user_id=int(qq),
-                            special_title="",
-                            duration=-1,
-                        )
-                except ActionFailed:
-                    await title_.finish("权限不足")
-                else:
-                    logger.info(f"改头衔操作成功{stitle}")
-                    if cb_notice:
-                        await title_.finish(f"改头衔操作成功{stitle}")
+    if sb:
+        if 'all' not in sb:
+            try:
+                for qq in sb:
+                    await bot.set_group_special_title(
+                        group_id=gid,
+                        user_id=int(qq),
+                        special_title="",
+                        duration=-1,
+                    )
+            except ActionFailed:
+                await title_.finish("权限不足")
             else:
-                await title_.finish("有什么输入错误 或 不能含有@全体成员")
-    else:
-        await title_.send(f"功能处于关闭状态，发送【开关管理】开启")
+                logger.info(f"改头衔操作成功{s_title}")
+                if cb_notice:
+                    await title_.finish(f"改头衔操作成功{s_title}")
+        else:
+            await title_.finish("有什么输入错误 或 不能含有@全体成员")
 
 
 kick = on_command('踢', permission=SUPERUSER | GROUP_ADMIN | GROUP_OWNER, priority=1, block=True)
@@ -249,27 +243,23 @@ async def _(bot: Bot, event: GroupMessageEvent):
     msg = str(event.get_message())
     sb = At(event.json())
     gid = event.group_id
-    status = await check_func_status("admin", str(gid))
-    if status:
-        if sb:
-            if 'all' not in sb:
-                try:
-                    for qq in sb:
-                        await bot.set_group_kick(
-                            group_id=gid,
-                            user_id=int(qq),
-                            reject_add_request=False
-                        )
-                except ActionFailed:
-                    await kick.finish("权限不足")
-                else:
-                    logger.info(f"踢人操作成功")
-                    if cb_notice:
-                        await kick.finish(f"踢人操作成功")
+    if sb:
+        if 'all' not in sb:
+            try:
+                for qq in sb:
+                    await bot.set_group_kick(
+                        group_id=gid,
+                        user_id=int(qq),
+                        reject_add_request=False
+                    )
+            except ActionFailed:
+                await kick.finish("权限不足")
             else:
-                await kick.finish("不能含有@全体成员")
-    else:
-        await kick.send(f"功能处于关闭状态，发送【开关管理】开启")
+                logger.info(f"踢人操作成功")
+                if cb_notice:
+                    await kick.finish(f"踢人操作成功")
+        else:
+            await kick.finish("不能含有@全体成员")
 
 
 kick_ = on_command('黑', permission=SUPERUSER | GROUP_ADMIN | GROUP_OWNER, priority=1, block=True)
@@ -283,27 +273,23 @@ async def _(bot: Bot, event: GroupMessageEvent):
     msg = str(event.get_message())
     sb = At(event.json())
     gid = event.group_id
-    status = await check_func_status("admin", str(gid))
-    if status:
-        if sb:
-            if 'all' not in sb:
-                try:
-                    for qq in sb:
-                        await bot.set_group_kick(
-                            group_id=gid,
-                            user_id=int(qq),
-                            reject_add_request=True
-                        )
-                except ActionFailed:
-                    await kick_.finish("权限不足")
-                else:
-                    logger.info(f"踢人并拉黑操作成功")
-                    if cb_notice:
-                        await kick_.finish(f"踢人并拉黑操作成功")
+    if sb:
+        if 'all' not in sb:
+            try:
+                for qq in sb:
+                    await bot.set_group_kick(
+                        group_id=gid,
+                        user_id=int(qq),
+                        reject_add_request=True
+                    )
+            except ActionFailed:
+                await kick_.finish("权限不足")
             else:
-                await kick_.finish("不能含有@全体成员")
-    else:
-        await kick_.send(f"功能处于关闭状态，发送【开关管理】开启")
+                logger.info(f"踢人并拉黑操作成功")
+                if cb_notice:
+                    await kick_.finish(f"踢人并拉黑操作成功")
+        else:
+            await kick_.finish("不能含有@全体成员")
 
 
 set_g_admin = on_command("管理员+", permission=SUPERUSER | GROUP_OWNER, priority=1, block=True)
@@ -320,26 +306,22 @@ async def _(bot: Bot, event: GroupMessageEvent):
     sb = At(event.json())
     logger.info(sb)
     gid = event.group_id
-    status = await check_func_status("admin", str(gid))
-    if status:
-        if sb:
-            if 'all' not in sb:
-                try:
-                    for qq in sb:
-                        await bot.set_group_admin(
-                            group_id=gid,
-                            user_id=int(qq),
-                            enable=True
-                        )
-                except ActionFailed:
-                    await set_g_admin.finish("权限不足")
-                else:
-                    logger.info(f"设置管理员操作成功")
-                    await set_g_admin.finish("设置管理员操作成功")
+    if sb:
+        if 'all' not in sb:
+            try:
+                for qq in sb:
+                    await bot.set_group_admin(
+                        group_id=gid,
+                        user_id=int(qq),
+                        enable=True
+                    )
+            except ActionFailed:
+                await set_g_admin.finish("权限不足")
             else:
-                await set_g_admin.finish("指令不正确 或 不能含有@全体成员")
-    else:
-        await set_g_admin.send(f"功能处于关闭状态，发送【开关管理】开启")
+                logger.info(f"设置管理员操作成功")
+                await set_g_admin.finish("设置管理员操作成功")
+        else:
+            await set_g_admin.finish("指令不正确 或 不能含有@全体成员")
 
 
 unset_g_admin = on_command("管理员-", permission=SUPERUSER | GROUP_OWNER, priority=1, block=True)
@@ -356,26 +338,22 @@ async def _(bot: Bot, event: GroupMessageEvent):
     sb = At(event.json())
     logger.info(sb)
     gid = event.group_id
-    status = await check_func_status("admin", str(gid))
-    if status:
-        if sb:
-            if 'all' not in sb:
-                try:
-                    for qq in sb:
-                        await bot.set_group_admin(
-                            group_id=gid,
-                            user_id=int(qq),
-                            enable=False
-                        )
-                except ActionFailed:
-                    await unset_g_admin.finish("权限不足")
-                else:
-                    logger.info(f"取消管理员操作成功")
-                    await unset_g_admin.finish("取消管理员操作成功")
+    if sb:
+        if 'all' not in sb:
+            try:
+                for qq in sb:
+                    await bot.set_group_admin(
+                        group_id=gid,
+                        user_id=int(qq),
+                        enable=False
+                    )
+            except ActionFailed:
+                await unset_g_admin.finish("权限不足")
             else:
-                await unset_g_admin.finish("指令不正确 或 不能含有@全体成员")
-    else:
-        await unset_g_admin.send(f"功能处于关闭状态，发送【开关管理】开启")
+                logger.info(f"取消管理员操作成功")
+                await unset_g_admin.finish("取消管理员操作成功")
+        else:
+            await unset_g_admin.finish("指令不正确 或 不能含有@全体成员")
 
 
 msg_recall = on_command("撤回", priority=1, aliases={"删除", "recall"}, block=True,
@@ -395,10 +373,6 @@ async def _(bot: Bot, event: GroupMessageEvent):  # by: @tom-snow
     sb = At(event.json())
     rp = Reply(event.json())
     gid = event.group_id
-    status = await check_func_status("admin", str(gid))
-    if not status:
-        await msg_recall.finish("功能处于关闭状态，发送【开关管理】开启")
-
     if not gid:  # FIXME: 有必要加吗？
         await msg_recall.finish("请在群内使用！")
 
@@ -453,30 +427,34 @@ async def _(bot: Bot, event: GroupMessageEvent):  # by: @tom-snow
 如果在 go-cqhttp 开启了事件过滤器，请确保允许 post_type=notice 通行
 【至少也得允许 notice_type=group_recall 通行】
 """
-async def _group_recall(bot: Bot, event: NoticeEvent)->bool:
+
+
+async def _group_recall(bot: Bot, event: NoticeEvent) -> bool:
     # 有需要自行取消注释
     # if event.notice_type == 'group_recall':
     #     return True
     return False
 
+
 group_recall = on_notice(_group_recall, priority=5)
+
 
 @group_recall.handle()
 async def _(bot: Bot, event: NoticeEvent):
     event_obj = json.loads(event.json())
-    user_id = event_obj["user_id"] # 消息发送者
-    operator_id = event_obj["operator_id"] # 撤回消息的人
-    group_id = event_obj["group_id"] # 群号
-    message_id = event_obj["message_id"] # 消息 id
+    user_id = event_obj["user_id"]  # 消息发送者
+    operator_id = event_obj["operator_id"]  # 撤回消息的人
+    group_id = event_obj["group_id"]  # 群号
+    message_id = event_obj["message_id"]  # 消息 id
 
-    if int(user_id) != int(operator_id): return # 撤回人不是发消息人，是管理员撤回成员消息，不处理
-    if int(operator_id) in su or str(operator_id) in su: return # 发起撤回的人是超管，不处理
+    if int(user_id) != int(operator_id): return  # 撤回人不是发消息人，是管理员撤回成员消息，不处理
+    if int(operator_id) in su or str(operator_id) in su: return  # 发起撤回的人是超管，不处理
     # 管理员撤回自己的也不处理
     operator_info = await bot.get_group_member_info(group_id=group_id, user_id=operator_id, no_cache=True)
     if operator_info["role"] != "member": return
     # 防撤回
     recalled_message = await bot.get_msg(message_id=message_id)
-    recall_notice = f"检测到{ operator_info['card'] if operator_info['card'] else operator_info['nickname'] }({ operator_info['user_id'] })撤回了一条消息：\n\n"
+    recall_notice = f"检测到{operator_info['card'] if operator_info['card'] else operator_info['nickname']}({operator_info['user_id']})撤回了一条消息：\n\n"
     await bot.send_group_msg(group_id=group_id, message=recall_notice + recalled_message['message'])
     await group_recall.finish()
 

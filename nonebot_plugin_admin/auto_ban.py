@@ -19,6 +19,7 @@ from json import dumps as to_json
 from aiofiles import open as a_open
 from httpx import AsyncClient
 import re
+from .config import plugin_config
 
 cb_notice = plugin_config.callback_notice
 cron_update = plugin_config.cron_update
@@ -83,48 +84,6 @@ async def _(bot: Bot, event: GroupMessageEvent, matcher: Matcher):
                 break
     elif cb_notice:
         await f_word.send('本群未配置检测级别，指令如下：\n1.简单违禁词:简单级别\n2.严格违禁词：严格级别\n3.群管初始化：一键配置所有群聊为简单级别\n若重复出现此信息推荐发送【简单违禁词】')
-
-
-set_level_easy = on_command("简单违禁词", priority=1, permission=GROUP_ADMIN | GROUP_OWNER | SUPERUSER)
-
-
-@set_level_easy.handle()
-async def _(bot: Bot, event: GroupMessageEvent):
-    gid = str(event.group_id)
-    level = await load(limit_level)
-    status = await check_func_status("auto_ban", gid)
-    if status:
-        if gid not in level or level[gid] != "easy":
-            level.update({gid: "easy"})
-            async with a_open(limit_level, 'w') as f:
-                await f.write(str(to_json(level)))
-            await set_level_easy.finish("设置成功")
-        else:
-            await set_level_easy.finish("本群已经是简单检测了")
-    else:
-        if cb_notice:
-            await set_level_easy.finish("本群未开启此功能，发送【开关违禁词】开启")
-
-
-set_level_rigorous = on_command("严格违禁词", priority=1, permission=GROUP_ADMIN | GROUP_OWNER | SUPERUSER)
-
-
-@set_level_rigorous.handle()
-async def _(bot: Bot, event: GroupMessageEvent):
-    gid = str(event.group_id)
-    level = await load(limit_level)
-    status = await check_func_status("auto_ban", str(gid))
-    if status:
-        if gid not in level or level[gid] != 'rigorous':
-            level.update({gid: "rigorous"})
-            async with a_open(limit_level, 'w') as f:
-                await f.write(str(to_json(level)))
-            await set_level_rigorous.finish("设置成功")
-        else:
-            await set_level_rigorous.finish("本群已经是严格检测了")
-    else:
-        if cb_notice:
-            await set_level_easy.finish("本群未开启此功能，发送【开关违禁词】开启")
 
 
 if cron_update:

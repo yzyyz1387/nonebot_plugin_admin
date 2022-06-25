@@ -135,7 +135,8 @@ async def init():
         switcher_dict = {}
         for group in g_list:
             switcher_dict.update({str(group['group_id']): {"admin": True, "requests": True, "wordcloud": True,
-                                                           "auto_ban": True, "img_check": True}})
+                                                           "auto_ban": True, "img_check": True,
+                                                           "word_analyze": True}})
         with open(switcher_path, "w", encoding='utf-8') as swp:
             swp.write(f'{json.dumps(switcher_dict)}')
             swp.close()
@@ -390,7 +391,7 @@ async def check_func_status(func_name: str, gid: str) -> bool:
             await nonebot.get_bot().send_group_msg(group_id=gid, message="本群尚未初始化，将自动初始化：开启所有开关且设置过滤级别为简单。\n\n"
                                                                          "请重新发送指令继续之前的操作")
         funcs_status.update({str(gid): {"admin": True, "requests": True, "wordcloud": True,
-                                        "auto_ban": True, "img_check": True}})
+                                        "auto_ban": True, "img_check": True, "word_analyze": True}})
         await upload(switcher_path, funcs_status)
 
         level = await load(limit_level)

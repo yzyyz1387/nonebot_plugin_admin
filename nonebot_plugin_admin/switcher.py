@@ -10,7 +10,7 @@ from .path import *
 from nonebot import logger, on_command
 from nonebot.typing import T_State
 from nonebot.params import State
-from nonebot.adapters.onebot.v11 import Bot, GroupMessageEvent, MessageSegment
+from nonebot.adapters.onebot.v11 import Bot, GroupMessageEvent, MessageSegment, ActionFailed
 from nonebot.adapters.onebot.v11.permission import GROUP_ADMIN, GROUP_OWNER
 from nonebot.permission import SUPERUSER
 import os
@@ -61,6 +61,12 @@ async def _(bot: Bot, event: GroupMessageEvent):
         with open((re_img_path / f"{gid}.png").resolve(), 'rb') as f:
             img_bytes = f.read()
         await switcher_html.send(MessageSegment.image(img_bytes))
+
+    except ActionFailed:
+        await switcher_html.send(
+            "当前群组开关状态：\n" + "\n".join(
+                [f"{admin_funcs[func][0]}：{'开启' if funcs_status[gid][func] else '关闭'}" for func in admin_funcs]))
+        logger.error(f'可能被风控，已使用文字发送')
     except Exception as e:
         await switcher_html.send(
             "当前群组开关状态：\n" + "\n".join(

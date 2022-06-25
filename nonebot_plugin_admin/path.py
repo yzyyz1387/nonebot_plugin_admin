@@ -22,11 +22,12 @@ switcher_path = config_path / "开关.json"
 template_path = config_path / "template"
 
 admin_funcs = {
-    "admin": ['基础群管', '踢', '禁', '改', '管理'],
-    "requests": ['加群审批', '审批', '加群', '自动审批'],
+    "admin": ['管理', '踢', '禁', '改', '基础群管'],
+    "requests": ['审批', '加群审批', '加群', '自动审批'],
     "wordcloud": ['群词云', '词云', 'wordcloud'],
-    "auto_ban": ['违禁词检测', '违禁词'],
+    "auto_ban": ['违禁词', '违禁词检测'],
     "img_check": ['图片检测', '图片鉴黄', '涩图检测', '色图检测']
 }
 
 funcs_name_cn = ['基础群管', '加群审批', '群词云', '违禁词检测', '图片检测']
+
