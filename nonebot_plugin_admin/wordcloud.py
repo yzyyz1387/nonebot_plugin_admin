@@ -19,23 +19,26 @@ cloud = on_command("群词云", priority=1)
 
 @cloud.handle()
 async def _(bot: Bot, event: GroupMessageEvent):
-    from wordcloud import WordCloud
-    import jieba
-    ttf_name_ = Path() / "resource" / "msyhblod.ttf"
-    gid = str(event.group_id)
-    path_temp = words_contents_path / f"{str(gid)}.txt"
-    dir_list = os.listdir(words_contents_path)
-    if gid + ".txt" in dir_list:
-        text = open(path_temp).read()
-        txt = jieba.lcut(text)
-        stop_ = await participle_simple_handle()
-        string = " ".join(txt)
-        try:
-            wc = WordCloud(font_path=str(ttf_name_.resolve()), width=800, height=600, mode='RGBA',
-                           background_color="#ffffff", stopwords=stop_).generate(string)
-            img = Path(re_img_path / f"{gid}.png")
-            wc.to_file(img)
-            await cloud.send(MessageSegment.image(img))
-        except Exception as err:
-            await cloud.send(f"出现错误{type(err)}:{err}")
+    try:
+        from wordcloud import WordCloud
+        import jieba
+        ttf_name_ = Path() / "resource" / "msyhblod.ttf"
+        gid = str(event.group_id)
+        path_temp = words_contents_path / f"{gid}.txt"
+        dir_list = os.listdir(words_contents_path)
+        if gid + ".txt" in dir_list:
+            text = open(path_temp, encoding='utf-8').read()
+            txt = jieba.lcut(text)
+            stop_ = await participle_simple_handle()
+            string = " ".join(txt)
+            try:
+                wc = WordCloud(font_path=str(ttf_name_.resolve()), width=800, height=600, mode='RGBA',
+                               background_color="#ffffff", stopwords=stop_).generate(string)
+                img = Path(re_img_path / f"wordcloud_{gid}.png")
+                wc.to_file(img)
+                await cloud.send(MessageSegment.image(img))
+            except Exception as err:
+                await cloud.send(f"出现错误{type(err)}:{err}")
+    except ModuleNotFoundError:
+        await cloud.send("未安装wordcloud库")
 
