@@ -178,7 +178,7 @@ async def gr_(bot: Bot, event: GroupRequestEvent):
                     approve=True,
                     reason=" ",
                 )
-                admins = load(config_group_admin)
+                admins = (await load(config_group_admin))
                 if admins['su'] == "True":
                     for q in su:
                         await bot.send_msg(user_id=int(q), message=f'同意{uid}加入群 {gid},验证消息为 “{word}”')
@@ -195,7 +195,7 @@ async def gr_(bot: Bot, event: GroupRequestEvent):
                     approve=False,
                     reason="答案未通过群管验证，可修改答案后再次申请",
                 )
-                admins = load(config_group_admin)
+                admins = (await load(config_group_admin))
                 if admins['su'] == "True":
                     for q in su:
                         await bot.send_msg(user_id=int(q), message=f'拒绝{uid}加入群 {gid},验证消息为 “{word}”')
