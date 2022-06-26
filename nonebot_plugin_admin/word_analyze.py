@@ -177,20 +177,23 @@ async def _(bot: Bot, event: GroupMessageEvent):
     停用词列表
     """
     gid = str(event.group_id)
-    this_stop_words_path = stop_words_path / f"{str(gid)}.txt"
-    if not os.path.exists(this_stop_words_path):
-        await init()
     try:
-        with open(this_stop_words_path, "r", encoding="utf-8") as c:
-            is_saved = c.read().split("\n")
-            is_saved.remove("")
-            c.close()
-        await stop_words_list.send(f"{str(is_saved)}")
-    except ActionFailed:
-        logger.info("用户正在查看停用此列表，可能是停用词太多了，无法发送")
-        await stop_words_list.send("可能是停用词太多了，无法发送")
+        this_stop_words_path = stop_words_path / f"{str(gid)}.txt"
+        if not os.path.exists(this_stop_words_path):
+            await init()
+        try:
+            with open(this_stop_words_path, "r", encoding="utf-8") as c:
+                is_saved = c.read().split("\n")
+                is_saved.remove("")
+                c.close()
+            await stop_words_list.send(f"{str(is_saved)}")
+        except ActionFailed:
+            logger.info("用户正在查看停用此列表，可能是停用词太多了，无法发送")
+            await stop_words_list.send("可能是停用词太多了，无法发送")
+        except FileNotFoundError:
+            await stop_words_list.send("该群没有停用词")
     except FileNotFoundError:
-        await stop_words_list.send("该群没有停用词")
+        await init()
 
 
 update_mask = on_command("更新mask", aliases={'下载mask'}, block=True, priority=1, permission=GROUP_ADMIN | GROUP_OWNER | SUPERUSER)
