@@ -79,7 +79,7 @@ async def _(bot: Bot, event: GroupMessageEvent):
             c.write(msg + "\n")
 
 
-stop_words_add = on_command("添加停用词", block=True, priority=1, permission=GROUP_ADMIN | GROUP_OWNER | SUPERUSER)
+stop_words_add = on_command("添加停用词", aliases={'增加停用词', '新增停用词'}, block=True, priority=1, permission=GROUP_ADMIN | GROUP_OWNER | SUPERUSER)
 
 
 @stop_words_add.handle()
@@ -125,7 +125,7 @@ async def _(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
         await stop_words_add.send("请输入停用词,多个以空格分隔，例：\n添加停用词 停用词1 停用词2")
 
 
-stop_words_del = on_command("删除停用词", block=True, priority=1, permission=GROUP_ADMIN | GROUP_OWNER | SUPERUSER)
+stop_words_del = on_command("删除停用词", aliases={'移除停用词', '去除停用词'}, block=True, priority=1, permission=GROUP_ADMIN | GROUP_OWNER | SUPERUSER)
 
 
 @stop_words_del.handle()
@@ -167,7 +167,7 @@ async def _(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
         await stop_words_del.send("请输入停用词,多个以空格分隔，例：\n删除停用词 停用词1 停用词2")
 
 
-stop_words_list = on_command("停用词列表", block=True, priority=1, permission=GROUP_ADMIN | GROUP_OWNER | SUPERUSER)
+stop_words_list = on_command("停用词列表", aliases={'查看停用词', '查询停用词'}, block=True, priority=1, permission=GROUP_ADMIN | GROUP_OWNER | SUPERUSER)
 
 
 @stop_words_list.handle()
