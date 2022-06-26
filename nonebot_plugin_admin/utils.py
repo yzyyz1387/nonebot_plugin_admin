@@ -227,7 +227,7 @@ async def replace_tmr(msg: str) -> str:
     return msg
 
 
-async def participle_simple_handle() -> set:
+async def participle_simple_handle() -> list[str]:
     """
     wordcloud停用词
     """
@@ -253,7 +253,7 @@ async def participle_simple_handle() -> set:
     others_ = ['就', '这', '那', '都', '也', '还', '又', '有', '没', '好', '我', '我的', '说', '去', '点', '不是', '就是', '要', '一个', '现在',
                '啥']
 
-    sum_ = set(prep_ + pron_ + others_)
+    sum_ = prep_ + pron_ + others_
     return sum_
 
 

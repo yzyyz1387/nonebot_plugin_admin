@@ -20,6 +20,7 @@ limit_word_path_easy = config_path / "违禁词_简单.txt"
 limit_level = config_path / "违禁词监控等级.json"
 switcher_path = config_path / "开关.json"
 template_path = config_path / "template"
+stop_words_path = config_path / "stop_words"
 
 admin_funcs = {
     "admin": ['管理', '踢', '禁', '改', '基础群管'],

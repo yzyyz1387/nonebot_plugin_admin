@@ -29,7 +29,11 @@ async def _(bot: Bot, event: GroupMessageEvent):
         if gid + ".txt" in dir_list:
             text = open(path_temp, encoding='utf-8').read()
             txt = jieba.lcut(text)
-            stop_ = await participle_simple_handle()
+            this_stop_ = stop_words_path / f"{gid}.txt"
+            if os.path.exists(this_stop_):
+                stop_ = set(open(this_stop_, encoding='utf-8').read().split("\n") + (await participle_simple_handle()))
+            else:
+                stop_ = set(await participle_simple_handle())
             string = " ".join(txt)
             try:
                 wc = WordCloud(font_path=str(ttf_name_.resolve()), width=800, height=600, mode='RGBA',
