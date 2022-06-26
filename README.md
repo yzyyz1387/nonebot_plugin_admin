@@ -131,6 +131,11 @@ callback_notice=true # 如果不想开启设置成 false 或者不添加此配�
   记录本群 ： 开始统计聊天记录 permission=GROUP_ADMIN | GROUP_OWNER | SUPERUSER
   停止记录本群 ：停止统计聊天记录
   群词云 ： 发送词云图片
+  更新mask : 更新mask图片
+  增加停用词 停用词1 停用词2 ...
+  删除停用词 停用词1 停用词2 ...
+  停用词列表 ： 查看停用词列表
+    
   
 【被动识别】
 涩图检测：将禁言随机时间

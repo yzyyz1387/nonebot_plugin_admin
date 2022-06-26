@@ -140,6 +140,10 @@ async def init():
         with open(switcher_path, "w", encoding='utf-8') as swp:
             swp.write(f'{json.dumps(switcher_dict)}')
             swp.close()
+    if not os.path.exists(stop_words_path):
+        await mk("dir", stop_words_path, mode=None)
+    if not os.path.exists(wordcloud_bg_path):
+        await mk("dir", wordcloud_bg_path, mode=None)
     logger.info("Admin 插件 初始化检测完成")
 
 

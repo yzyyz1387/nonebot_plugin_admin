@@ -15,6 +15,7 @@ import os
 from .path import *
 from nonebot.adapters import Message
 from nonebot.params import CommandArg
+import httpx
 
 word_start = on_command("记录本群", block=True, priority=1, permission=GROUP_ADMIN | GROUP_OWNER | SUPERUSER)
 
@@ -190,3 +191,31 @@ async def _(bot: Bot, event: GroupMessageEvent):
         await stop_words_list.send("可能是停用词太多了，无法发送")
     except FileNotFoundError:
         await stop_words_list.send("该群没有停用词")
+
+
+update_mask = on_command("更新mask", aliases={'下载mask'}, block=True, priority=1, permission=GROUP_ADMIN | GROUP_OWNER | SUPERUSER)
+
+
+@update_mask.handle()
+async def _(bot: Bot, event: GroupMessageEvent):
+    """
+    更新mask
+    """
+    already_have = len(os.listdir(wordcloud_bg_path))
+    try:
+        async with httpx.AsyncClient() as client:
+            num_in_cloud = int((await client.get("https://fastly.jsdelivr.net/gh/yzyyz1387/blogimages/nonebot/wordcloud/num.txt")).read())
+            if num_in_cloud > already_have:
+                await update_mask.send("正zhai更新中...")
+                for i in range(already_have, num_in_cloud):
+                    img_content = (await client.get(f"https://fastly.jsdelivr.net/gh/yzyyz1387/blogimages/nonebot/wordcloud/bg{i}.png")).content
+                    with open(wordcloud_bg_path / f"{i}.png", "wb") as f:
+                        f.write(img_content)
+                await update_mask.send("更新完成（好耶）")
+            elif num_in_cloud == already_have:
+                await update_mask.send("蚌！已经是最新了耶")
+    except Exception as e:
+        logger.info(e)
+        await update_mask.send(f"QAQ,更新mask失败:\n{e}")
+        return
+
