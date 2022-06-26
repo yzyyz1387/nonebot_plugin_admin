@@ -183,12 +183,13 @@ async def _(bot: Bot, event: GroupMessageEvent):
         if 'all' not in sb:
             try:
                 for qq in sb:
-                    await bot.set_group_special_title(
-                        group_id=gid,
-                        user_id=int(qq),
-                        special_title=s_title,
-                        duration=-1,
-                    )
+                    if qq not in su:
+                        await bot.set_group_special_title(
+                            group_id=gid,
+                            user_id=int(qq),
+                            special_title=s_title,
+                            duration=-1,
+                        )
             except ActionFailed:
                 await title.finish("权限不足")
             else:
@@ -216,12 +217,13 @@ async def _(bot: Bot, event: GroupMessageEvent):
         if 'all' not in sb:
             try:
                 for qq in sb:
-                    await bot.set_group_special_title(
-                        group_id=gid,
-                        user_id=int(qq),
-                        special_title="",
-                        duration=-1,
-                    )
+                    if qq not in su:
+                        await bot.set_group_special_title(
+                            group_id=gid,
+                            user_id=int(qq),
+                            special_title="",
+                            duration=-1,
+                        )
             except ActionFailed:
                 await title_.finish("权限不足")
             else:

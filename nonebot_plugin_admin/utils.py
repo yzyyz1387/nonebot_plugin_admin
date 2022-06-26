@@ -200,8 +200,8 @@ async def banSb(gid: int, ban_list: list, time: int = None):
         for qq in ban_list:
             if int(qq) in su or str(qq) in su:
                 logger.info(f"SUPERUSER无法被禁言, {qq}")
-                if cb_notice:
-                    await nonebot.get_bot().send_group_msg(group_id=gid, message="SUPERUSER无法被禁言")
+                # if cb_notice:
+                #     await nonebot.get_bot().send_group_msg(group_id=gid, message="SUPERUSER无法被禁言")
             else:
                 yield nonebot.get_bot().set_group_ban(
                     group_id=gid,
