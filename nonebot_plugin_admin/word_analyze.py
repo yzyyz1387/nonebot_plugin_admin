@@ -5,17 +5,19 @@
 # @Email   :  youzyyz1384@qq.com
 # @File    : word_analyze.py
 # @Software: PyCharm
-from nonebot import on_command, logger, on_message
-from nonebot.adapters.onebot.v11 import Bot, GroupMessageEvent, MessageSegment, ActionFailed
-from nonebot.adapters.onebot.v11.permission import GROUP_ADMIN, GROUP_OWNER
-from nonebot.permission import SUPERUSER
-from .utils import init, replace_tmr, participle_simple_handle, check_func_status
-from pathlib import Path
 import os
-from .path import *
-from nonebot.adapters import Message
-from nonebot.params import CommandArg
+
 import httpx
+from nonebot import on_command, logger, on_message
+from nonebot.adapters import Message
+from nonebot.adapters.onebot.v11 import Bot, GroupMessageEvent, ActionFailed
+from nonebot.adapters.onebot.v11.permission import GROUP_ADMIN, GROUP_OWNER
+from nonebot.matcher import Matcher
+from nonebot.params import CommandArg
+from nonebot.permission import SUPERUSER
+
+from .path import *
+from .utils import init, replace_tmr, del_txt_line, add_txt_line,get_txt_line
 
 word_start = on_command("记录本群", block=True, priority=1, permission=GROUP_ADMIN | GROUP_OWNER | SUPERUSER)
 
@@ -84,116 +86,33 @@ stop_words_add = on_command("添加停用词", aliases={'增加停用词', '新�
 
 
 @stop_words_add.handle()
-async def _(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
+async def _(bot: Bot, event: GroupMessageEvent, matcher: Matcher, args: Message = CommandArg()):
     """
     添加停用词
     """
-    gid = str(event.group_id)
-    logger.info(args)
-    if args:
-        msg = str(args).split(" ")
-        logger.info(msg)
-        this_stop_words_path = stop_words_path / f"{str(gid)}.txt"
-        if not os.path.exists(this_stop_words_path):
-            await init()
-        try:
-            with open(this_stop_words_path, "r+", encoding="utf-8") as c:
-                is_saved = c.read().split("\n")
-                success_add = []
-                already_add = []
-                for words in msg:
-                    if words in is_saved:
-                        logger.info(f"{words}已存在")
-                        already_add.append(words)
-                    else:
-                        c.write(words + "\n")
-                        logger.info(f"添加{words}成功")
-                        success_add.append(words)
-                if already_add:
-                    await stop_words_add.send(f"{str(already_add)}已存在")
-                if success_add:
-                    await stop_words_add.send(f"{str(success_add)}添加成功")
-        except FileNotFoundError:
-            success_add = []
-            with open(this_stop_words_path, "w", encoding="utf-8") as c:
-                for words in msg:
-                    c.write(words + "\n")
-                    logger.info(f"添加{words}成功")
-                    success_add.append(words)
-                await stop_words_add.send(f"添加{str(success_add)}成功")
-                c.close()
-    else:
-        await stop_words_add.send("请输入停用词,多个以空格分隔，例：\n添加停用词 停用词1 停用词2")
+    await add_txt_line(stop_words_path, matcher, event, args, "停用词")
 
 
 stop_words_del = on_command("删除停用词", aliases={'移除停用词', '去除停用词'}, block=True, priority=1, permission=GROUP_ADMIN | GROUP_OWNER | SUPERUSER)
 
 
 @stop_words_del.handle()
-async def _(bot: Bot, event: GroupMessageEvent, args: Message = CommandArg()):
+async def _(bot: Bot, event: GroupMessageEvent, matcher: Matcher, args: Message = CommandArg()):
     """
     删除停用词
     """
-    gid = str(event.group_id)
-    logger.info(args)
-    if args:
-        msg = str(args).split(" ")
-        logger.info(msg)
-        this_stop_words_path = stop_words_path / f"{str(gid)}.txt"
-        if not os.path.exists(this_stop_words_path):
-            await init()
-        try:
-            with open(this_stop_words_path, "r+", encoding="utf-8") as c:
-                is_saved = c.read().split("\n")
-                c.close()
-            with open(this_stop_words_path, "w", encoding="utf-8") as c:
-                success_del = []
-                already_del = []
-                for words in msg:
-                    if words not in is_saved:
-                        already_del.append(words)
-                    for i in is_saved:
-                        if words == i:
-                            is_saved.remove(i)
-                            logger.info(f"删除{words}成功")
-                            success_del.append(words)
-                c.write("\n".join(is_saved))
-                if success_del:
-                    await stop_words_del.send(f"{str(success_del)}删除成功")
-                if already_del:
-                    await stop_words_del.send(f"{str(already_del)}还不是停用词")
-        except FileNotFoundError:
-            await stop_words_del.send("该群没有停用词")
-    else:
-        await stop_words_del.send("请输入停用词,多个以空格分隔，例：\n删除停用词 停用词1 停用词2")
+    await del_txt_line(stop_words_path, matcher,event, args, "停用词")
 
 
 stop_words_list = on_command("停用词列表", aliases={'查看停用词', '查询停用词'}, block=True, priority=1, permission=GROUP_ADMIN | GROUP_OWNER | SUPERUSER)
 
 
 @stop_words_list.handle()
-async def _(bot: Bot, event: GroupMessageEvent):
+async def _(bot: Bot, event: GroupMessageEvent, matcher: Matcher, args: Message = CommandArg()):
     """
     停用词列表
     """
-    gid = str(event.group_id)
-    try:
-        this_stop_words_path = stop_words_path / f"{str(gid)}.txt"
-        if not os.path.exists(this_stop_words_path):
-            await init()
-        try:
-            with open(this_stop_words_path, "r", encoding="utf-8") as c:
-                is_saved = c.read().split("\n")
-                is_saved.remove("")
-                c.close()
-            await stop_words_list.send(f"{str(is_saved)}")
-        except ActionFailed:
-            logger.info("用户正在查看停用此列表，可能是停用词太多了，无法发送")
-            await stop_words_list.send("可能是停用词太多了，无法发送")
-        except FileNotFoundError:
-            await stop_words_list.send("该群没有停用词")
-    except FileNotFoundError:
-        await init()
+    await get_txt_line(stop_words_path, matcher, event, args, "停用词")
 
 
 update_mask = on_command("更新mask", aliases={'下载mask'}, block=True, priority=1, permission=GROUP_ADMIN | GROUP_OWNER | SUPERUSER)
@@ -221,4 +140,3 @@ async def _(bot: Bot, event: GroupMessageEvent):
         logger.info(e)
         await update_mask.send(f"QAQ,更新mask失败:\n{e}")
         return
-

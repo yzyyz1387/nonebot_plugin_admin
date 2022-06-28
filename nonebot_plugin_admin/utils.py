@@ -23,7 +23,9 @@ from tencentcloud.common.profile.http_profile import HttpProfile
 from tencentcloud.ims.v20201229 import ims_client, models
 from .path import *
 from .config import plugin_config, global_config
-
+from nonebot.adapters.onebot.v11 import GroupMessageEvent, ActionFailed
+from nonebot.adapters import Message
+from nonebot.matcher import Matcher
 TencentID = plugin_config.tenid
 TencentKeys = plugin_config.tenkeys
 su = global_config.superusers
@@ -87,27 +89,30 @@ def MsgText(data: str):
         return ""
 
 
+dirs = [config_path,
+        template_path,
+        words_contents_path,
+        res_path,
+        re_img_path,
+        stop_words_path,
+        wordcloud_bg_path,
+        limit_word_path_custom]
+
+
 async def init():
     """
     初始化配置文件
     :return:
     """
-    if not os.path.exists(config_path):
-        await mk("dir", config_path, mode=None, )
-    if not os.path.exists(template_path):
-        await mk("dir", template_path, mode=None, )
+    for d in dirs:
+        if not os.path.exists(d):
+            await mk("dir", d, mode=None)
     if not os.path.exists(config_admin):
         await mk("file", config_admin, "w", content='{"1008611":["This_is_an_example"]}')
     if not os.path.exists(config_group_admin):
         await mk("file", config_group_admin, "w", content='{"su":"True"}')
     if not os.path.exists(word_path):
         await mk("file", word_path, "w", content='123456789\n')
-    if not os.path.exists(words_contents_path):
-        await mk("dir", words_contents_path, mode=None)
-    if not os.path.exists(res_path):
-        await mk("dir", res_path, mode=None)
-    if not os.path.exists(re_img_path):
-        await mk("dir", re_img_path, mode=None)
     if not os.path.exists(ttf_name):
         await mk("file", ttf_name, "wb", url="https://fastly.jsdelivr.net/gh/yzyyz1387/blogimages/msyhblod.ttf",
                  dec="资源字体")
@@ -140,10 +145,6 @@ async def init():
         with open(switcher_path, "w", encoding='utf-8') as swp:
             swp.write(f'{json.dumps(switcher_dict)}')
             swp.close()
-    if not os.path.exists(stop_words_path):
-        await mk("dir", stop_words_path, mode=None)
-    if not os.path.exists(wordcloud_bg_path):
-        await mk("dir", wordcloud_bg_path, mode=None)
     logger.info("Admin 插件 初始化检测完成")
 
 
@@ -403,3 +404,122 @@ async def check_func_status(func_name: str, gid: str) -> bool:
         await upload(limit_level, level)
         # raise # 抛出异常阻断后面的逻辑代码？
         return False  # 直接返回 false
+
+
+async def del_txt_line(path: Path, matcher: Matcher, event: GroupMessageEvent, args: Message, dec: str) -> None:
+    """
+    分群、按行删除txt内容
+    :param path: 文件父级路径（文件以群号命名）
+    :param matcher: matcher
+    :param event: 事件
+    :param args: 文本
+    :param dec: 描述
+    """
+    gid = str(event.group_id)
+    logger.info(args)
+    if args:
+        msg = str(args).split(" ")
+        logger.info(msg)
+        this_path = path / f"{str(gid)}.txt"
+        if not os.path.exists(this_path):
+            await init()
+        try:
+            async with aiofiles.open(this_path, mode="r+", encoding="utf-8") as c:
+                is_saved = (await c.read()).split("\n")
+                await c.close()
+            async with aiofiles.open(this_path, mode="w", encoding="utf-8") as c:
+                success_del = []
+                already_del = []
+                for words in msg:
+                    if words not in is_saved:
+                        already_del.append(words)
+                    for i in is_saved:
+                        if words == i:
+                            is_saved.remove(i)
+                            logger.info(f"删除{dec} \"{words}\"成功")
+                            success_del.append(words)
+                await c.write("\n".join(is_saved))
+                if success_del:
+                    await matcher.send(f"{str(success_del)}删除成功")
+                if already_del:
+                    await matcher.send(f"{str(already_del)}还不是{dec}")
+        except FileNotFoundError:
+            await matcher.send(f"该群没有{dec}")
+    else:
+        await matcher.send(f"请输入删除内容,多个以空格分隔，例：\n删除{dec} 内容1 内容2")
+
+
+async def add_txt_line(path: Path, matcher: Matcher, event: GroupMessageEvent, args: Message, dec: str) -> None:
+    """
+    分群、按行添加txt内容
+    :param path: 文件父级路径（文件以群号命名）
+    :param matcher: matcher
+    :param event: 事件
+    :param args: 文本
+    :param dec: 描述
+    """
+    gid = str(event.group_id)
+    logger.info(args)
+    if args:
+        msg = str(args).split(" ")
+        logger.info(msg)
+        this_path = path / f"{str(gid)}.txt"
+        if not os.path.exists(this_path):
+            await init()
+        try:
+            async with aiofiles.open(this_path, mode="r+", encoding="utf-8") as c:
+                is_saved = (await c.read()).split("\n")
+                success_add = []
+                already_add = []
+                for words in msg:
+                    if words in is_saved:
+                        logger.info(f"{words}已存在")
+                        already_add.append(words)
+                    else:
+                        await c.write(words + "\n")
+                        logger.info(f"添加\"{words}\"为{dec}成功")
+                        success_add.append(words)
+                if already_add:
+                    await matcher.send(f"{str(already_add)}已存在")
+                if success_add:
+                    await matcher.send(f"{str(success_add)}添加成功")
+        except FileNotFoundError:
+            success_add = []
+            async with aiofiles.open(this_path, mode="w", encoding="utf-8") as c:
+                for words in msg:
+                    await c.write(words + "\n")
+                    logger.info(f"添加\"{words}\"为{dec}成功")
+                    success_add.append(words)
+                await matcher.send(f"添加{str(success_add)}成功")
+                await c.close()
+    else:
+        await matcher.send(f"请输入添加内容,多个以空格分隔，例：\n添加{dec} 内容1 内容2")
+
+
+async def get_txt_line(path: Path, matcher: Matcher, event: GroupMessageEvent, args: Message, dec: str) -> None:
+    """
+    分群、按行获取txt内容
+    :param path: 文件父级路径（文件以群号命名）
+    :param matcher: matcher
+    :param event: 事件
+    :param args: 文本
+    :param dec: 描述
+    """
+    gid = str(event.group_id)
+    try:
+        this_path = path / f"{str(gid)}.txt"
+        if not os.path.exists(this_path):
+            await init()
+        try:
+            async with aiofiles.open(this_path, "r", encoding="utf-8") as c:
+                is_saved = (await c.read()).split("\n")
+                is_saved.remove("")
+                await c.close()
+            await matcher.send(f"{str(is_saved)}")
+        except ActionFailed:
+            logger.info(f"用户正在查看停用此列表，可能是{dec}太多了，无法发送")
+            await matcher.send(f"可能是内容太多了，无法发送")
+        except FileNotFoundError:
+            await matcher.send(f"该群没有{dec}")
+    except FileNotFoundError:
+        await init()
