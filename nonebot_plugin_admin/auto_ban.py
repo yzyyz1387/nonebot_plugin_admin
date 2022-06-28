@@ -5,6 +5,8 @@
 # @Email   :  youzyyz1384@qq.com
 # @File    : auto_ban.py
 # @Software: PyCharm
+import os
+import aiofiles
 from nonebot import logger, on_message, on_command, require
 from nonebot.adapters.onebot.v11 import Bot, GroupMessageEvent
 from nonebot.adapters.onebot.v11.exception import ActionFailed
@@ -25,7 +27,7 @@ cb_notice = plugin_config.callback_notice
 cron_update = plugin_config.cron_update
 paths_ = [config_path, limit_word_path, limit_word_path_easy, limit_level]
 
-f_word = on_message(priority=0, block=False)
+f_word = on_message(priority=2, block=False)
 
 
 @f_word.handle()
@@ -42,18 +44,20 @@ async def _(bot: Bot, event: GroupMessageEvent, matcher: Matcher):
             break
     gid = event.group_id
     level = await load(limit_level)
-    status = await check_func_status('auto_ban', str(gid))
-    if not status:
-        await f_word.finish()
+    if os.path.exists(limit_word_path_custom / f'{gid}.txt'):  # 是否存在自定义违禁词
+        async with aiofiles.open(limit_word_path_custom / f'{gid}.txt', 'r', encoding='utf-8') as f:
+            custom_limit_words = await f.read()
+    else:
+        custom_limit_words = ''
     if str(gid) in level:
         if level[str(gid)] == 'easy':
             limit_path = limit_word_path_easy
         else:
             limit_path = limit_word_path
         rules = [re.sub(r'\t+', '\t', rule).split('\t') for rule in
-                 open(limit_path, 'r', encoding='utf-8').read().split('\n')]
+                 (open(limit_path, 'r', encoding='utf-8').read() + custom_limit_words).split('\n')]
         msg = re.sub(r'\s', '', str(event.get_message()))
-        logger.info(f"收到消息: \"{msg}\"")
+        logger.info(f"{gid}收到{event.user_id}的消息: \"{msg}\"")
         for rule in rules:
             if rule[0] and re.search(rule[0], msg):
                 logger.info(f"敏感词触发: \"{rule[0]}\"")

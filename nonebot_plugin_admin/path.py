@@ -6,7 +6,7 @@
 # @File    : path.py
 # @Software: PyCharm
 from pathlib import Path
-
+# FIXME 群配置文件目前都以配置文件的类型分文件夹，而不是以群分文件夹，后者是不是会更好，但是目前懒得改了
 config_path = Path() / "config"
 config_admin = config_path / "admin.json"
 config_group_admin = config_path / "group_admin.json"
@@ -18,6 +18,7 @@ ttf_name = Path() / "resource" / "msyhblod.ttf"
 limit_word_path = config_path / "违禁词.txt"
 limit_word_path_easy = config_path / "违禁词_简单.txt"
 limit_level = config_path / "违禁词监控等级.json"
+limit_word_path_custom = config_path / "用户自定违禁词"
 switcher_path = config_path / "开关.json"
 template_path = config_path / "template"
 stop_words_path = config_path / "stop_words"
