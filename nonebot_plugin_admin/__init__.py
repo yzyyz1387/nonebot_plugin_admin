@@ -10,12 +10,14 @@ import json
 from asyncio import sleep as asleep
 from traceback import print_exc
 from random import randint
-
+from nonebot.params import CommandArg
 import nonebot
+from nonebot.adapters import Message
 from nonebot import on_command, logger, on_notice
 from nonebot.adapters.onebot.v11 import Bot, GroupMessageEvent, NoticeEvent
 from nonebot.adapters.onebot.v11.exception import ActionFailed
 from nonebot.adapters.onebot.v11.permission import GROUP_ADMIN, GROUP_OWNER
+from nonebot.matcher import Matcher
 from nonebot.permission import SUPERUSER
 from . import (
     approve,
@@ -32,7 +34,7 @@ from . import (
     switcher,
     func_hook
 )
-from .utils import At, Reply, MsgText, banSb, init, check_func_status
+from .utils import At, Reply, MsgText, banSb, init, check_func_status, change_s_title
 from .group_request_verify import verify
 from .config import plugin_config, global_config
 
@@ -166,72 +168,58 @@ async def _(bot: Bot, event: GroupMessageEvent):
                 await change.finish("改名片操作成功")
 
 
-title = on_command('头衔', permission=SUPERUSER | GROUP_OWNER, priority=1, block=True)
+title = on_command('头衔', priority=1, block=True)
 
 
 @title.handle()
-async def _(bot: Bot, event: GroupMessageEvent):
+async def _(bot: Bot, matcher: Matcher, event: GroupMessageEvent):
     """
     /头衔 @user  xxx  给某人头衔
     """
-    msg = str(event.get_message())
-    s_title = msg.split()[-1:][0]
-    logger.info(str(msg.split()), s_title)
+    # msg = str(event.get_message())
+    msg = MsgText(event.json())
+    s_title = msg.replace(" ", "").replace("头衔", "",1)
     sb = At(event.json())
     gid = event.group_id
-    if sb:
+    uid = event.user_id
+    if not sb or (len(sb) == 1 and sb[0] == uid):
+        await change_s_title(bot, matcher, gid, uid, s_title)
+    elif sb:
         if 'all' not in sb:
-            try:
+            if uid in su:
                 for qq in sb:
-                    if qq not in su:
-                        await bot.set_group_special_title(
-                            group_id=gid,
-                            user_id=int(qq),
-                            special_title=s_title,
-                            duration=-1,
-                        )
-            except ActionFailed:
-                await title.finish("权限不足")
+                    await change_s_title(bot, matcher, gid, int(qq), s_title)
+
             else:
-                logger.info(f"改头衔操作成功{s_title}")
-                if cb_notice:
-                    await title.finish(f"改头衔操作成功{s_title}")
+                await title.finish("超级用户才可以更改他人头衔，更改自己头衔请直接使用【头衔 xxx】")
         else:
-            await title.finish("未填写头衔名称 或 不能含有@全体成员")
+            await title.finish("不能含有@全体成员")
 
 
-title_ = on_command('删头衔', permission=SUPERUSER | GROUP_ADMIN | GROUP_OWNER, priority=1, block=True)
+title_ = on_command('删头衔', priority=1, block=True)
 
 
 @title_.handle()
-async def _(bot: Bot, event: GroupMessageEvent):
+async def _(bot: Bot, matcher: Matcher, event: GroupMessageEvent):
     """
     /删头衔 @user 删除头衔
     """
-    msg = str(event.get_message())
-    s_title = msg.split()[-1:][0]
-    logger.info(str(msg.split()), s_title)
+    msg = MsgText(event.json())
+    s_title = ""
     sb = At(event.json())
     gid = event.group_id
-    if sb:
+    uid = event.user_id
+    if not sb or (len(sb) == 1 and sb[0] == uid):
+        await change_s_title(bot, matcher, gid, uid, s_title)
+    elif sb:
         if 'all' not in sb:
-            try:
+            if uid in su:
                 for qq in sb:
-                    if qq not in su:
-                        await bot.set_group_special_title(
-                            group_id=gid,
-                            user_id=int(qq),
-                            special_title="",
-                            duration=-1,
-                        )
-            except ActionFailed:
-                await title_.finish("权限不足")
+                    await change_s_title(bot, matcher, gid, int(qq), s_title)
             else:
-                logger.info(f"改头衔操作成功{s_title}")
-                if cb_notice:
-                    await title_.finish(f"改头衔操作成功{s_title}")
+                await title.finish("超级用户才可以删他人头衔，删除自己头衔请直接使用【删头衔】")
         else:
-            await title_.finish("有什么输入错误 或 不能含有@全体成员")
+            await title.finish("不能含有@全体成员")
 
 
 kick = on_command('踢', permission=SUPERUSER | GROUP_ADMIN | GROUP_OWNER, priority=1, block=True)

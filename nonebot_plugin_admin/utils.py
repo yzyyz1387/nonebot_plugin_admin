@@ -23,7 +23,7 @@ from tencentcloud.common.profile.http_profile import HttpProfile
 from tencentcloud.ims.v20201229 import ims_client, models
 from .path import *
 from .config import plugin_config, global_config
-from nonebot.adapters.onebot.v11 import GroupMessageEvent, ActionFailed
+from nonebot.adapters.onebot.v11 import GroupMessageEvent, ActionFailed, Bot
 from nonebot.adapters import Message
 from nonebot.matcher import Matcher
 TencentID = plugin_config.tenid
@@ -32,7 +32,7 @@ su = global_config.superusers
 cb_notice = plugin_config.callback_notice
 
 
-def At(data: str):
+def At(data: str) -> Union[list[str], list[int], list]:
     """
     检测at了谁，返回[qq, qq, qq,...]
     包含全体成员直接返回['all']
@@ -228,7 +228,7 @@ async def replace_tmr(msg: str) -> str:
         msg = msg.replace(cq, "")
     links = re.findall(find_link, msg)
     for link in links:
-        msg = msg.replace(link, "链接")
+        msg = msg.replace(link, "")
     return msg
 
 
@@ -523,3 +523,27 @@ async def get_txt_line(path: Path, matcher: Matcher, event: GroupMessageEvent, a
             await matcher.send(f"该群没有{dec}")
     except FileNotFoundError:
         await init()
+
+
+async def change_s_title(bot: Bot, matcher: Matcher, gid: int, uid: int, s_title: Optional[str]):
+    """
+    改头衔
+    :param bot: bot
+    :param matcher: matcher
+    :param gid: 群号
+    :param uid: 用户号
+    :param s_title: 头衔
+    """
+    try:
+        await bot.set_group_special_title(
+            group_id=gid,
+            user_id=uid,
+            special_title=s_title,
+            duration=-1,
+        )
+    except ActionFailed:
+        logger.info("权限不足")
+    else:
+        logger.info(f"头衔操作成功:{s_title}")
+        if cb_notice:
+            await matcher.finish(f"头衔操作成功:{s_title}")
