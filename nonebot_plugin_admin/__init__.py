@@ -183,7 +183,7 @@ async def _(bot: Bot, matcher: Matcher, event: GroupMessageEvent):
         await change_s_title(bot, matcher, gid, uid, s_title)
     elif sb:
         if 'all' not in sb:
-            if uid in su:
+            if uid in su or (str(uid) in su):
                 for qq in sb:
                     await change_s_title(bot, matcher, gid, int(qq), s_title)
 
@@ -210,7 +210,7 @@ async def _(bot: Bot, matcher: Matcher, event: GroupMessageEvent):
         await change_s_title(bot, matcher, gid, uid, s_title)
     elif sb:
         if 'all' not in sb:
-            if uid in su:
+            if uid in su or (str(uid) in su):
                 for qq in sb:
                     await change_s_title(bot, matcher, gid, int(qq), s_title)
             else:
