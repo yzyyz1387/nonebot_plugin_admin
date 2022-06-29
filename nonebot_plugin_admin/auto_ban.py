@@ -14,7 +14,7 @@ from nonebot.adapters.onebot.v11.permission import GROUP_ADMIN, GROUP_OWNER
 from nonebot.permission import SUPERUSER
 from nonebot.matcher import Matcher
 from .path import *
-from .utils import init, banSb, load, check_func_status
+from .utils import init, banSb, load, check_func_status, get_user_violation
 from .config import plugin_config
 from os import path
 from json import dumps as to_json
@@ -61,6 +61,9 @@ async def _(bot: Bot, event: GroupMessageEvent, matcher: Matcher):
         for rule in rules:
             if rule[0] and re.search(rule[0], msg):
                 logger.info(f"敏感词触发: \"{rule[0]}\"")
+                level = (await get_user_violation(gid, event.user_id, "Porn", event.raw_message))
+                ts: list = time_scop_map[level]
+                await f_word.send(f'你发送了违禁词,现在进行处罚,如有异议请联系管理员\n你的违禁级别为{level}级', at_sender=True)
                 matcher.stop_propagation()
                 delete, ban = True, True
                 if len(rule) > 1:
@@ -73,8 +76,9 @@ async def _(bot: Bot, event: GroupMessageEvent, matcher: Matcher):
                     except ActionFailed:
                         logger.info('消息撤回失败')
                 uid = event.get_user_id()
+
                 if ban:
-                    baning = banSb(gid, ban_list=[uid])
+                    baning = banSb(gid, ban_list=[uid], scope=ts)
                     async for baned in baning:
                         if baned:
                             try:
@@ -84,7 +88,7 @@ async def _(bot: Bot, event: GroupMessageEvent, matcher: Matcher):
                                 await f_word.send('禁言失败，权限不足')
                             else:
                                 logger.info(f"禁言成功，用户: {uid}")
-                                await f_word.send('你发送了违禁词,现在进行处罚,如有异议请联系管理员', at_sender=True)
+                                await f_word.send(f'你发送了违禁词,现在进行处罚,如有异议请联系管理员\n你的违禁级别为{level}级', at_sender=True)
                 break
     elif cb_notice:
         await f_word.send('本群未配置检测级别，指令如下：\n1.简单违禁词:简单级别\n2.严格违禁词：严格级别\n3.群管初始化：一键配置所有群聊为简单级别\n若重复出现此信息推荐发送【简单违禁词】')

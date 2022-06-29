@@ -21,18 +21,18 @@ from nonebot.matcher import Matcher
 from nonebot.permission import SUPERUSER
 from . import (
     approve,
-    group_request_verify,
-    request,
-    request_manual,
-    notice,
-    utils,
-    word_analyze,
-    wordcloud,
-    img_check,
     auto_ban,
     auto_ban_,
+    func_hook,
+    group_request_verify,
+    img_check,
+    notice,
+    request,
+    request_manual,
+    word_analyze,
+    wordcloud,
     switcher,
-    func_hook
+    utils,
 )
 from .utils import At, Reply, MsgText, banSb, init, check_func_status, change_s_title
 from .group_request_verify import verify

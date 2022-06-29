@@ -7,6 +7,7 @@
 # @Software: PyCharm
 import asyncio
 import base64
+import datetime
 import json
 import os
 import random
@@ -26,6 +27,7 @@ from .config import plugin_config, global_config
 from nonebot.adapters.onebot.v11 import GroupMessageEvent, ActionFailed, Bot
 from nonebot.adapters import Message
 from nonebot.matcher import Matcher
+
 TencentID = plugin_config.tenid
 TencentKeys = plugin_config.tenkeys
 su = global_config.superusers
@@ -186,12 +188,13 @@ async def mk(type_, path_, *mode, **kwargs):
         raise Exception("type_参数错误")
 
 
-async def banSb(gid: int, ban_list: list, time: int = None):
+async def banSb(gid: int, ban_list: list, time: int = None, scope: list = None):
     """
     构造禁言
     :param gid: 群号
     :param time: 时间（s)
     :param ban_list: at列表
+    :param scope: 用于被动检测禁言的时间范围
     :return:禁言操作
     """
     if 'all' in ban_list:
@@ -201,7 +204,10 @@ async def banSb(gid: int, ban_list: list, time: int = None):
         )
     else:
         if time is None:
-            time = random.randint(plugin_config.ban_rand_time_min, plugin_config.ban_rand_time_max)
+            if scope is None:
+                time = random.randint(plugin_config.ban_rand_time_min, plugin_config.ban_rand_time_max)
+            else:
+                time = random.randint(scope[0], scope[1])
         for qq in ban_list:
             if int(qq) in su or str(qq) in su:
                 logger.info(f"SUPERUSER无法被禁言, {qq}")
@@ -334,15 +340,12 @@ def image_moderation(img):
         return kerr
 
 
-async def image_moderation_async(img: Union[str, bytes]) -> dict:
+async def image_moderation_async(img: Union[str, bytes]) -> Optional[dict]:
     try:
-        resp = await asyncio.to_thread(image_moderation, img)
-        if resp["Suggestion"] != "Pass":
-            return {"status": False, "message": resp["Label"]}
-        else:
-            return {"status": True, "message": None}
+        resp = (await asyncio.to_thread(image_moderation, img))
+        return resp
     except Exception as e:
-        return {"status": "error", "message": e}
+        return None
 
 
 def bytes_to_base64(data):
@@ -371,7 +374,7 @@ async def upload(path, dict_content) -> None:
     :param dict_content: python对象，字典
     """
     async with aiofiles.open(path, mode='w', encoding="utf-8") as c:
-        await c.write(str(json.dumps(dict_content)))
+        await c.write(str(json.dumps(dict_content, ensure_ascii=False)))
         await c.close()
 
 
@@ -547,3 +550,50 @@ async def change_s_title(bot: Bot, matcher: Matcher, gid: int, uid: int, s_title
         logger.info(f"头衔操作成功:{s_title}")
         if cb_notice:
             await matcher.finish(f"头衔操作成功:{s_title}")
+
+
+async def get_user_violation(gid: int, uid: int, label: str, content: str) -> int:
+    """
+    获取用户违规情况
+    :param gid: 群号
+    :param uid: 用户号
+    :param label: 违规标签
+    :param content: 内容
+    :return: 违规等级
+    """
+    path_grop = user_violation_info_path / f"{str(gid)}"
+    path_user = path_grop / f"{str(uid)}.json"
+    this_time = str(datetime.datetime.now()).replace(" ", "-")
+    uid = str(uid)
+    if not os.path.exists(user_violation_info_path):
+        await mk("dir", user_violation_info_path, mode=None)
+    if not os.path.exists(path_grop):
+        await mk("dir", path_grop, mode=None)
+        await vio_level_init(path_user, uid, this_time, label, content)
+        return 0
+    try:
+        info = (await load(path_user))
+        level = info[uid]["level"]
+        info[uid]["level"] += 1
+        info[uid]["info"][this_time] = [label, content]
+        await upload(path_user, info)
+        if level >= 7:
+            return 7
+        else:
+            return level
+    except FileNotFoundError:
+        await vio_level_init(path_user, uid, this_time, label, content)
+        return 0
+    except Exception as e:
+        logger.error(f"获取用户违禁等级出错：{e}，尝试初始化此用户违禁等级")
+        await vio_level_init(path_user, uid, this_time, label, content)
+        return 0
+
+
+async def vio_level_init(path_user, uid, this_time, label, content) -> None:
+    async with aiofiles.open(path_user, mode="w", encoding="utf-8") as c:
+        await c.write(json.dumps({uid: {"level": 0, "info": {this_time: [label, content]}}}, ensure_ascii=False))
+        await c.close()
+
+
+
