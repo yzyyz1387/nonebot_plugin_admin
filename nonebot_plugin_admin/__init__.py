@@ -57,18 +57,15 @@ async def _(bot: Bot, event: GroupMessageEvent):
     """
     /禁 @user 禁言
     """
-    # msg = str(event.get_message()).replace(" ", "").split("]")
-    msg = MsgText(event.json())
+    try:
+        msg = MsgText(event.json()).replace(" ", "").replace("禁", "")
+        time = int("".join(map(str, list(map(lambda x: int(x), filter(lambda x: x.isdigit(), msg))))))
+        # 提取消息中所有数字作为禁言时间
+    except ValueError:
+        time = None
     sb = At(event.json())
     gid = event.group_id
     if sb:
-        if len(msg.split(" ")) > 1:
-            try:
-                time = int(msg.split(" ")[-1])
-            except ValueError:
-                time = None  # 出现错误就默认随机 【理论上除非是 /撤回 @user n 且 n 不是数值时才有可能触发】
-        else:
-            time = None
         baning = banSb(gid, ban_list=sb, time=time)
         try:
             async for baned in baning:
@@ -111,7 +108,7 @@ async def _(bot: Bot, event: GroupMessageEvent):
                 await unban.finish("解禁操作成功")
 
 
-ban_all = on_command("/all", aliases={"全员"}, permission=SUPERUSER | GROUP_ADMIN | GROUP_OWNER, priority=1, block=True)
+ban_all = on_command("/all", aliases={"/全员"}, permission=SUPERUSER | GROUP_ADMIN | GROUP_OWNER, priority=1, block=True)
 
 
 @ban_all.handle()

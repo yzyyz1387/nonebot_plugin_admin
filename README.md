@@ -15,7 +15,7 @@
 
 
   
-[![wakatime](https://wakatime.com/badge/user/e4795d94-d154-4c3d-a94b-b655c82e57f4/project/d4a8cb5e-ee86-4ad9-99e5-48873f38c3bd.svg)](https://wakatime.com/badge/user/e4795d94-d154-4c3d-a94b-b655c82e57f4/project/d4a8cb5e-ee86-4ad9-99e5-48873f38c3bd)
+[//]: # ([![wakatime]&#40;https://wakatime.com/badge/user/e4795d94-d154-4c3d-a94b-b655c82e57f4/project/d4a8cb5e-ee86-4ad9-99e5-48873f38c3bd.svg&#41;]&#40;https://wakatime.com/badge/user/e4795d94-d154-4c3d-a94b-b655c82e57f4/project/d4a8cb5e-ee86-4ad9-99e5-48873f38c3bd&#41;)
 
 
 踢 改 禁.......  
@@ -83,7 +83,8 @@ callback_notice=true # 如果不想开启设置成 false 或者不添加此配�
     禁 @某人 缺省时间则随机
     禁 @某人 0 可解禁
     解 @某人
-  全群禁言 即使你的命令前缀为空，仍需使用 /all 来触发
+    禁言时，该条消息中所有数字都会组合作为禁言时间，如：‘禁@某人 1哈2哈0哈’，则禁言120s
+  全群禁言 若命令前缀不为空，请使用//all,若为空，需用 /all 来触发
     /all 
     /all 解
   改名片
