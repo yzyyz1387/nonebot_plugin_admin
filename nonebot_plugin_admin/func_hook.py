@@ -46,6 +46,11 @@ async def _(matcher: Matcher, bot: Bot, state: T_State, event: Event):
                         if cb_notice:
                             await bot.send_group_msg(group_id=gid,
                                                      message=f"功能处于关闭状态，发送【开关{admin_funcs[which_module][0]}】开启")
+                            raise IgnoredException("未开启此功能...")
+                    elif not status and which_module in ['auto_ban',
+                                                           'img_check']:
+                        logger.info(
+                            f"{admin_funcs[which_module][0]}功能处于关闭状态，若要启用请发送【开关{admin_funcs[which_module][0]}】开启")
                         raise IgnoredException("未开启此功能...")
             else:
                 pass
