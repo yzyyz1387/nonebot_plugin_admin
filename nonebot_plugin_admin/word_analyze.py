@@ -184,7 +184,7 @@ async def _(bot: Bot, event: GroupMessageEvent):
         await update_mask.send(f"QAQ,更新mask失败:\n{e}")
         return
 
-
+# FIXME: 这一块重复代码有点多了
 who_speak_most_today = on_command("今日榜首", aliases={'今天谁话多', '今儿谁话多', '今天谁屁话最多'}, block=True, priority=1)
 
 
@@ -198,7 +198,7 @@ async def _(bot: Bot, event: GroupMessageEvent, matcher: Matcher, args: Message 
         await who_speak_most_today.send("没有任何人说话")
         return
     else:
-        await who_speak_most_today.send(f"今日榜首：\n{top[0][0]}，发了{top[0][1]}条消息")
+        await who_speak_most_today.send(f"太强了！今日榜首：\n{top[0][0]}，发了{top[0][1]}条消息")
 
 
 speak_top = on_command("今日发言排行", aliases={'今日排行榜', '今日发言排行榜', '今日排行'}, block=True, priority=1)
@@ -217,6 +217,28 @@ async def _(bot: Bot, event: GroupMessageEvent, matcher: Matcher, args: Message 
     for i in range(min(len(top), 10)):
         top_list.append(f"{i+1}. {top[i][0]}，发了{top[i][1]}条消息")
     await speak_top.send("\n".join(top_list))
+
+
+speak_top_yesterday = on_command("昨日发言排行", aliases={'昨日排行榜', '昨日发言排行榜', '昨日排行'}, block=True, priority=1)
+
+
+@speak_top_yesterday.handle()
+async def _(bot: Bot, event: GroupMessageEvent, matcher: Matcher, args: Message = CommandArg()):
+    gid = event.group_id
+    today = datetime.date.today().strftime("%Y-%m-%d")
+    yesterday = (datetime.date.today() - datetime.timedelta(days=1)).strftime("%Y-%m-%d")
+    if os.path.exists(group_message_data_path/f"{gid}" / f"{yesterday}.json"):
+        dic_ = await load(group_message_data_path/f"{gid}" / f"{yesterday}.json")
+        top = sorted(dic_.items(), key=lambda x: x[1], reverse=True)
+        if len(top) == 0:
+            await speak_top_yesterday.send("没有任何人说话")
+            return
+        top_list = []
+        for i in range(min(len(top), 10)):
+            top_list.append(f"{i+1}. {top[i][0]}，发了{top[i][1]}条消息")
+        await speak_top_yesterday.send("\n".join(top_list))
+    else:
+        await speak_top_yesterday.send("昨日没有记录")
 
 
 who_speak_most = on_command("排行", aliases={'谁话多', '谁屁话最多', '排行', '排行榜'}, block=True, priority=1)
