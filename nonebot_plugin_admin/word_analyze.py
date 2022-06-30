@@ -234,7 +234,7 @@ async def _(bot: Bot, event: GroupMessageEvent, matcher: Matcher, args: Message 
         top_list = []
         for i in range(min(len(top), 10)):
             top_list.append(f"{i+1}. {top[i][0]}，发了{top[i][1]}条消息")
-            await who_speak_most.send("\n".join(top_list))
+        await who_speak_most.send("\n".join(top_list))
 
 
 get_speak_num = on_command("发言数", aliases={'发言数', '发言', '发言量'}, block=True, priority=1)
@@ -247,6 +247,7 @@ async def _(bot: Bot, event: GroupMessageEvent, matcher: Matcher, args: Message 
     at_list = At(event.json())
     if at_list:
         for qq in at_list:
+            qq = str(qq)
             if qq in dic_:
                 await get_speak_num.send(f"有记录以来{qq}在本群发了{dic_[qq]}条消息")
             else:
@@ -264,6 +265,7 @@ async def _(bot: Bot, event: GroupMessageEvent, matcher: Matcher, args: Message 
     at_list = At(event.json())
     if at_list:
         for qq in at_list:
+            qq = str(qq)
             if qq in dic_:
                 await get_speak_num_today.send(f"今天{qq}发了{dic_[qq]}条消息")
             else:
