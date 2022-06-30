@@ -212,11 +212,11 @@ callback_notice=true # 如果不想开启设置成 false 或者不添加此配�
 - [x] 关键词禁言，图片鉴黄（简单实现），[#issues3](https://github.com/yzyyz1387/nonebot_plugin_admin/issues/3)
 - [ ] 恶意检测， [#issues3](https://github.com/yzyyz1387/nonebot_plugin_admin/issues/3)
 - [ ]  ~~鉴黄置信度呈现~~
-- [ ]  头衔命令所有人可用，删头衔命令加权限
-- [ ]  修复加群审批默认处理规则
-- [ ] 词云停用词优化
-- [ ] 分群群词云自定义停用词
-- [ ] 违禁词优化
+- [x]  头衔命令所有人可用，删头衔命令加权限
+- [x]  修复加群审批默认处理规则
+- [x] 词云停用词优化
+- [x] 分群群词云自定义停用词
+- [x] 违禁词优化
 - [ ] 全局开关
 - [ ] 潜水查询
 - [ ] 群聊内容分析

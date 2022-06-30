@@ -552,13 +552,14 @@ async def change_s_title(bot: Bot, matcher: Matcher, gid: int, uid: int, s_title
             await matcher.finish(f"头衔操作成功:{s_title}")
 
 
-async def get_user_violation(gid: int, uid: int, label: str, content: str) -> int:
+async def get_user_violation(gid: int, uid: int, label: str, content: str, add_: bool = True) -> int:
     """
     获取用户违规情况
     :param gid: 群号
     :param uid: 用户号
     :param label: 违规标签
     :param content: 内容
+    :param add_: 等级是否+1
     :return: 违规等级
     """
     path_grop = user_violation_info_path / f"{str(gid)}"
@@ -574,7 +575,8 @@ async def get_user_violation(gid: int, uid: int, label: str, content: str) -> in
     try:
         info = (await load(path_user))
         level = info[uid]["level"]
-        info[uid]["level"] += 1
+        if add_:
+            info[uid]["level"] += 1
         info[uid]["info"][this_time] = [label, content]
         await upload(path_user, info)
         if level >= 7:

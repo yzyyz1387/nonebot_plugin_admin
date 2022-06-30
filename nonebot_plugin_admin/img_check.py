@@ -36,7 +36,7 @@ async def check_pic(bot: Bot, event: GroupMessageEvent):
                             await bot.send(event=event, message=f"你的违规等级为{level}，色色不规范，群主两行泪，请群友小心驾驶")
                             await send_pics_ban(bot, event, ts)
                         else:
-                            level = (await get_user_violation(gid, event.user_id, "Porn", event.raw_message))
+                            level = (await get_user_violation(gid, event.user_id, "Porn", event.raw_message, add_=False))
                             ts: list = time_scop_map[level]
                             await bot.send(event=event,
                                            message=f"你发送的内容涉及{result['Label']}\n你的违规等级为{level}级，网络并非法外之地，请谨言慎行！", at_sender=True)
