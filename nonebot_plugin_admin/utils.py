@@ -98,7 +98,9 @@ dirs = [config_path,
         re_img_path,
         stop_words_path,
         wordcloud_bg_path,
-        limit_word_path_custom]
+        limit_word_path_custom,
+        user_violation_info_path,
+        group_message_data_path]
 
 
 async def init():
@@ -132,9 +134,9 @@ async def init():
         level_dict = {}
         for group in g_list:
             level_dict.update({str(group['group_id']): "easy"})
-        with open(limit_level, "w", encoding='utf-8') as lwp:
-            lwp.write(f'{json.dumps(level_dict)}')
-            lwp.close()
+        async with aiofiles.open(limit_level, "w", encoding='utf-8') as lwp:
+            await lwp.write(f'{json.dumps(level_dict)}')
+            await lwp.close()
     if not os.path.exists(switcher_path):
         bot = nonebot.get_bot()
         logger.info("创建开关配置文件,分群设置,默认开")
@@ -144,9 +146,9 @@ async def init():
             switcher_dict.update({str(group['group_id']): {"admin": True, "requests": True, "wordcloud": True,
                                                            "auto_ban": True, "img_check": True,
                                                            "word_analyze": True}})
-        with open(switcher_path, "w", encoding='utf-8') as swp:
-            swp.write(f'{json.dumps(switcher_dict)}')
-            swp.close()
+        async with aiofiles.open(switcher_path, "w", encoding='utf-8') as swp:
+            await swp.write(f'{json.dumps(switcher_dict)}')
+            await swp.close()
     logger.info("Admin 插件 初始化检测完成")
 
 
@@ -179,8 +181,8 @@ async def mk(type_, path_, *mode, **kwargs):
                 logger.info(f"下载文件 {kwargs['dec']} 到 {path_}")
         else:
             if mode:
-                with open(path_, mode[0]) as f:
-                    f.write(kwargs["content"])
+                async with aiofiles.open(path_, mode[0]) as f:
+                    await f.write(kwargs["content"])
                 logger.info(f"创建文件{path_}")
             else:
                 raise Exception("mode 不能为空")
