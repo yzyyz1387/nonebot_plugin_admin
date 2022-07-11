@@ -20,7 +20,7 @@ from nonebot.params import CommandArg
 from nonebot.permission import SUPERUSER
 
 from .path import *
-from .utils import init, replace_tmr, del_txt_line, add_txt_line, get_txt_line, upload, load, At
+from .utils import init, replace_tmr, del_txt_line, add_txt_line, get_txt_line, upload, load, At, MsgText, error_log
 
 word_start = on_command("记录本群", block=True, priority=1, permission=GROUP_ADMIN | GROUP_OWNER | SUPERUSER)
 
@@ -66,7 +66,7 @@ word = on_message(priority=10, block=False)
 
 
 @word.handle()
-async def _(bot: Bot, event: GroupMessageEvent):
+async def _(bot: Bot, event: GroupMessageEvent, matcher: Matcher):
     """
     记录聊天内容
     :param bot:
@@ -75,48 +75,52 @@ async def _(bot: Bot, event: GroupMessageEvent):
     """
     gid = str(event.group_id)
     uid = str(event.user_id)
-    msg = str(event.get_message()).replace(" ", "")
+    msg = str(MsgText(event.json())).replace(" ", "")
     path_temp = words_contents_path / f"{str(gid)}.txt"
     message_path_group = group_message_data_path / f"{gid}"
     # datetime获取今日日期
     today = datetime.datetime.now().strftime("%Y-%m-%d")
     this_time = datetime.datetime.now().strftime("%Y-%m-%d-%H:%M:%S")
-    if not os.path.exists(word_path) or not os.path.exists(group_message_data_path):
-        await init()
-    if not os.path.exists(message_path_group):
-        os.mkdir(message_path_group)
-    if not os.path.exists(message_path_group / "sum.json"):  # 总记录 {日期：{时间：[uid, 消息]}}
-        await upload(message_path_group / "sum.json", {today: {this_time: [uid, event.raw_message]}})
-    else:
-        dic_ = await load(message_path_group / "sum.json")
-        if today not in dic_:
-            dic_[today] = {this_time: [uid, event.raw_message]}
+    try:
+        if not os.path.exists(word_path) or not os.path.exists(group_message_data_path):
+            await init()
+        if not os.path.exists(message_path_group):
+            os.mkdir(message_path_group)
+        if not os.path.exists(message_path_group / "sum.json"):  # 总记录 {日期：{时间：[uid, 消息]}}
+            await upload(message_path_group / "sum.json", {today: {this_time: [uid, event.raw_message]}})
         else:
-            dic_[today][this_time] = [uid, event.raw_message]
-        await upload(message_path_group / "sum.json", dic_)
-    if not os.path.exists(message_path_group / f"{today}.json"):  # 日消息条数记录 {uid：消息数}
-        await upload(message_path_group / f"{today}.json", {uid: 1})
-    else:
-        dic_ = await load(message_path_group / f"{today}.json")
-        if uid not in dic_:
-            dic_[uid] = 1
+            dic_ = await load(message_path_group / "sum.json")
+            if today not in dic_:
+                dic_[today] = {this_time: [uid, event.raw_message]}
+            else:
+                dic_[today][this_time] = [uid, event.raw_message]
+            await upload(message_path_group / "sum.json", dic_)
+        if not os.path.exists(message_path_group / f"{today}.json"):  # 日消息条数记录 {uid：消息数}
+            await upload(message_path_group / f"{today}.json", {uid: 1})
         else:
-            dic_[uid] += 1
-        await upload(message_path_group / f"{today}.json", dic_)
-    if not os.path.exists(message_path_group / "history.json"):  # 历史发言条数记录 {uid：消息数}
-        await upload(message_path_group / "history.json", {uid: 1})
-    else:
-        dic_ = await load(message_path_group / "history.json")
-        if uid not in dic_:
-            dic_[uid] = 1
+            dic_ = await load(message_path_group / f"{today}.json")
+            if uid not in dic_:
+                dic_[uid] = 1
+            else:
+                dic_[uid] += 1
+            await upload(message_path_group / f"{today}.json", dic_)
+        if not os.path.exists(message_path_group / "history.json"):  # 历史发言条数记录 {uid：消息数}
+            await upload(message_path_group / "history.json", {uid: 1})
         else:
-            dic_[uid] += 1
-        await upload(message_path_group / "history.json", dic_)
-    txt = open(word_path, "r", encoding="utf-8").read().split("\n")
-    if gid in txt:
-        msg = await replace_tmr(msg)
-        with open(path_temp, "a+", encoding="utf-8") as c:
-            c.write(msg + "\n")
+            dic_ = await load(message_path_group / "history.json")
+            if uid not in dic_:
+                dic_[uid] = 1
+            else:
+                dic_[uid] += 1
+            await upload(message_path_group / "history.json", dic_)
+        txt = open(word_path, "r", encoding="utf-8").read().split("\n")
+        if gid in txt:
+            msg = await replace_tmr(msg)
+            with open(path_temp, "a+", encoding="utf-8") as c:
+                c.write(msg + "\n")
+    except Exception as e:
+        logger.error("word_analyze.py 消息记录发生错误：" + str(e))
+        await error_log(event.group_id, this_time, matcher, str(e))
 
 
 stop_words_add = on_command("添加停用词", aliases={'增加停用词', '新增停用词'}, block=True, priority=1,
@@ -184,6 +188,7 @@ async def _(bot: Bot, event: GroupMessageEvent):
         await update_mask.send(f"QAQ,更新mask失败:\n{e}")
         return
 
+
 # FIXME: 这一块重复代码有点多了
 who_speak_most_today = on_command("今日榜首", aliases={'今天谁话多', '今儿谁话多', '今天谁屁话最多'}, block=True, priority=1)
 
@@ -192,7 +197,7 @@ who_speak_most_today = on_command("今日榜首", aliases={'今天谁话多', '�
 async def _(bot: Bot, event: GroupMessageEvent, matcher: Matcher, args: Message = CommandArg()):
     gid = event.group_id
     today = datetime.date.today().strftime("%Y-%m-%d")
-    dic_ = await load(group_message_data_path/f"{gid}" / f"{today}.json")
+    dic_ = await load(group_message_data_path / f"{gid}" / f"{today}.json")
     top = sorted(dic_.items(), key=lambda x: x[1], reverse=True)
     if len(top) == 0:
         await who_speak_most_today.send("没有任何人说话")
@@ -208,14 +213,14 @@ speak_top = on_command("今日发言排行", aliases={'今日排行榜', '今日
 async def _(bot: Bot, event: GroupMessageEvent, matcher: Matcher, args: Message = CommandArg()):
     gid = event.group_id
     today = datetime.date.today().strftime("%Y-%m-%d")
-    dic_ = await load(group_message_data_path/f"{gid}" / f"{today}.json")
+    dic_ = await load(group_message_data_path / f"{gid}" / f"{today}.json")
     top = sorted(dic_.items(), key=lambda x: x[1], reverse=True)
     if len(top) == 0:
         await speak_top.send("没有任何人说话")
         return
     top_list = []
     for i in range(min(len(top), 10)):
-        top_list.append(f"{i+1}. {top[i][0]}，发了{top[i][1]}条消息")
+        top_list.append(f"{i + 1}. {top[i][0]}，发了{top[i][1]}条消息")
     await speak_top.send("\n".join(top_list))
 
 
@@ -227,15 +232,15 @@ async def _(bot: Bot, event: GroupMessageEvent, matcher: Matcher, args: Message 
     gid = event.group_id
     today = datetime.date.today().strftime("%Y-%m-%d")
     yesterday = (datetime.date.today() - datetime.timedelta(days=1)).strftime("%Y-%m-%d")
-    if os.path.exists(group_message_data_path/f"{gid}" / f"{yesterday}.json"):
-        dic_ = await load(group_message_data_path/f"{gid}" / f"{yesterday}.json")
+    if os.path.exists(group_message_data_path / f"{gid}" / f"{yesterday}.json"):
+        dic_ = await load(group_message_data_path / f"{gid}" / f"{yesterday}.json")
         top = sorted(dic_.items(), key=lambda x: x[1], reverse=True)
         if len(top) == 0:
             await speak_top_yesterday.send("没有任何人说话")
             return
         top_list = []
         for i in range(min(len(top), 10)):
-            top_list.append(f"{i+1}. {top[i][0]}，发了{top[i][1]}条消息")
+            top_list.append(f"{i + 1}. {top[i][0]}，发了{top[i][1]}条消息")
         await speak_top_yesterday.send("\n".join(top_list))
     else:
         await speak_top_yesterday.send("昨日没有记录")
@@ -255,7 +260,7 @@ async def _(bot: Bot, event: GroupMessageEvent, matcher: Matcher, args: Message 
     else:
         top_list = []
         for i in range(min(len(top), 10)):
-            top_list.append(f"{i+1}. {top[i][0]}，发了{top[i][1]}条消息")
+            top_list.append(f"{i + 1}. {top[i][0]}，发了{top[i][1]}条消息")
         await who_speak_most.send("\n".join(top_list))
 
 

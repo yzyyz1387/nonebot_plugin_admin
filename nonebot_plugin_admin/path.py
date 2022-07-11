@@ -25,6 +25,7 @@ stop_words_path = config_path / "stop_words"
 wordcloud_bg_path = config_path / "wordcloud_bg"
 user_violation_info_path = config_path / "群内用户违规信息"
 group_message_data_path = config_path / "群消息数据"
+error_path = config_path / "admin插件错误数据"
 
 admin_funcs = {
     "admin": ['管理', '踢', '禁', '改', '基础群管'],

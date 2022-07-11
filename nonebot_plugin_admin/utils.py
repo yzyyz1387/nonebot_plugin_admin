@@ -398,8 +398,9 @@ async def check_func_status(func_name: str, gid: str) -> bool:
     except KeyError:  # 新加入的群
         logger.info(f"本群({gid})尚未初始化！将自动初始化：关闭所有开关且设置过滤级别为简单。\n\n请重新发送指令继续之前的操作")
         if cb_notice:
-            await nonebot.get_bot().send_group_msg(group_id=gid, message="本群尚未初始化，将自动初始化：开启所有开关且设置过滤级别为简单。\n\n"
-                                                                         "请重新发送指令继续之前的操作")
+            # await nonebot.get_bot().send_group_msg(group_id=gid, message="本群尚未初始化，将自动初始化：开启所有开关且设置过滤级别为简单。\n\n"
+            #                                                              "请重新发送指令继续之前的操作")
+            logger.info("错误发生在 utils.py line 398")
         funcs_status.update({str(gid): {"admin": True, "requests": True, "wordcloud": True,
                                         "auto_ban": True, "img_check": True, "word_analyze": True}})
         await upload(switcher_path, funcs_status)
@@ -600,4 +601,14 @@ async def vio_level_init(path_user, uid, this_time, label, content) -> None:
         await c.close()
 
 
-
+async def error_log(gid: int, time: str, matcher: Matcher, err: str) -> None:
+    module = str(matcher.module_name)
+    if not os.path.exists(error_path / f"{str(gid)}.json"):
+        await upload(error_path / f"{str(gid)}.json", {str(gid): {time: [module, err]}})
+    else:
+        try:
+            info = (await load(error_path / f"{str(gid)}.json"))
+            info[str(gid)][time] = [module, err]
+            await upload(error_path / f"{str(gid)}.json", info)
+        except Exception as e:
+            logger.error(f"写入错误日志出错：{e}")
