@@ -100,7 +100,8 @@ dirs = [config_path,
         wordcloud_bg_path,
         limit_word_path_custom,
         user_violation_info_path,
-        group_message_data_path]
+        group_message_data_path,
+        error_path]
 
 
 async def init():
@@ -603,6 +604,8 @@ async def vio_level_init(path_user, uid, this_time, label, content) -> None:
 
 async def error_log(gid: int, time: str, matcher: Matcher, err: str) -> None:
     module = str(matcher.module_name)
+    if not os.path.exists(error_path):
+        await mk("dir", error_path, mode=None)
     if not os.path.exists(error_path / f"{str(gid)}.json"):
         await upload(error_path / f"{str(gid)}.json", {str(gid): {time: [module, err]}})
     else:
