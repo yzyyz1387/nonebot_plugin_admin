@@ -13,15 +13,16 @@
    **pypi没更 github最新**  
   _✨ NoneBot2 (有点不)简易群管✨ _    
 
-
-  
-[![wakatime](https://wakatime.com/badge/user/e4795d94-d154-4c3d-a94b-b655c82e57f4/project/d4a8cb5e-ee86-4ad9-99e5-48873f38c3bd.svg)](https://wakatime.com/badge/user/e4795d94-d154-4c3d-a94b-b655c82e57f4/project/d4a8cb5e-ee86-4ad9-99e5-48873f38c3bd)
+ 
+[//]: # ([![wakatime]&#40;https://wakatime.com/badge/user/e4795d94-d154-4c3d-a94b-b655c82e57f4/project/d4a8cb5e-ee86-4ad9-99e5-48873f38c3bd.svg&#41;]&#40;https://wakatime.com/badge/user/e4795d94-d154-4c3d-a94b-b655c82e57f4/project/d4a8cb5e-ee86-4ad9-99e5-48873f38c3bd&#41;)
 
 
 踢 改 禁.......  
 **欢迎 ISSUES PR**
 </div>  
 
+## 最近在忙毕设，插件暂不支持nonebot bate4，详情及解决方法见 [#22](https://github.com/yzyyz1387/nonebot_plugin_admin/issues/22)  
+ 
 **权限说明：见下方指令↓**
 
 ## 安装💿(pip)
