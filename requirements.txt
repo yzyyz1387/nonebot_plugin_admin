@@ -9,3 +9,4 @@ setuptools
 jinja2
 pyppeteer
 imageio
+numpy
