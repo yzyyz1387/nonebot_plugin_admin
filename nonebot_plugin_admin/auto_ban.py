@@ -9,7 +9,7 @@ import os
 import aiofiles
 from nonebot import logger, on_message, on_command, require
 from nonebot.adapters.onebot.v11 import Bot, GroupMessageEvent
-from nonebot.adapters.onebot.v11.exception import ActionFailed
+from nonebot.adapters.onebot.exception import ActionFailed
 from nonebot.adapters.onebot.v11.permission import GROUP_ADMIN, GROUP_OWNER
 from nonebot.permission import SUPERUSER
 from nonebot.matcher import Matcher

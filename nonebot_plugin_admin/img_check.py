@@ -7,7 +7,7 @@
 # @Software: PyCharm
 from nonebot import logger, on_message
 from nonebot.adapters.onebot.v11 import Bot, GroupMessageEvent, MessageEvent, MessageSegment
-from nonebot.adapters.onebot.v11.exception import ActionFailed
+from nonebot.adapters.onebot.exception import ActionFailed
 from .utils import banSb, image_moderation_async, check_func_status, get_user_violation
 from .path import *
 
