@@ -21,7 +21,7 @@
 **欢迎 ISSUES PR**
 </div>  
 
-## 最近在忙毕设，插件暂不支持nonebot bate4，详情及解决方法见 [#22](https://github.com/yzyyz1387/nonebot_plugin_admin/issues/22)  
+## 最近在忙毕设，插件暂不支持nonebot beta4，详情及解决方法见 [#22](https://github.com/yzyyz1387/nonebot_plugin_admin/issues/22)  
  
 **权限说明：见下方指令↓**
 
