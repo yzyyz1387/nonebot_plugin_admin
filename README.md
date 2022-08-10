@@ -9,8 +9,8 @@
 **你的star是我的动力**  
 **↓**  
 <img src="https://img.shields.io/github/stars/yzyyz1387/nonebot_plugin_admin.svg?style=social">  
-# 简易群管 （正在进行bug更新研究，请勿克隆用于实际生产环境）  
-   **pypi没更 github最新**  
+# 简易群管 （入群欢迎插件公测ing）  
+   **没有pypi github最新**  
   _✨ NoneBot2 (有点不)简易群管✨ _    
 
  
@@ -21,11 +21,13 @@
 **欢迎 ISSUES PR**
 </div>  
 
+# 本更新基于yzyyz1387/nonebot_plugin_admin添加新功能，若您对原版插件还不了解，请先前往[这里](https://github.com/yzyyz1387/nonebot_plugin_admin)获取详情
+
 ## 插件暂不支持nonebot beta4，详情及解决方法见 [#22](https://github.com/yzyyz1387/nonebot_plugin_admin/issues/22)  
  
 **权限说明：见下方指令↓**
 
-## 安装💿(pip)
+## 安装💿(pip)（这是安装原版插件）
 `pip install nonebot-plugin-admin`
 
 ### 导入📲
@@ -35,11 +37,11 @@
 请注意与nonebot版本适配，匹配请查看：[更新](#%E6%9B%B4%E6%96%B0-1)
 **Python 3.9+**
 
-## 安装💿(nb plugin)
+## 安装💿(nb plugin)（这是安装原版插件）
 `nb plugin install nonebot-plugin-admin`
 
 
-## 更新
+## 更新（这是更新原版插件）
 
 `pip install --upgrade nonebot-plugin-admin `
 
@@ -59,6 +61,11 @@ callback_notice=true # 如果不想开启设置成 false 或者不添加此配�
 
 更多配置项请查看 [config.py](./nonebot_plugin_admin/config.py)
 
+# 关于入群欢迎：
+- 请在bot的根目录下创建目录data/img，
+- 将插件文件夹内的4K.jpg复制到该目录下，并将此文件重命名为bg.jpg，
+- 您也可以将自己的图片复制到该目录下，并重命名为bg.jpg，
+- 若您的图片格式为非jpg格式，请转码后再导入，因为目前插件并未支持格式自动识别
 
 ✨Pay tribute to A60 [https://github.com/djkcyl/ABot-Graia](https://github.com/djkcyl/ABot-Graia)
 
