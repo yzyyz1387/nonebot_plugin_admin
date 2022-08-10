@@ -9,7 +9,7 @@
 **你的star是我的动力**  
 **↓**  
 <img src="https://img.shields.io/github/stars/yzyyz1387/nonebot_plugin_admin.svg?style=social">  
-# 简易群管 （考研缓更）  
+# 简易群管 （正在进行bug更新研究，请勿克隆用于实际生产环境）  
    **pypi没更 github最新**  
   _✨ NoneBot2 (有点不)简易群管✨ _    
 
@@ -21,7 +21,7 @@
 **欢迎 ISSUES PR**
 </div>  
 
-## 最近在忙毕设，插件暂不支持nonebot beta4，详情及解决方法见 [#22](https://github.com/yzyyz1387/nonebot_plugin_admin/issues/22)  
+## 插件暂不支持nonebot beta4，详情及解决方法见 [#22](https://github.com/yzyyz1387/nonebot_plugin_admin/issues/22)  
  
 **权限说明：见下方指令↓**
 
