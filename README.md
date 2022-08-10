@@ -48,7 +48,7 @@
 ## 本插件正确用法
 - `cd /your/bot/path/src`
 
-- `git clone git@github.com:HuYihe2008/nonebot_plugin_admin.git`
+- `git clone https://github.com/HuYihe2008/nonebot_plugin_admin.git`
 
 - `mv nonebot_plugin_admin/nonebot_plugin_admin plugins`
 
