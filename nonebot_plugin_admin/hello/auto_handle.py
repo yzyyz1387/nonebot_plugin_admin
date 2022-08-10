@@ -17,7 +17,7 @@ notice_handle = on_notice(priority=5, block=True)
 
 @notice_handle.handle()
 async def GroupNewMember(bot: Bot, event: GroupIncreaseNoticeEvent):
-    greet_emoticon = MessageBuild.Image(Path()/'data'/'img'/'bg.png', mode='RGBA')
+    greet_emoticon = MessageBuild.Image(Path()/'data'/'img'/'bg.jpg', mode='RGBA')
     if event.user_id == event.self_id:
         await sleep(random.randint(4, 8))
         await bot.send_group_msg(group_id=event.group_id, message=Message(
