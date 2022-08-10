@@ -177,25 +177,6 @@ async def get_uid_in_msg(event: MessageEvent, msg: Union[Message, str]):
     return uid, msg.strip(), user_id, use_cache
 
 
-# 向超级用户私聊发送cookie删除信息
-async def send_cookie_delete_msg(cookie_info):
-    msg = ''
-    if cookie_info['type'] == 'public':
-        msg = f'公共池的{cookie_info["no"]}号cookie已失效'
-    elif cookie_info['type'] == 'private':
-        if cookie_info['uid']:
-            msg = f'用户{cookie_info["user_id"]}的uid{cookie_info["uid"]}的cookie已失效'
-        elif cookie_info['mys_id']:
-            msg = f'用户{cookie_info["user_id"]}的mys_id{cookie_info["mys_id"]}的cookie已失效'
-    if msg:
-        logger.info(f'---{msg}---')
-        for superuser in get_bot().config.superusers:
-            try:
-                await get_bot().send_private_msg(user_id=superuser, message=msg + '，派蒙帮你删除啦!')
-            except Exception as e:
-                logger.error(f'发送cookie删除消息失败: {e}')
-
-
 def get_message_id(event):
     if event.message_type == 'private':
         return event.user_id
@@ -203,23 +184,6 @@ def get_message_id(event):
         return event.group_id
     elif event.message_type == 'guild':
         return event.channel_id
-
-
-def uid_userId_to_dict(uid, user_id) -> Tuple[dict, Message]:
-    total_result = Message()
-    query_dict = {}
-    if isinstance(uid, str) and isinstance(user_id, str):
-        query_dict[uid] = user_id
-    elif isinstance(uid, list) and isinstance(user_id, str):
-        for u in uid:
-            query_dict[u] = user_id
-    elif isinstance(uid, list) and isinstance(user_id, list):
-        for u, us in zip(uid, user_id):
-            if u is not None:
-                query_dict[u] = us
-            else:
-                total_result += MessageSegment.text(f'派蒙没有{us}的{u}信息哦，请把uid给派蒙吧~')
-    return query_dict, total_result
 
 
 def replace_all(raw_text: str, text_list: Union[str, list]):
@@ -231,20 +195,6 @@ def replace_all(raw_text: str, text_list: Union[str, list]):
         for text in text_list:
             raw_text = raw_text.replace(text, '')
         return raw_text
-
-
-def transform_uid(msg):
-    if not msg:
-        return None
-    if isinstance(msg, Message):
-        msg = msg.extract_plain_text().strip()
-    check_uid = msg.split(' ')
-    uid_list = []
-    for check in check_uid:
-        uid = re.search(r'(?P<uid>(1|2|5)\d{8})', check)
-        if uid:
-            uid_list.append(uid.group('uid'))
-    return uid_list if len(uid_list) > 1 else uid_list[0] if uid_list else None
 
 
 # 检查该时间戳和当前时间戳相差是否超过n天， 超过则返回True

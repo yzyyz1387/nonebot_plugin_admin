@@ -3,7 +3,7 @@
 # @Time    : 2022/1/16 10:15
 # @Author  : yzyyz
 # @Email   :  youzyyz1384@qq.com
-# @File    : utilss.py
+# @File    : utils.py
 # @Software: PyCharm
 import asyncio
 import base64
@@ -292,7 +292,7 @@ async def participle_simple_handle() -> list[str]:
 #         else:
 #             return r
 #     except Exception as err:
-#         logger.debug(f'于"utilss.py"中的 pic_cof 发生错误：{err}')
+#         logger.debug(f'于"utils.py"中的 pic_cof 发生错误：{err}')
 #         return None
 #
 #
@@ -401,7 +401,7 @@ async def check_func_status(func_name: str, gid: str) -> bool:
         if cb_notice:
             # await nonebot.get_bot().send_group_msg(group_id=gid, message="本群尚未初始化，将自动初始化：开启所有开关且设置过滤级别为简单。\n\n"
             #                                                              "请重新发送指令继续之前的操作")
-            logger.info("错误发生在 utilss.py line 398")
+            logger.info("错误发生在 utils.py line 398")
         funcs_status.update({str(gid): {"admin": True, "requests": True, "wordcloud": True,
                                         "auto_ban": True, "img_check": True, "word_analyze": True}})
         await upload(switcher_path, funcs_status)

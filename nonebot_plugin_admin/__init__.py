@@ -7,6 +7,9 @@
 # @Software: PyCharm
 
 import json
+from nonebot.params import CommandArg
+import nonebot
+from nonebot.adapters import Message
 from asyncio import sleep as asleep
 from traceback import print_exc
 from random import randint
@@ -35,9 +38,6 @@ from . import (
 from .utils import At, Reply, MsgText, banSb, init, check_func_status, change_s_title
 from .group_request_verify import verify
 from .config import plugin_config, global_config
-
-
-
 
 su = global_config.superusers
 cb_notice = plugin_config.callback_notice
@@ -176,7 +176,7 @@ async def _(bot: Bot, matcher: Matcher, event: GroupMessageEvent):
     """
     # msg = str(event.get_message())
     msg = MsgText(event.json())
-    s_title = msg.replace(" ", "").replace("头衔", "",1)
+    s_title = msg.replace(" ", "").replace("头衔", "", 1)
     sb = At(event.json())
     gid = event.group_id
     uid = event.user_id
