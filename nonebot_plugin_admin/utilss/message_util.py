@@ -11,12 +11,11 @@ from nonebot import get_bot, logger
 from nonebot.adapters.onebot.v11 import MessageEvent, Message, MessageSegment
 
 
-
 # 加载敏感违禁词列表
-ban_word = []
-with open(Path(__file__).parent / 'json_data' / 'ban_word.txt', 'r', encoding='utf-8') as f:
-    for line in f:
-        ban_word.append(line.strip())
+# ban_word = []
+# with open(Path(__file__).parent / 'json_data' / 'ban_word.txt', 'r', encoding='utf-8') as f:
+#    for line in f:
+#        ban_word.append(line.strip())
 
 
 class MessageBuild:
