@@ -45,6 +45,19 @@
 
 `pip install --upgrade nonebot-plugin-admin `
 
+## 本插件正确用法
+`cd /your/bot/path/src`
+`git clone git@github.com:HuYihe2008/nonebot_plugin_admin.git`
+`mv nonebot_plugin_admin/nonebot_plugin_admin plugins`
+`cd nonebot_plugin_admin`
+`pip install -r requirements.txt`
+
+# 关于入群欢迎：
+- 请在bot的根目录下创建目录data/img，
+- 将插件文件夹内的4K.jpg复制到该目录下，并将此文件重命名为bg.jpg，
+- 您也可以将自己的图片复制到该目录下，并重命名为bg.jpg，
+- 若您的图片格式为非jpg格式，请转码后再导入，因为目前插件并未支持格式自动识别
+- 
 ## 配置
 鉴黄配置：  
 腾讯云图片安全，开通地址：[https://console.cloud.tencent.com/cms](https://console.cloud.tencent.com/cms)  
@@ -61,11 +74,6 @@ callback_notice=true # 如果不想开启设置成 false 或者不添加此配�
 
 更多配置项请查看 [config.py](./nonebot_plugin_admin/config.py)
 
-# 关于入群欢迎：
-- 请在bot的根目录下创建目录data/img，
-- 将插件文件夹内的4K.jpg复制到该目录下，并将此文件重命名为bg.jpg，
-- 您也可以将自己的图片复制到该目录下，并重命名为bg.jpg，
-- 若您的图片格式为非jpg格式，请转码后再导入，因为目前插件并未支持格式自动识别
 
 ✨Pay tribute to A60 [https://github.com/djkcyl/ABot-Graia](https://github.com/djkcyl/ABot-Graia)
 
