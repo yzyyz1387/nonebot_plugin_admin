@@ -30,6 +30,7 @@ from . import (
     wordcloud,
     switcher,
     utils,
+    hello,
 )
 from .utils import At, Reply, MsgText, banSb, init, check_func_status, change_s_title
 from .group_request_verify import verify

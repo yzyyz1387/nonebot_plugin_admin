@@ -10,7 +10,6 @@ from littlepaimon_utils.files import load_image
 from nonebot import get_bot, logger
 from nonebot.adapters.onebot.v11 import MessageEvent, Message, MessageSegment
 
-from .db_util import get_last_query, update_last_query
 
 # 加载敏感违禁词列表
 ban_word = []
