@@ -46,18 +46,24 @@
 `pip install --upgrade nonebot-plugin-admin `
 
 ## 本插件正确用法
-`cd /your/bot/path/src`
-`git clone git@github.com:HuYihe2008/nonebot_plugin_admin.git`
-`mv nonebot_plugin_admin/nonebot_plugin_admin plugins`
-`cd nonebot_plugin_admin`
-`pip install -r requirements.txt`
+- `cd /your/bot/path/src`
+
+- `git clone git@github.com:HuYihe2008/nonebot_plugin_admin.git`
+
+- `mv nonebot_plugin_admin/nonebot_plugin_admin plugins`
+
+- `cd nonebot_plugin_admin`
+
+- `pip install -r requirements.txt`
+
 
 # 关于入群欢迎：
 - 请在bot的根目录下创建目录data/img，
 - 将插件文件夹内的4K.jpg复制到该目录下，并将此文件重命名为bg.jpg，
 - 您也可以将自己的图片复制到该目录下，并重命名为bg.jpg，
 - 若您的图片格式为非jpg格式，请转码后再导入，因为目前插件并未支持格式自动识别
-- 
+
+
 ## 配置
 鉴黄配置：  
 腾讯云图片安全，开通地址：[https://console.cloud.tencent.com/cms](https://console.cloud.tencent.com/cms)  
