@@ -10,9 +10,6 @@ import json
 from asyncio import sleep as asleep
 from traceback import print_exc
 from random import randint
-from nonebot.params import CommandArg
-import nonebot
-from nonebot.adapters import Message
 from nonebot import on_command, logger, on_notice
 from nonebot.adapters.onebot.v11 import Bot, GroupMessageEvent, NoticeEvent
 from nonebot.adapters.onebot.exception import ActionFailed
