@@ -8,9 +8,9 @@
   
 **你的star是我的动力**  
 **↓**  
-<img src="https://img.shields.io/github/stars/yzyyz1387/nonebot_plugin_admin.svg?style=social">  
+<img src="https://img.shields.io/github/stars/HuYihe2008/nonebot_plugin_admin.svg?style=social">  
 # 简易群管 （入群欢迎插件公测ing）  
-   **没有pypi github最新**  
+   **神奇的有了pypi并且是最新的 github最新**  
   _✨ NoneBot2 (有点不)简易群管✨ _    
 
  
@@ -21,11 +21,15 @@
 **欢迎 ISSUES PR**
 </div>  
 
-# 本更新基于yzyyz1387/nonebot_plugin_admin添加新功能，若您对原版插件还不了解，请先前往[这里](https://github.com/yzyyz1387/nonebot_plugin_admin)获取详情
+## 本更新基于yzyyz1387/nonebot_plugin_admin添加新功能，若您对原版插件还不了解，请先前往 [这里](https://github.com/yzyyz1387/nonebot_plugin_admin) 获取详情
 
-## 插件暂不支持nonebot beta4，详情及解决方法见 [#22](https://github.com/yzyyz1387/nonebot_plugin_admin/issues/22)  
+
  
-**权限说明：见下方指令↓**
+# 权限说明：见下方指令↓
+
+# 原版插件安装指令说明
+
+##*请不要与原版插件一起使用，会出现重复消息！！！*
 
 ## 安装💿(pip)（这是安装原版插件）
 `pip install nonebot-plugin-admin`
@@ -35,27 +39,48 @@
 `nonebot.load_plugin("nonebot_plugin_admin")`
 
 请注意与nonebot版本适配，匹配请查看：[更新](#%E6%9B%B4%E6%96%B0-1)
+
 **Python 3.9+**
+
+推荐：
+**Python 3.10**
 
 ## 安装💿(nb plugin)（这是安装原版插件）
 `nb plugin install nonebot-plugin-admin`
-
 
 ## 更新（这是更新原版插件）
 
 `pip install --upgrade nonebot-plugin-admin `
 
-## 本插件正确用法
-- `cd /your/bot/path/src`
+# 新版（带入群欢迎）插件安装指令
 
-- `git clone https://github.com/HuYihe2008/nonebot_plugin_admin.git`
+##*请不要与原版插件一起使用，会出现重复消息！！！*
 
-- `mv nonebot_plugin_admin/nonebot_plugin_admin plugins`
+## 安装💿(pip)
+`pip install nonebot-plugin-admin-hello`
 
-- `cd nonebot_plugin_admin`
+### 导入📲
+在**bot.py** 导入，语句：
+`nonebot.load_plugin("nonebot_plugin_admin-hello")`
 
-- `pip install -r requirements.txt`
+请注意与nonebot版本适配，匹配请查看：[更新](#%E6%9B%B4%E6%96%B0-1)
 
+**Python 3.9+**
+
+特别推荐：
+**Python 3.10**
+
+## 安装💿(nb plugin)
+`nb plugin install nonebot-plugin-admin-hello`
+
+## 更新
+
+`pip install --upgrade nonebot-plugin-admin-hello`
+
+## 若出现依赖错误解决方式：
+ 1. 下载库中的requirements.txt
+ 2. 在文件所在目录打开终端
+ 3. 输入命令`pip install -r requirements.txt`并回车
 
 # 关于入群欢迎：
 - 请在bot的根目录下创建目录data/img，
@@ -80,12 +105,13 @@ callback_notice=true # 如果不想开启设置成 false 或者不添加此配�
 
 更多配置项请查看 [config.py](./nonebot_plugin_admin/config.py)
 
+入群欢迎配置事项查看 [/utilss/config.py](./nonebot_plugin_admin/utilss/config.py)
 
 ✨Pay tribute to A60 [https://github.com/djkcyl/ABot-Graia](https://github.com/djkcyl/ABot-Graia)
 
 
 
-## 指令💻
+## 指令💻(后续会添加菜单功能）
 
 **Tips:** 
 
@@ -255,6 +281,9 @@ callback_notice=true # 如果不想开启设置成 false 或者不添加此配�
 - [ ] 群聊内容分析
 - [ ] 写一个文档
 - [ ] 一些大事
+- [ ] 入群欢迎自定义
+- [ ] 菜单优化
+- [ ] 插件集成化
 
 <details>
   <summary> <h2> 更新日志</h2></summary>  
