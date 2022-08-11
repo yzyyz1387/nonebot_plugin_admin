@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(name='nonebot_plugin_admin_hello',
-      version='0.4',
+      version='0.4.1',
       description='nonebot plugin admin hello',
       long_description=open('README.md', 'r', encoding='utf-8').read(),
       long_description_content_type='text/markdown',
