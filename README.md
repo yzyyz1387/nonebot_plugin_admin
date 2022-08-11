@@ -103,9 +103,9 @@ tenkeys="xxxxxx"
 callback_notice=true # 如果不想开启设置成 false 或者不添加此配置项【默认关闭】
 ```
 
-更多配置项请查看 [config.py](./nonebot_plugin_admin/config.py)
+更多配置项请查看 [config.py](nonebot_plugin_admin_hello/config.py)
 
-入群欢迎配置事项查看 [/utilss/config.py](./nonebot_plugin_admin/utilss/config.py)
+入群欢迎配置事项查看 [/utilss/config.py](nonebot_plugin_admin_hello/utilss/config.py)
 
 ✨Pay tribute to A60 [https://github.com/djkcyl/ABot-Graia](https://github.com/djkcyl/ABot-Graia)
 
