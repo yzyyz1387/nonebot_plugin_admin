@@ -2,7 +2,9 @@ from setuptools import setup, find_packages
 
 setup(name='nonebot_plugin_admin_hello',
       version='0.4',
-      description='nonebot_plugin_admin_hello',
+      description='nonebot plugin admin hello',
+      long_description=open('README.md', 'r', encoding='utf-8').read(),
+      long_description_content_type='text/markdown',
       author='HuYihe',
       author_email='2812856215@qq.com',
       packages=find_packages(),  # 系统自动从当前目录开始找包
