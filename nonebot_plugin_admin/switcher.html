@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="zh_CN">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ gid }}开关状态</title>
+    <link rel="stylesheet" href="https://fastly.jsdelivr.net/gh/yzyyz1387/blogimages/css/nb_plugin_admin_switcher.css">
+</head>
+<body>
+<div class="container">
+    {% for key, value in funcs_status.items() %}
+    <div class="switcher">
+        <div class="func_name">
+            {{ funcs_name[key][0] }}
+        </div>
+        {% if value == True %}
+        <div class="iuswitch">
+            <label>
+                <input type="checkbox" class="uiswitch" checked>
+            </label>
+        </div>
+        {% else %}
+        <div class="iuswitch">
+            <label>
+                <input type="checkbox" class="uiswitch">
+            </label>
+        </div>
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>
+</body>
+</html>
