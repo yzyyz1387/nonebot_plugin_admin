@@ -1,0 +1,3 @@
+[markdown.extensions]
+mdx_math = mdx_math:MathExtension
+

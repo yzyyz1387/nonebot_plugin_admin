@@ -15,7 +15,7 @@ from traceback import print_exc
 from random import randint
 from nonebot import on_command, logger, on_notice
 from nonebot.adapters.onebot.v11 import Bot, GroupMessageEvent, NoticeEvent
-from nonebot.adapters.onebot.exception import ActionFailed
+from nonebot.adapters.onebot.v11.exception import ActionFailed
 from nonebot.adapters.onebot.v11.permission import GROUP_ADMIN, GROUP_OWNER
 from nonebot.matcher import Matcher
 from nonebot.permission import SUPERUSER

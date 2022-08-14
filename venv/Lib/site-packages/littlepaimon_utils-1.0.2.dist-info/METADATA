@@ -1,0 +1,16 @@
+Metadata-Version: 2.1
+Name: littlepaimon-utils
+Version: 1.0.2
+Summary: 小派蒙的一些封装好的工具方法
+License: AGPL
+Author: 惜月
+Author-email: 277073121@qq.com
+Requires-Python: >=3.7.3,<4.0.0
+Classifier: License :: Other/Proprietary License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Requires-Dist: httpx (>=0.23.0,<0.24.0)
+Requires-Dist: pillow (>=9.1.1,<10.0.0)
+Requires-Dist: tqdm (>=4.64.0,<5.0.0)

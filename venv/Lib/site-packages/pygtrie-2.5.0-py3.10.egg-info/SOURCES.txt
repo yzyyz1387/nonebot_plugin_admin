@@ -1,0 +1,7 @@
+README.rst
+pygtrie.py
+setup.py
+pygtrie.egg-info/PKG-INFO
+pygtrie.egg-info/SOURCES.txt
+pygtrie.egg-info/dependency_links.txt
+pygtrie.egg-info/top_level.txt

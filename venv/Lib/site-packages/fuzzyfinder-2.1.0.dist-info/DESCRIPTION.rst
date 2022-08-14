@@ -1,0 +1,78 @@
+===============================
+fuzzyfinder
+===============================
+
+.. image:: https://img.shields.io/travis/amjith/fuzzyfinder.svg
+        :target: https://travis-ci.org/amjith/fuzzyfinder
+
+.. image:: https://img.shields.io/pypi/v/fuzzyfinder.svg
+        :target: https://pypi.python.org/pypi/fuzzyfinder
+
+
+Fuzzy Finder implemented in Python. Matches partial string entries from a list
+of strings. Works similar to fuzzy finder in SublimeText and Vim's Ctrl-P
+plugin.
+
+* Documentation: https://fuzzyfinder.readthedocs.org.
+* Source: https://github.com/amjith/fuzzyfinder
+
+.. image:: https://raw.githubusercontent.com/amjith/fuzzyfinder/master/screenshots/pgcli-fuzzy.gif 
+
+Quick Start
+-----------
+
+::
+
+    $ pip install fuzzyfinder
+
+    or 
+
+    $ easy_install fuzzyfinder
+
+Usage
+-----
+
+::
+
+    >>> from fuzzyfinder import fuzzyfinder
+
+    >>> suggestions = fuzzyfinder('abc', ['abcd', 'defabca', 'aagbec', 'xyz', 'qux'])
+
+    >>> list(suggestions)
+    ['abcd', 'defabca', 'aagbec']
+
+Features
+--------
+
+* Simple, easy to understand code.
+* No external dependencies, just the python std lib.
+
+How does it work
+----------------
+
+Blog post describing the algorithm: http://blog.amjith.com/fuzzyfinder-in-10-lines-of-python
+
+Similar Projects
+----------------
+
+* https://github.com/seatgeek/fuzzywuzzy - Fuzzy matching and auto-correction using levenshtein distance.
+
+
+
+
+Changelog
+---------
+
+2.0.0 (2017-01-25)
+---------------------
+
+* Case insensitive matching. (Gokul Soumya)
+* Add an accessor function for fuzzy find. (Amjith)
+* Support integer inputs. (Matheus)
+
+2.1.0 (2017-01-25)
+---------------------
+
+* Use lookahead regex to find shortest match. (Gokul Soumya)
+
+
