@@ -48,7 +48,7 @@ async def _(bot: Bot, event: GroupMessageEvent):
 __help_plugin_name__ = "简易群管"
 
 __permission__ = 1
-__help__version__ = '0.5.5'
+__help__version__ = '0.6'
 
 __cd__ = """
 【初始化】：
