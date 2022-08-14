@@ -537,4 +537,4 @@ __usage__ = """
 __help_plugin_name__ = "简易群管"
 
 __permission__ = 1
-__help__version__ = '0.2.0'
+__help__version__ = '0.6.0'

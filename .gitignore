@@ -3,3 +3,4 @@ dist/
 nonebot_plugin_admin.egg-info/
 .idea/
 .idea
+/venv/
