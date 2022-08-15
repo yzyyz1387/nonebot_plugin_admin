@@ -1,9 +1,4 @@
 """
-@Author:张时贰
-@Blog:zhangshier.vip
-"""
-
-"""
 额外依赖pip install nonebot_plugin_apscheduler
 定时推送群消息需要在.evn中配置:
 send_group_id = ["xxx","xxx"]    # 必填 群号
