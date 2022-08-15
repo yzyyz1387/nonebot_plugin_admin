@@ -5,7 +5,7 @@ from nonebot import on_message, on_command
 from nonebot import get_driver, on_request, on_notice
 from nonebot.adapters.onebot.v11 import Bot, GroupIncreaseNoticeEvent, GroupMessageEvent, \
     MessageSegment, Message
-
+import requests, json
 from .config import config
 from .message_util import MessageBuild
 
@@ -40,16 +40,26 @@ version = on_command("群管版本", aliases={"admin -v"})
 
 @version.handle()
 async def _(bot: Bot, event: GroupMessageEvent):
-    greet_emoticon = MessageBuild.Image(Path()/'data'/'img'/'bg.jpg', mode='RGBA')
+    greet_emoticon = MessageBuild.Image(Path() / 'data' / 'img' / 'bg.jpg', mode='RGBA')
     await sleep(random.randint(4, 8))
+    version_url = requests.get("https://api.jamyido.tk/admin-version.json") # 获取版本的API调用地址
+    new_version = version_url.text
+    version_data = json.loads(new_version)
+    version = version_data[0]
+    __help__version__ = (
+            "当前版本：" + '0.6.2.7 ' + "\n" +
+            "最新正式版本：" + (version['version']) + "\n" +
+            "beta版本：" + (version['version_beta']) + "\n" +
+            "Copyright © by " + (version['author']) + " All Rights Reserved." + "\n" #+
+            #"这里是你想填的网址"
+    )
     await bot.send_group_msg(group_id=event.group_id, message=Message(
-        MessageSegment.at(event.user_id) + MessageSegment.text("\n插件名称：" + __help_plugin_name__ + "\n" + "版本：" + __help__version__) + greet_emoticon))
+        MessageSegment.at(event.user_id) + MessageSegment.text(
+            "\n插件名称：" + __help_plugin_name__ + "\n" + __help__version__) + greet_emoticon))
+
 
 __help_plugin_name__ = "简易群管"
-
 __permission__ = 1
-__help__version__ = '0.6'
-
 __cd__ = """
 【初始化】：
   群管初始化 ：初始化插件
