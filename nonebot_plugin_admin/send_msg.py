@@ -2,11 +2,11 @@
 额外依赖pip install nonebot_plugin_apscheduler
 定时推送群消息需要在.evn中配置:
 send_group_id = ["xxx","xxx"]    # 必填 群号
+send_switch_morning = False      # 选填 True/False 默认开启 早上消息推送是否开启
+send_switch_night = False        # 选填 True/False 默认开启 晚上消息推送是否开启
 send_mode = 1                 # 选填 默认模式2 模式1发送自定义句子，模式2随机调用一句
 send_sentence_moring = ["句子1","句子2","..."]    # 如果是模式1 此项必填，早上随机发送该字段中的一句
 send_sentence_night = ["句子1","句子2","..."]     # 如果是模式1 此项必填，晚上随机发送该字段中的一句
-send_switch_morning = False                      # 选填 True/False 默认开启 早上消息推送是否开启
-send_switch_night = False                        # 选填 True/False 默认开启 晚上消息推送是否开启
 send_time_moring = "8 0"    # 选填 早上发送时间默认为7:00
 send_time_night = "23 0"    # 选填 晚上发送时间默认为22:00              
 """
@@ -92,7 +92,7 @@ def hitokoto():
 async def send_morning():
     # 如果False直接退出函数
     if send_switch_morning:
-        logger.info ( "send_morning关闭，跳出函数" )
+        logger.info ( "send_morning()关闭，跳出函数" )
         return
     sendSuccess = False
     while not sendSuccess:
@@ -116,7 +116,7 @@ async def send_morning():
 async def send_night():
     # 如果False直接退出函数
     if not send_switch_night:
-        logger.info ( "send_morning关闭，跳出函数" )
+        logger.info ( "send_night()关闭，跳出函数" )
         return
     sendSuccess = False
     while not sendSuccess:
