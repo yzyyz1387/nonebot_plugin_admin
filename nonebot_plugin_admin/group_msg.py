@@ -91,7 +91,7 @@ def hitokoto():
 
 async def send_morning():
     # 如果False直接退出函数
-    if send_switch_morning:
+    if not send_switch_morning:
         logger.info ( "send_morning()关闭，跳出函数" )
         return
     sendSuccess = False
