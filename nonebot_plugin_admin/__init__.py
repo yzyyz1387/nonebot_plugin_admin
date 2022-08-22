@@ -41,7 +41,7 @@ from .config import plugin_config, global_config
 su = global_config.superusers
 cb_notice = plugin_config.callback_notice
 
-admin_init = on_command('群管初始化', priority=1, block=True, permission=SUPERUSER | GROUP_ADMIN | GROUP_OWNER)
+admin_init = on_command('群管初始化', priority = 1, block = True, permission = SUPERUSER | GROUP_ADMIN | GROUP_OWNER)
 
 
 @admin_init.handle()
@@ -49,7 +49,7 @@ async def _(bot: Bot, event: GroupMessageEvent):
     await init()
 
 
-ban = on_command('禁', priority=1, block=True, permission=SUPERUSER | GROUP_ADMIN | GROUP_OWNER)
+ban = on_command('禁', priority = 1, block = True, permission = SUPERUSER | GROUP_ADMIN | GROUP_OWNER)
 
 
 @ban.handle()
@@ -66,7 +66,7 @@ async def _(bot: Bot, event: GroupMessageEvent):
     sb = At(event.json())
     gid = event.group_id
     if sb:
-        baning = banSb(gid, ban_list=sb, time=time)
+        baning = banSb(gid, ban_list = sb, time = time)
         try:
             async for baned in baning:
                 if baned:
@@ -84,7 +84,7 @@ async def _(bot: Bot, event: GroupMessageEvent):
         pass
 
 
-unban = on_command('解', priority=1, block=True, permission=SUPERUSER | GROUP_ADMIN | GROUP_OWNER)
+unban = on_command('解', priority = 1, block = True, permission = SUPERUSER | GROUP_ADMIN | GROUP_OWNER)
 
 
 @unban.handle()
@@ -95,7 +95,7 @@ async def _(bot: Bot, event: GroupMessageEvent):
     sb = At(event.json())
     gid = event.group_id
     if sb:
-        baning = banSb(gid, ban_list=sb, time=0)
+        baning = banSb(gid, ban_list = sb, time = 0)
         try:
             async for baned in baning:
                 if baned:
@@ -108,7 +108,7 @@ async def _(bot: Bot, event: GroupMessageEvent):
                 await unban.finish('解禁操作成功')
 
 
-ban_all = on_command('/all', aliases={'/全员'}, permission=SUPERUSER | GROUP_ADMIN | GROUP_OWNER, priority=1, block=True)
+ban_all = on_command('/all', aliases={'/全员'}, permission = SUPERUSER | GROUP_ADMIN | GROUP_OWNER, priority = 1, block = True)
 
 
 @ban_all.handle()
@@ -126,8 +126,8 @@ async def _(bot: Bot, event: GroupMessageEvent):
         enable = True
     try:
         await bot.set_group_whole_ban(
-            group_id=event.group_id,
-            enable=enable
+            group_id = event.group_id,
+            enable = enable
         )
     except ActionFailed:
         await ban_all.finish('权限不足')
@@ -137,7 +137,7 @@ async def _(bot: Bot, event: GroupMessageEvent):
             await ban_all.finish(f"全体操作成功: {'禁言' if enable else '解禁'}")
 
 
-change = on_command('改', permission=SUPERUSER | GROUP_ADMIN | GROUP_OWNER, priority=1, block=True)
+change = on_command('改', permission = SUPERUSER | GROUP_ADMIN | GROUP_OWNER, priority = 1, block = True)
 
 
 @change.handle()
@@ -153,9 +153,9 @@ async def _(bot: Bot, event: GroupMessageEvent):
         try:
             for user_ in sb:
                 await bot.set_group_card(
-                    group_id=gid,
-                    user_id=int(user_),
-                    card=msg.split()[-1:][0]
+                    group_id = gid,
+                    user_id = int(user_),
+                    card = msg.split()[-1:][0]
                 )
         except ActionFailed:
             await change.finish('权限不足')
@@ -165,7 +165,7 @@ async def _(bot: Bot, event: GroupMessageEvent):
                 await change.finish('改名片操作成功')
 
 
-title = on_command('头衔', priority=1, block=True)
+title = on_command('头衔', priority = 1, block = True)
 
 
 @title.handle()
@@ -193,7 +193,7 @@ async def _(bot: Bot, matcher: Matcher, event: GroupMessageEvent):
             await title.finish('不能含有@全体成员')
 
 
-title_ = on_command('删头衔', priority=1, block=True)
+title_ = on_command('删头衔', priority = 1, block = True)
 
 
 @title_.handle()
@@ -219,7 +219,7 @@ async def _(bot: Bot, matcher: Matcher, event: GroupMessageEvent):
             await title.finish('不能含有@全体成员')
 
 
-kick = on_command('踢', permission=SUPERUSER | GROUP_ADMIN | GROUP_OWNER, priority=1, block=True)
+kick = on_command('踢', permission = SUPERUSER | GROUP_ADMIN | GROUP_OWNER, priority = 1, block = True)
 
 
 @kick.handle()
@@ -235,9 +235,9 @@ async def _(bot: Bot, event: GroupMessageEvent):
             try:
                 for qq in sb:
                     await bot.set_group_kick(
-                        group_id=gid,
-                        user_id=int(qq),
-                        reject_add_request=False
+                        group_id = gid,
+                        user_id = int(qq),
+                        reject_add_request = False
                     )
             except ActionFailed:
                 await kick.finish('权限不足')
@@ -249,7 +249,7 @@ async def _(bot: Bot, event: GroupMessageEvent):
             await kick.finish('不能含有@全体成员')
 
 
-kick_ = on_command('黑', permission=SUPERUSER | GROUP_ADMIN | GROUP_OWNER, priority=1, block=True)
+kick_ = on_command('黑', permission = SUPERUSER | GROUP_ADMIN | GROUP_OWNER, priority = 1, block = True)
 
 
 @kick_.handle()
@@ -265,9 +265,9 @@ async def _(bot: Bot, event: GroupMessageEvent):
             try:
                 for qq in sb:
                     await bot.set_group_kick(
-                        group_id=gid,
-                        user_id=int(qq),
-                        reject_add_request=True
+                        group_id = gid,
+                        user_id = int(qq),
+                        reject_add_request = True
                     )
             except ActionFailed:
                 await kick_.finish('权限不足')
@@ -279,7 +279,7 @@ async def _(bot: Bot, event: GroupMessageEvent):
             await kick_.finish('不能含有@全体成员')
 
 
-set_g_admin = on_command('管理员+', permission=SUPERUSER | GROUP_OWNER, priority=1, block=True)
+set_g_admin = on_command('管理员+', permission = SUPERUSER | GROUP_OWNER, priority = 1, block = True)
 
 
 @set_g_admin.handle()
@@ -298,9 +298,9 @@ async def _(bot: Bot, event: GroupMessageEvent):
             try:
                 for qq in sb:
                     await bot.set_group_admin(
-                        group_id=gid,
-                        user_id=int(qq),
-                        enable=True
+                        group_id = gid,
+                        user_id = int(qq),
+                        enable = True
                     )
             except ActionFailed:
                 await set_g_admin.finish('权限不足')
@@ -311,7 +311,7 @@ async def _(bot: Bot, event: GroupMessageEvent):
             await set_g_admin.finish('指令不正确 或 不能含有@全体成员')
 
 
-unset_g_admin = on_command('管理员-', permission=SUPERUSER | GROUP_OWNER, priority=1, block=True)
+unset_g_admin = on_command('管理员-', permission = SUPERUSER | GROUP_OWNER, priority = 1, block = True)
 
 
 @unset_g_admin.handle()
@@ -330,9 +330,9 @@ async def _(bot: Bot, event: GroupMessageEvent):
             try:
                 for qq in sb:
                     await bot.set_group_admin(
-                        group_id=gid,
-                        user_id=int(qq),
-                        enable=False
+                        group_id = gid,
+                        user_id = int(qq),
+                        enable = False
                     )
             except ActionFailed:
                 await unset_g_admin.finish('权限不足')
@@ -343,8 +343,8 @@ async def _(bot: Bot, event: GroupMessageEvent):
             await unset_g_admin.finish('指令不正确 或 不能含有@全体成员')
 
 
-msg_recall = on_command('撤回', priority=1, aliases={'删除', 'recall'}, block=True,
-                        permission=SUPERUSER | GROUP_ADMIN | GROUP_OWNER)
+msg_recall = on_command('撤回', priority = 1, aliases={'删除', 'recall'}, block = True,
+                        permission = SUPERUSER | GROUP_ADMIN | GROUP_OWNER)
 
 
 @msg_recall.handle()
@@ -353,7 +353,7 @@ async def _(bot: Bot, event: GroupMessageEvent):  # by: @tom-snow
     指令格式:
     /撤回 @user n
     回复指定消息时撤回该条消息；使用艾特时撤回被艾特的人在本群 n*19 历史消息内的所有消息。
-    不输入 n 则默认 n=5
+    不输入 n 则默认 n = 5
     '''
     # msg = str(event.get_message())
     msg = MsgText(event.json())
@@ -379,7 +379,7 @@ async def _(bot: Bot, event: GroupMessageEvent):  # by: @tom-snow
         try:
             for i in range(counts):  # 获取 n 次
                 await asleep(randint(0, 10))  # 睡眠随机时间，避免黑号
-                res = await bot.call_api('get_group_msg_history', group_id=gid, message_seq=seq)  # 获取历史消息
+                res = await bot.call_api('get_group_msg_history', group_id = gid, message_seq = seq)  # 获取历史消息
                 flag = True
                 for message in res['messages']:  # 历史消息列表
                     if flag:
@@ -392,13 +392,13 @@ async def _(bot: Bot, event: GroupMessageEvent):  # by: @tom-snow
             logger.error(f"获取群历史消息时发生错误：{e}, seq: {seq}")
             print_exc()
     else:
-        await msg_recall.finish('指令格式：\n/撤回 @user n\n回复指定消息时撤回该条消息；使用艾特时撤回被艾特的人在本群 n*19 历史消息内的所有消息。\n不输入 n 则默认 n=5')
+        await msg_recall.finish('指令格式：\n/撤回 @user n\n回复指定消息时撤回该条消息；使用艾特时撤回被艾特的人在本群 n*19 历史消息内的所有消息。\n不输入 n 则默认 n = 5')
 
     # 实际进行撤回的部分
     try:
         for msg_id in recall_msg_id:
             await asleep(randint(0, 3))  # 睡眠随机时间，避免黑号
-            await bot.call_api('delete_msg', message_id=msg_id)
+            await bot.call_api('delete_msg', message_id = msg_id)
     except ActionFailed as e:
         logger.warning(f"执行失败，可能是我权限不足 {e}")
         await msg_recall.finish('执行失败，可能是我权限不足')
@@ -411,8 +411,8 @@ async def _(bot: Bot, event: GroupMessageEvent):  # by: @tom-snow
 '''
 ! 消息防撤回模块，默认不开启，有需要的自行开启，想对部分群生效也需自行实现(可以并入本插件的开关系统内，也可控制 go-cqhttp 的事件过滤器)
 
-如果在 go-cqhttp 开启了事件过滤器，请确保允许 post_type=notice 通行
-【至少也得允许 notice_type=group_recall 通行】
+如果在 go-cqhttp 开启了事件过滤器，请确保允许 post_type = notice 通行
+【至少也得允许 notice_type = group_recall 通行】
 '''
 
 
@@ -423,7 +423,7 @@ async def _group_recall(bot: Bot, event: NoticeEvent) -> bool:
     return False
 
 
-group_recall = on_notice(_group_recall, priority=5)
+group_recall = on_notice(_group_recall, priority = 5)
 
 
 @group_recall.handle()
@@ -437,12 +437,12 @@ async def _(bot: Bot, event: NoticeEvent):
     if int(user_id) != int(operator_id): return  # 撤回人不是发消息人，是管理员撤回成员消息，不处理
     if int(operator_id) in su or str(operator_id) in su: return  # 发起撤回的人是超管，不处理
     # 管理员撤回自己的也不处理
-    operator_info = await bot.get_group_member_info(group_id=group_id, user_id=operator_id, no_cache=True)
+    operator_info = await bot.get_group_member_info(group_id = group_id, user_id = operator_id, no_cache = True)
     if operator_info['role'] != 'member': return
     # 防撤回
-    recalled_message = await bot.get_msg(message_id=message_id)
+    recalled_message = await bot.get_msg(message_id = message_id)
     recall_notice = f"检测到{operator_info['card'] if operator_info['card'] else operator_info['nickname']}({operator_info['user_id']})撤回了一条消息：\n\n"
-    await bot.send_group_msg(group_id=group_id, message=recall_notice + recalled_message['message'])
+    await bot.send_group_msg(group_id = group_id, message = recall_notice + recalled_message['message'])
     await group_recall.finish()
 
 
@@ -451,7 +451,7 @@ __usage__ = '''
   群管初始化 ：初始化插件
 
 【群管】：
-权限：permission=SUPERUSER | GROUP_ADMIN | GROUP_OWNER
+权限：permission = SUPERUSER | GROUP_ADMIN | GROUP_OWNER
   禁言:
     禁 @某人 时间（s）[1,2591999]
     禁 时间（s）@某人 [1,2591999]
@@ -472,14 +472,14 @@ __usage__ = '''
    黑 @某人
   撤回:
    撤回 (回复某条消息即可撤回对应消息)
-   撤回 @user [(可选，默认n=5)历史消息倍数n] (实际检查的历史数为 n*19)
+   撤回 @user [(可选，默认n = 5)历史消息倍数n] (实际检查的历史数为 n*19)
    
-【管理员】permission=SUPERUSER | GROUP_OWNER
+【管理员】permission = SUPERUSER | GROUP_OWNER
   管理员+ @xxx 设置某人为管理员
   管理员- @xxx 取消某人管理员
   
 【加群自动审批】：
-群内发送 permission=GROUP_ADMIN | GROUP_OWNER | SUPERUSER
+群内发送 permission = GROUP_ADMIN | GROUP_OWNER | SUPERUSER
   查看词条 ： 查看本群审批词条   或/审批
   词条+ [词条] ：增加审批词条 或/审批+
   词条- [词条] ：删除审批词条 或/审批-
@@ -491,19 +491,19 @@ __usage__ = '''
   自动审批处理结果将发送给superuser
 
 【分群管理员设置】*分管：可以接受加群处理结果消息的用户
-群内发送 permission=GROUP_ADMIN | GROUP_OWNER | SUPERUSER
+群内发送 permission = GROUP_ADMIN | GROUP_OWNER | SUPERUSER
   分管+ [user] ：user可用@或qq 添加分群管理员
   分管- [user] ：删除分群管理员
   查看分管 ：查看本群分群管理员
 
-群内或私聊 permission=SUPERUSER
+群内或私聊 permission = SUPERUSER
   所有分管 ：查看所有分群管理员
   群管接收 ：打开或关闭超管消息接收（关闭则审批结果不会发送给superusers）
   
 【群词云统计】
 该功能所用库 wordcloud 未写入依赖，请自行安装
 群内发送：
-  记录本群 ： 开始统计聊天记录 permission=GROUP_ADMIN | GROUP_OWNER | SUPERUSER
+  记录本群 ： 开始统计聊天记录 permission = GROUP_ADMIN | GROUP_OWNER | SUPERUSER
   停止记录本群 ：停止统计聊天记录
   群词云 ： 发送词云图片
   
@@ -520,7 +520,7 @@ __usage__ = '''
     
 【功能开关】
 群内发送：
-  开关xx : 对某功能进行开/关  permission=SUPERUSER | GROUP_ADMIN | GROUP_OWNER
+  开关xx : 对某功能进行开/关  permission = SUPERUSER | GROUP_ADMIN | GROUP_OWNER
   开关状态 ： 查看各功能的状态
   xx in ：
     ['管理', '踢', '禁', '改', '基础群管']  #基础功能 踢、禁、改、管理员+-

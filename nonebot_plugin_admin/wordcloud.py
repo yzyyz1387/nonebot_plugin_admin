@@ -19,7 +19,7 @@ import random
 import os
 from imageio import imread
 
-cloud = on_command('群词云', priority=1)
+cloud = on_command('群词云', priority = 1)
 
 
 @cloud.handle()
@@ -61,23 +61,23 @@ async def _(bot: Bot, event: GroupMessageEvent):
             wordcloud_bg = random.choice(os.listdir(wordcloud_bg_path))
         background_image = imread(wordcloud_bg_path / wordcloud_bg)
         if gid + '.txt' in dir_list:
-            text = open(path_temp, encoding='utf-8').read()
+            text = open(path_temp, encoding = 'utf-8').read()
             txt = jieba.lcut(text)
             this_stop_ = stop_words_path / f"{gid}.txt"
             if os.path.exists(this_stop_):
-                stop_ = set(open(this_stop_, encoding='utf-8').read().split('\n') + (await participle_simple_handle()))
+                stop_ = set(open(this_stop_, encoding = 'utf-8').read().split('\n') + (await participle_simple_handle()))
             else:
                 stop_ = set(await participle_simple_handle())
             string = ' '.join(txt)
             try:
-                wc = WordCloud(font_path=str(ttf_name_.resolve()),
-                               width=1920, height=1080, mode='RGBA',
-                               background_color='#ffffff',
-                               mask=background_image,
-                               stopwords=stop_).generate(string)
+                wc = WordCloud(font_path = str(ttf_name_.resolve()),
+                               width = 1920, height = 1080, mode = 'RGBA',
+                               background_color = '#ffffff',
+                               mask = background_image,
+                               stopwords = stop_).generate(string)
                 img = Path(re_img_path / f"wordcloud_{gid}.png")
                 img_colors = ImageColorGenerator(background_image, default_color=(255, 255, 255))
-                wc.recolor(color_func=img_colors)
+                wc.recolor(color_func = img_colors)
                 wc.to_file(img)
                 await cloud.send(MessageSegment.image(img))
             except Exception as err:

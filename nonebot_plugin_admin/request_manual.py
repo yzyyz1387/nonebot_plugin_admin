@@ -17,7 +17,7 @@ from nonebot.adapters.onebot.v11 import (
 
 import re
 
-request_m = on_command('请求', priority=1, block=True)
+request_m = on_command('请求', priority = 1, block = True)
 
 
 @request_m.handle()
@@ -29,19 +29,19 @@ async def _(bot: Bot, event: MessageEvent, state: T_State):
     elif '同意' in msg:
         try:
             await bot.set_group_add_request(
-                    flag=flag,
-                    sub_type='add',
-                    approve=True,
-                    reason=' ',
+                    flag = flag,
+                    sub_type = 'add',
+                    approve = True,
+                    reason = ' ',
                 )
             await bot.send(event, '已同意')
         except ActionFailed:
             try:
                 await bot.set_group_add_request(
-                    flag=flag,
-                    sub_type='invite',
-                    approve=True,
-                    reason=' ',
+                    flag = flag,
+                    sub_type = 'invite',
+                    approve = True,
+                    reason = ' ',
                 )
                 await bot.send(event, '已同意')
             except ActionFailed:
@@ -49,19 +49,19 @@ async def _(bot: Bot, event: MessageEvent, state: T_State):
     elif '拒绝' in msg:
         try:
             await bot.set_group_add_request(
-                    flag=flag,
-                    sub_type='add',
-                    approve=False,
-                    reason='管理员拒绝',
+                    flag = flag,
+                    sub_type = 'add',
+                    approve = False,
+                    reason = '管理员拒绝',
                 )
             await bot.send(event, '已拒绝')
         except ActionFailed:
             try:
                 await bot.set_group_add_request(
-                    flag=flag,
-                    sub_type='invite',
-                    approve=False,
-                    reason='管理员拒绝',
+                    flag = flag,
+                    sub_type = 'invite',
+                    approve = False,
+                    reason = '管理员拒绝',
                 )
                 await bot.send(event, '已拒绝')
             except ActionFailed:

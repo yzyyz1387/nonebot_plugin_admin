@@ -44,8 +44,8 @@ async def _(matcher: Matcher, bot: Bot, state: T_State, event: Event):
                         logger.info(
                             f"{admin_funcs[which_module][0]}功能处于关闭状态，若要启用请发送【开关{admin_funcs[which_module][0]}】开启")
                         if cb_notice:
-                            await bot.send_group_msg(group_id=gid,
-                                                     message=f"功能处于关闭状态，发送【开关{admin_funcs[which_module][0]}】开启")
+                            await bot.send_group_msg(group_id = gid,
+                                                     message = f"功能处于关闭状态，发送【开关{admin_funcs[which_module][0]}】开启")
                         raise IgnoredException('未开启此功能...')
                     elif not status and which_module in ['auto_ban',
                                                            'img_check']:
@@ -71,8 +71,8 @@ async def _(matcher: Matcher, bot: Bot, state: T_State, event: Event):
                     if cb_notice:
                         try:
                             for qq in su:
-                                await bot.send_msg(user_id=qq,
-                                                   message=re_msg)
+                                await bot.send_msg(user_id = qq,
+                                                   message = re_msg)
                         except ActionFailed:
                             logger.info('发送消息失败,可能superuser之一不是好友')
                             pass

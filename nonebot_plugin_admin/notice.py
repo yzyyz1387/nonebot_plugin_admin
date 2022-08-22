@@ -16,8 +16,8 @@ from . import approve
 from .utils import At, check_func_status
 
 # 查看当前群分管
-gad = on_command('分管', aliases={'/gad', '/分群管理'}, priority=1, block=True,
-                 permission=GROUP_ADMIN | GROUP_OWNER | SUPERUSER)
+gad = on_command('分管', aliases={'/gad', '/分群管理'}, priority = 1, block = True,
+                 permission = GROUP_ADMIN | GROUP_OWNER | SUPERUSER)
 
 
 @gad.handle()
@@ -34,7 +34,7 @@ async def _(bot: Bot, event: GroupMessageEvent):
 
 
 # 查看所有分管
-su_g_admin = on_command('所有分管', aliases={'/sugad', '/su分群管理'}, priority=1, block=True, permission=SUPERUSER)
+su_g_admin = on_command('所有分管', aliases={'/sugad', '/su分群管理'}, priority = 1, block = True, permission = SUPERUSER)
 
 
 @su_g_admin.handle()
@@ -46,8 +46,8 @@ async def _(bot: Bot, event: MessageEvent):
 
 
 # 添加分群管理员
-g_admin = on_command('分管+', aliases={'/gad+', '分群管理+'}, priority=1, block=True,
-                     permission=GROUP_ADMIN | GROUP_OWNER | SUPERUSER)
+g_admin = on_command('分管+', aliases={'/gad+', '分群管理+'}, priority = 1, block = True,
+                     permission = GROUP_ADMIN | GROUP_OWNER | SUPERUSER)
 
 
 @g_admin.handle()
@@ -73,7 +73,7 @@ async def _(bot: Bot, event: GroupMessageEvent, state: T_State):
 
 
 # 开启superuser接收处理结果
-su_gad = g_admin = on_command('接收', priority=1, block=True, permission=SUPERUSER)
+su_gad = g_admin = on_command('接收', priority = 1, block = True, permission = SUPERUSER)
 
 
 @su_gad.handle()
@@ -86,8 +86,8 @@ async def _(bot: Bot, event: MessageEvent):
 
 
 # 删除分群管理
-g_admin_ = on_command('分管-', aliases={'/gad-', '分群管理-'}, priority=1, block=True,
-                      permission=GROUP_ADMIN | GROUP_OWNER | SUPERUSER)
+g_admin_ = on_command('分管-', aliases={'/gad-', '分群管理-'}, priority = 1, block = True,
+                      permission = GROUP_ADMIN | GROUP_OWNER | SUPERUSER)
 
 
 @g_admin_.handle()
