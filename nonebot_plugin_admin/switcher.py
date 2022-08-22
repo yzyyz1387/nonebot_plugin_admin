@@ -16,7 +16,7 @@ from nonebot.permission import SUPERUSER
 import os
 from pyppeteer import launch
 
-switcher = on_command("开关", priority=1, block=True, permission=SUPERUSER | GROUP_ADMIN | GROUP_OWNER)
+switcher = on_command('开关', priority=1, block=True, permission=SUPERUSER | GROUP_ADMIN | GROUP_OWNER)
 
 
 @switcher.handle()
@@ -29,16 +29,16 @@ async def _(bot: Bot, event: GroupMessageEvent, state: T_State):
             if funcs_status[gid][func]:
                 funcs_status[gid][func] = False
                 await upload(switcher_path, funcs_status)
-                await switcher.send("已关闭" + user_input_func_name)
+                await switcher.send('已关闭' + user_input_func_name)
                 break
             else:
                 funcs_status[gid][func] = True
                 await upload(switcher_path, funcs_status)
-                await switcher.send("已开启" + user_input_func_name)
+                await switcher.send('已开启' + user_input_func_name)
                 break
 
 
-switcher_html = on_command("开关状态", priority=1, block=True, permission=SUPERUSER | GROUP_ADMIN | GROUP_OWNER)
+switcher_html = on_command('开关状态', priority=1, block=True, permission=SUPERUSER | GROUP_ADMIN | GROUP_OWNER)
 
 
 @switcher_html.handle()
@@ -64,23 +64,23 @@ async def _(bot: Bot, event: GroupMessageEvent):
 
     except ActionFailed:
         await switcher_html.send(
-            "当前群组开关状态：\n" + "\n".join(
+            '当前群组开关状态：\n' + '\n'.join(
                 [f"{admin_funcs[func][0]}：{'开启' if funcs_status[gid][func] else '关闭'}" for func in admin_funcs]))
-        logger.error(f'可能被风控，已使用文字发送')
+        logger.error('可能被风控，已使用文字发送')
     except Exception as e:
         await switcher_html.send(
-            "当前群组开关状态：\n" + "\n".join(
+            '当前群组开关状态：\n' + '\n'.join(
                 [f"{admin_funcs[func][0]}：{'开启' if funcs_status[gid][func] else '关闭'}" for func in admin_funcs]))
         logger.error(f'开关渲染网页并截图失败，已使用文字发送，错误信息：\n{"-"*30}{e}{"-"*30}')
 
 
 async def save_image(url, img_path):
-    """
+    '''
     导出图片
     :param url: 在线网页的url
     :param img_path: 图片存放位置
     :return:
-    """
+    '''
     browser = await launch(options={'args': ['--no-sandbox']}, handleSIGINT=False)
     page = await browser.newPage()
     # 加载指定的网页url

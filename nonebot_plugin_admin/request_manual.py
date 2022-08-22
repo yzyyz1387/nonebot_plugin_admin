@@ -17,54 +17,54 @@ from nonebot.adapters.onebot.v11 import (
 
 import re
 
-request_m = on_command("请求", priority=1, block=True)
+request_m = on_command('请求', priority=1, block=True)
 
 
 @request_m.handle()
 async def _(bot: Bot, event: MessageEvent, state: T_State):
     msg = str(event.message)
     flag = re.findall(re.compile(r'\d+'), msg)[0]
-    if "同意" in msg and "拒绝" in msg:
-        await bot.send(event, "请使用同意或拒绝")
-    elif "同意" in msg:
+    if '同意' in msg and '拒绝' in msg:
+        await bot.send(event, '请使用同意或拒绝')
+    elif '同意' in msg:
         try:
             await bot.set_group_add_request(
                     flag=flag,
-                    sub_type="add",
+                    sub_type='add',
                     approve=True,
-                    reason=" ",
+                    reason=' ',
                 )
-            await bot.send(event, "已同意")
+            await bot.send(event, '已同意')
         except ActionFailed:
             try:
                 await bot.set_group_add_request(
                     flag=flag,
-                    sub_type="invite",
+                    sub_type='invite',
                     approve=True,
-                    reason=" ",
+                    reason=' ',
                 )
-                await bot.send(event, "已同意")
+                await bot.send(event, '已同意')
             except ActionFailed:
-                await bot.send(event, "错误：请求不存在")
-    elif "拒绝" in msg:
+                await bot.send(event, '错误：请求不存在')
+    elif '拒绝' in msg:
         try:
             await bot.set_group_add_request(
                     flag=flag,
-                    sub_type="add",
+                    sub_type='add',
                     approve=False,
-                    reason="管理员拒绝",
+                    reason='管理员拒绝',
                 )
-            await bot.send(event, "已拒绝")
+            await bot.send(event, '已拒绝')
         except ActionFailed:
             try:
                 await bot.set_group_add_request(
                     flag=flag,
-                    sub_type="invite",
+                    sub_type='invite',
                     approve=False,
-                    reason="管理员拒绝",
+                    reason='管理员拒绝',
                 )
-                await bot.send(event, "已拒绝")
+                await bot.send(event, '已拒绝')
             except ActionFailed:
-                await bot.send(event, "错误：请求不存在")
+                await bot.send(event, '错误：请求不存在')
 
 

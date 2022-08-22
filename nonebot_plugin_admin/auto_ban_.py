@@ -25,23 +25,23 @@ paths_ = [config_path, limit_word_path, limit_word_path_easy, limit_level]
 
 f_word = on_message(priority=0, block=False)
 
-set_level_easy = on_command("简单违禁词", priority=1, permission=GROUP_ADMIN | GROUP_OWNER | SUPERUSER)
+set_level_easy = on_command('简单违禁词', priority=1, permission=GROUP_ADMIN | GROUP_OWNER | SUPERUSER)
 
 
 @set_level_easy.handle()
 async def _(bot: Bot, event: GroupMessageEvent):
     gid = str(event.group_id)
     level = await load(limit_level)
-    if gid not in level or level[gid] != "easy":
-        level.update({gid: "easy"})
+    if gid not in level or level[gid] != 'easy':
+        level.update({gid: 'easy'})
         with open(limit_level, 'w') as f:
             f.write(str(to_json(level)))
-        await set_level_easy.finish("设置成功")
+        await set_level_easy.finish('设置成功')
     else:
-        await set_level_easy.finish("本群已经是简单检测了")
+        await set_level_easy.finish('本群已经是简单检测了')
 
 
-set_level_rigorous = on_command("严格违禁词", priority=1, permission=GROUP_ADMIN | GROUP_OWNER | SUPERUSER)
+set_level_rigorous = on_command('严格违禁词', priority=1, permission=GROUP_ADMIN | GROUP_OWNER | SUPERUSER)
 
 
 @set_level_rigorous.handle()
@@ -49,33 +49,33 @@ async def _(bot: Bot, event: GroupMessageEvent):
     gid = str(event.group_id)
     level = await load(limit_level)
     if gid not in level or level[gid] != 'rigorous':
-        level.update({gid: "rigorous"})
+        level.update({gid: 'rigorous'})
         with open(limit_level, 'w') as f:
             f.write(str(to_json(level)))
-        await set_level_rigorous.finish("设置成功")
+        await set_level_rigorous.finish('设置成功')
     else:
-        await set_level_rigorous.finish("本群已经是严格检测了")
+        await set_level_rigorous.finish('本群已经是严格检测了')
 
 
-del_custom_limit_words = on_command("删除自定义违禁词", aliases={'移除自定义违禁词', '去除自定义违禁词'}, priority=1, permission=GROUP_ADMIN | GROUP_OWNER | SUPERUSER)
+del_custom_limit_words = on_command('删除自定义违禁词', aliases={'移除自定义违禁词', '去除自定义违禁词'}, priority=1, permission=GROUP_ADMIN | GROUP_OWNER | SUPERUSER)
 
 
 @del_custom_limit_words.handle()
 async def _(bot: Bot, event: GroupMessageEvent, matcher: Matcher, args: Message = CommandArg()):
-    await del_txt_line(limit_word_path_custom, matcher, event, args, "自定义违禁词")
+    await del_txt_line(limit_word_path_custom, matcher, event, args, '自定义违禁词')
 
 
-add_custom_limit_words = on_command("添加自定义违禁词", aliases={'增加自定义违禁词', '新增自定义违禁词'},  priority=1, permission=GROUP_ADMIN | GROUP_OWNER | SUPERUSER)
+add_custom_limit_words = on_command('添加自定义违禁词', aliases={'增加自定义违禁词', '新增自定义违禁词'},  priority=1, permission=GROUP_ADMIN | GROUP_OWNER | SUPERUSER)
 
 
 @add_custom_limit_words.handle()
 async def _(bot: Bot, event: GroupMessageEvent, matcher: Matcher, args: Message = CommandArg()):
-    await add_txt_line(limit_word_path_custom, matcher, event, args, "自定义违禁词")
+    await add_txt_line(limit_word_path_custom, matcher, event, args, '自定义违禁词')
 
 
-get_custom_limit_words = on_command("查看自定义违禁词", aliases={"查看自定义违禁词", "查询自定义违禁词", "自定义违禁词列表"}, priority=1, permission=GROUP_ADMIN | GROUP_OWNER | SUPERUSER)
+get_custom_limit_words = on_command('查看自定义违禁词', aliases={'查看自定义违禁词', '查询自定义违禁词', '自定义违禁词列表'}, priority=1, permission=GROUP_ADMIN | GROUP_OWNER | SUPERUSER)
 
 
 @get_custom_limit_words.handle()
 async def _(bot: Bot, event: GroupMessageEvent, matcher: Matcher, args: Message = CommandArg()):
-    await get_txt_line(limit_word_path_custom, matcher, event, args, "自定义违禁词")
+    await get_txt_line(limit_word_path_custom, matcher, event, args, '自定义违禁词')
