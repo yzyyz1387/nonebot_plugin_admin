@@ -39,21 +39,14 @@ async def _(matcher: Matcher, bot: Bot, state: T_State, event: Event):
             if '开关' not in event.get_message():
                 if which_module in admin_funcs:
                     status = await check_func_status(which_module, str(gid))
-                    if not status and which_module not in ['auto_ban',
-                                                           'img_check']:  # 违禁词检测和图片检测日志太多了，不用logger记录或者发消息记录
-                        logger.info(
-                            f"{admin_funcs[which_module][0]}功能处于关闭状态，若要启用请发送【开关{admin_funcs[which_module][0]}】开启")
+                    if not status and which_module not in ['auto_ban', 'img_check']:  # 违禁词检测和图片检测日志太多了，不用logger记录或者发消息记录
+                        logger.info(f"{admin_funcs[which_module][0]}功能处于关闭状态，若要启用请发送【开关{admin_funcs[which_module][0]}】开启")
                         if cb_notice:
-                            await bot.send_group_msg(group_id = gid,
-                                                     message = f"功能处于关闭状态，发送【开关{admin_funcs[which_module][0]}】开启")
+                            await bot.send_group_msg(group_id = gid, message = f"功能处于关闭状态，发送【开关{admin_funcs[which_module][0]}】开启")
                         raise IgnoredException('未开启此功能...')
-                    elif not status and which_module in ['auto_ban',
-                                                           'img_check']:
-                        logger.info(
-                            f"{admin_funcs[which_module][0]}功能处于关闭状态，若要启用请发送【开关{admin_funcs[which_module][0]}】开启")
+                    elif not status and which_module in ['auto_ban', 'img_check']:
+                        logger.info(f"{admin_funcs[which_module][0]}功能处于关闭状态，若要启用请发送【开关{admin_funcs[which_module][0]}】开启")
                         raise IgnoredException('未开启此功能...')
-            else:
-                pass
         except ActionFailed:
             pass
         except FileNotFoundError:
@@ -71,12 +64,9 @@ async def _(matcher: Matcher, bot: Bot, state: T_State, event: Event):
                     if cb_notice:
                         try:
                             for qq in su:
-                                await bot.send_msg(user_id = qq,
-                                                   message = re_msg)
+                                await bot.send_msg(user_id = qq, message = re_msg)
                         except ActionFailed:
                             logger.info('发送消息失败,可能superuser之一不是好友')
-                            pass
-
                     raise IgnoredException('未开启此功能...')
         except ActionFailed:
             pass

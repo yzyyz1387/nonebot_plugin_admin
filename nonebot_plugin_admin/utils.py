@@ -110,48 +110,48 @@ async def init():
     初始化配置文件
     :return:
     '''
-    for d in dirs:
-        if not os.path.exists(d):
-            await mk('dir', d, mode = None)
-    if not os.path.exists(config_admin):
-        await mk('file', config_admin, 'w', content = '{"1008611":["This_is_an_example"]}')
-    if not os.path.exists(config_group_admin):
-        await mk('file', config_group_admin, 'w', content = '{"su":"True"}')
-    if not os.path.exists(word_path):
-        await mk('file', word_path, 'w', content = '123456789\n')
-    if not os.path.exists(ttf_name):
-        await mk('file', ttf_name, 'wb', url = 'https://fastly.jsdelivr.net/gh/yzyyz1387/blogimages/msyhblod.ttf',
-                 dec = '资源字体')
-    if not os.path.exists(limit_word_path):
-        await mk('file', limit_word_path, 'w', url = 'https://fastly.jsdelivr.net/gh/yzyyz1387/nwafu/f_words/f_word_s',
-                 dec = '严格违禁词词库')
-    if not os.path.exists(limit_word_path_easy):
-        await mk('file', limit_word_path_easy, 'w',
-                 url = 'https://fastly.jsdelivr.net/gh/yzyyz1387/nwafu/f_words/f_word_easy',
-                 dec = '简单违禁词词库')
-    if not os.path.exists(limit_level):
-        bot = nonebot.get_bot()
-        logger.info('创建违禁词监控等级配置文件,分群设置,默认easy')
-        g_list = (await bot.get_group_list())
-        level_dict = {}
-        for group in g_list:
-            level_dict.update({str(group['group_id']): 'easy'})
-        with open(limit_level, 'w', encoding = 'utf-8') as lwp:
-            lwp.write(f"{json.dumps(level_dict)}")
-            lwp.close()
-    if not os.path.exists(switcher_path):
-        bot = nonebot.get_bot()
-        logger.info('创建开关配置文件,分群设置, 图片检测和违禁词检测默认关,其他默认开')
-        g_list = (await bot.get_group_list())
-        switcher_dict = {}
-        for group in g_list:
-            switcher_dict.update({str(group['group_id']): {'admin': True, 'requests': True, 
-                                                           'wordcloud': True, 'auto_ban': False,
-                                                           'img_check': False, 'word_analyze': True}})
-        with open(switcher_path, 'w', encoding = 'utf-8') as swp:
-            swp.write(f"{json.dumps(switcher_dict)}")
-            swp.close()
-    logger.info('Admin 插件 初始化检测完成')
+    async with asyncio.Lock():
+        for d in dirs:
+            if not os.path.exists(d):
+                await mk('dir', d, mode = None)
+        if not os.path.exists(config_admin):
+            await mk('file', config_admin, 'w', content = '{"1008611": ["This_is_an_example"]}')
+        if not os.path.exists(config_group_admin):
+            await mk('file', config_group_admin, 'w', content = '{"su": "True"}')
+        if not os.path.exists(word_path):
+            await mk('file', word_path, 'w', content = '123456789\n')
+        if not os.path.exists(limit_level):
+            bot = nonebot.get_bot()
+            logger.info('创建违禁词监控等级配置文件,分群设置,默认easy')
+            g_list = (await bot.get_group_list())
+            level_dict = {}
+            for group in g_list:
+                level_dict.update({str(group['group_id']): 'easy'})
+            with open(limit_level, 'w', encoding = 'utf-8') as lwp:
+                lwp.write(f"{json.dumps(level_dict)}")
+                lwp.close()
+        if not os.path.exists(switcher_path):
+            bot = nonebot.get_bot()
+            logger.info('创建开关配置文件,分群设置, 图片检测和违禁词检测默认关,其他默认开')
+            g_list = (await bot.get_group_list())
+            switcher_dict = {}
+            for group in g_list:
+                switcher_dict.update({str(group['group_id']): {'admin': True, 'requests': True, 
+                                                               'wordcloud': True, 'auto_ban': False,
+                                                               'img_check': False, 'word_analyze': True}})
+            with open(switcher_path, 'w', encoding = 'utf-8') as swp:
+                swp.write(f"{json.dumps(switcher_dict)}")
+                swp.close()
+        if not os.path.exists(limit_word_path_easy):  # 要联网的都丢最后面去
+            await mk('file', limit_word_path_easy, 'w',
+                     url = 'https://fastly.jsdelivr.net/gh/yzyyz1387/nwafu/f_words/f_word_easy', dec = '简单违禁词词库')
+        if not os.path.exists(limit_word_path):
+            await mk('file', limit_word_path, 'w', url = 'https://fastly.jsdelivr.net/gh/yzyyz1387/nwafu/f_words/f_word_s',
+                     dec = '严格违禁词词库')
+        if not os.path.exists(ttf_name):
+            await mk('file', ttf_name, 'wb', url = 'https://fastly.jsdelivr.net/gh/yzyyz1387/blogimages/msyhblod.ttf',
+                     dec = '资源字体')
+        logger.info('Admin 插件 初始化检测完成')
 
 
 async def mk(type_, path_, *mode, **kwargs):
@@ -173,14 +173,17 @@ async def mk(type_, path_, *mode, **kwargs):
             if kwargs['dec']:
                 logger.info(f"开始下载文件{kwargs['dec']}")
             async with httpx.AsyncClient() as client:
-                r = await client.get(kwargs['url'])
-                if mode[0] == 'w':
-                    with open(path_, 'w', encoding = 'utf-8') as f:
-                        f.write(r.text)
-                elif mode[0] == 'wb':
-                    with open(path_, 'wb') as f:
-                        f.write(r.content)
-                logger.info(f"下载文件 {kwargs['dec']} 到 {path_}")
+                try:
+                    r = await client.get(kwargs['url'])
+                    if mode[0] == 'w':
+                        with open(path_, 'w', encoding = 'utf-8') as f:
+                            f.write(r.text)
+                    elif mode[0] == 'wb':
+                        with open(path_, 'wb') as f:
+                            f.write(r.content)
+                    logger.info(f"下载文件 {kwargs['dec']} 到 {path_}")
+                except:
+                    logger.error('文件下载失败!!!')
         else:
             if mode:
                 with open(path_, mode[0]) as f:
@@ -367,7 +370,7 @@ async def load(path) -> Optional[dict]:
     :return: Optional[dict]
     '''
     try:
-        with open(path, mode = 'r', encoding = 'utf-8) as f:
+        with open(path, mode = 'r', encoding = 'utf-8') as f:
             contents_ = f.read()
             contents = json.loads(contents_)
             f.close()
@@ -458,9 +461,9 @@ async def del_txt_line(path: Path, matcher: Matcher, event: GroupMessageEvent, a
                 if already_del:
                     await matcher.send(f"{str(already_del)}还不是{dec}")
         except FileNotFoundError:
-            await matcher.send(f"该群没有{dec}")
+            await matcher.finish(f"该群没有{dec}")
     else:
-        await matcher.send(f"请输入删除内容,多个以空格分隔，例：\n删除{dec} 内容1 内容2")
+        await matcher.finish(f"请输入删除内容,多个以空格分隔，例：\n删除{dec} 内容1 内容2")
 
 
 async def add_txt_line(path: Path, matcher: Matcher, event: GroupMessageEvent, args: Message, dec: str) -> None:
@@ -504,10 +507,9 @@ async def add_txt_line(path: Path, matcher: Matcher, event: GroupMessageEvent, a
                     c.write(words + '\n')
                     logger.info(f"添加\"{words}\"为{dec}成功")
                     success_add.append(words)
-                await matcher.send(f"添加{str(success_add)}成功")
-                c.close()
+            await matcher.finish(f"添加{str(success_add)}成功")
     else:
-        await matcher.send(f"请输入添加内容,多个以空格分隔，例：\n添加{dec} 内容1 内容2")
+        await matcher.finish(f"请输入添加内容,多个以空格分隔，例：\n添加{dec} 内容1 内容2")
 
 
 async def get_txt_line(path: Path, matcher: Matcher, event: GroupMessageEvent, args: Message, dec: str) -> None:
@@ -528,13 +530,11 @@ async def get_txt_line(path: Path, matcher: Matcher, event: GroupMessageEvent, a
             with open(this_path, 'r', encoding = 'utf-8') as c:
                 is_saved = c.read().split('\n')
                 is_saved.remove('')
-                c.close()
-            await matcher.send(f"{str(is_saved)}")
+            await matcher.finish(f"{str(is_saved)}")
         except ActionFailed:
-            logger.info(f"用户正在查看停用此列表，可能是{dec}太多了，无法发送")
-            await matcher.send('可能是内容太多了，无法发送')
+            await matcher.finish('内容太长，无法发送')
         except FileNotFoundError:
-            await matcher.send(f"该群没有{dec}")
+            await matcher.finish(f"该群没有{dec}")
     except FileNotFoundError:
         await init()
 
@@ -555,12 +555,9 @@ async def change_s_title(bot: Bot, matcher: Matcher, gid: int, uid: int, s_title
             special_title = s_title,
             duration=-1,
         )
+        log_fi(matcher, f"头衔操作成功:{s_title}")
     except ActionFailed:
         logger.info('权限不足')
-    else:
-        logger.info(f"头衔操作成功:{s_title}")
-        if cb_notice:
-            await matcher.finish(f"头衔操作成功:{s_title}")
 
 
 async def get_user_violation(gid: int, uid: int, label: str, content: str, add_: bool = True) -> int:
@@ -624,6 +621,16 @@ async def error_log(gid: int, time: str, matcher: Matcher, err: str) -> None:
             logger.error(f"写入错误日志出错：{e}")
 
 
-async def log_finish(cmd: Matcher, msg: str, log: str = None) -> None:
-    logger.info(log if log else msg)
-    await cmd.finish(msg)
+async def sd(cmd: Matcher, msg: str, at = False) -> None:
+    if cb_notice: await cmd.send(msg, at_sender = at)
+
+async def log_sd(cmd: Matcher, msg: str, log: str = None, at = False, err = False) -> None:
+    (logger.error if err else logger.info)(log if log else msg)
+    await sd(cmd, msg, at)
+
+async def fi(cmd: Matcher, msg) -> None:
+    await cmd.finish(msg if cb_notice else None)
+
+async def log_fi(cmd: Matcher, msg, log: str = None, err = False) -> None:
+    (logger.error if err else logger.info)(log if log else msg)
+    await fi(cmd, msg)

@@ -79,9 +79,8 @@ async def _(bot: Bot, event: GroupMessageEvent):
                 img_colors = ImageColorGenerator(background_image, default_color=(255, 255, 255))
                 wc.recolor(color_func = img_colors)
                 wc.to_file(img)
-                await cloud.send(MessageSegment.image(img))
+                await cloud.finish(MessageSegment.image(img))
             except Exception as err:
-                await cloud.send(f"出现错误{type(err)}:{err}")
+                await cloud.finish(f"出现错误{type(err)}:{err}")
     except ModuleNotFoundError:
-        await cloud.send('未安装wordcloud库')
-
+        await cloud.finish('未安装wordcloud库')

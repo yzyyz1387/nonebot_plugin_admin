@@ -5,7 +5,7 @@
 # @Email   :  youzyyz1384@qq.com
 # @File    : switcher.py
 # @Software: PyCharm
-from .utils import init, load, upload
+from .utils import init, load, upload, fi, log_fi
 from .path import *
 from nonebot import logger, on_command
 from nonebot.typing import T_State
@@ -29,13 +29,11 @@ async def _(bot: Bot, event: GroupMessageEvent, state: T_State):
             if funcs_status[gid][func]:
                 funcs_status[gid][func] = False
                 await upload(switcher_path, funcs_status)
-                await switcher.send('已关闭' + user_input_func_name)
-                break
+                await fi(switcher, '已关闭' + user_input_func_name)
             else:
                 funcs_status[gid][func] = True
                 await upload(switcher_path, funcs_status)
-                await switcher.send('已开启' + user_input_func_name)
-                break
+                await fi(switcher, '已开启' + user_input_func_name)
 
 
 switcher_html = on_command('开关状态', priority = 1, block = True, permission = SUPERUSER | GROUP_ADMIN | GROUP_OWNER)
@@ -45,7 +43,7 @@ switcher_html = on_command('开关状态', priority = 1, block = True, permissio
 async def _(bot: Bot, event: GroupMessageEvent):
     gid = str(event.group_id)
     funcs_status = (await load(switcher_path))
-    if not os.path.exists(template_path):
+    if not funcs_status or not os.path.exists(template_path):
         await init()
     try:
         from os.path import dirname
@@ -60,18 +58,15 @@ async def _(bot: Bot, event: GroupMessageEvent):
                          img_path=(re_img_path / f"{gid}.png").resolve())
         with open((re_img_path / f"{gid}.png").resolve(), 'rb') as f:
             img_bytes = f.read()
-        await switcher_html.send(MessageSegment.image(img_bytes))
-
+        await fi(switcher_html, MessageSegment.image(img_bytes))
     except ActionFailed:
-        await switcher_html.send(
-            '当前群组开关状态：\n' + '\n'.join(
-                [f"{admin_funcs[func][0]}：{'开启' if funcs_status[gid][func] else '关闭'}" for func in admin_funcs]))
-        logger.error('可能被风控，已使用文字发送')
+        await log_fi(switcher_html,
+                     '当前群组开关状态：\n' + '\n'.join([f"{admin_funcs[func][0]}：{'开启' if funcs_status[gid][func] else '关闭'}" for func in admin_funcs]),
+                     '可能被风控，已使用文字发送', err = True)
     except Exception as e:
-        await switcher_html.send(
-            '当前群组开关状态：\n' + '\n'.join(
-                [f"{admin_funcs[func][0]}：{'开启' if funcs_status[gid][func] else '关闭'}" for func in admin_funcs]))
-        logger.error(f'开关渲染网页并截图失败，已使用文字发送，错误信息：\n{"-"*30}{e}{"-"*30}')
+        await log_fi(switcher_html,
+                     '当前群组开关状态：\n' + '\n'.join([f"{admin_funcs[func][0]}：{'开启' if funcs_status[gid][func] else '关闭'}" for func in admin_funcs]),
+                     f'开关渲染网页并截图失败，已使用文字发送，错误信息：\n{"-"*30}{e}{"-"*30}', err = True)
 
 
 async def save_image(url, img_path):

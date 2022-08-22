@@ -17,9 +17,8 @@ from nonebot.permission import SUPERUSER
 
 from .config import plugin_config
 from .path import *
-from .utils import load, del_txt_line, add_txt_line, get_txt_line
+from .utils import load, del_txt_line, add_txt_line, get_txt_line, fi
 
-cb_notice = plugin_config.callback_notice
 cron_update = plugin_config.cron_update
 paths_ = [config_path, limit_word_path, limit_word_path_easy, limit_level]
 
@@ -36,9 +35,8 @@ async def _(bot: Bot, event: GroupMessageEvent):
         level.update({gid: 'easy'})
         with open(limit_level, 'w') as f:
             f.write(str(to_json(level)))
-        await set_level_easy.finish('设置成功')
-    else:
-        await set_level_easy.finish('本群已经是简单检测了')
+        await fi(set_level_easy, '设置成功')
+    await fi(set_level_easy, '本群已经是简单检测了')
 
 
 set_level_rigorous = on_command('严格违禁词', priority = 1, permission = GROUP_ADMIN | GROUP_OWNER | SUPERUSER)
@@ -52,9 +50,8 @@ async def _(bot: Bot, event: GroupMessageEvent):
         level.update({gid: 'rigorous'})
         with open(limit_level, 'w') as f:
             f.write(str(to_json(level)))
-        await set_level_rigorous.finish('设置成功')
-    else:
-        await set_level_rigorous.finish('本群已经是严格检测了')
+        await fi(set_level_rigorous, '设置成功')
+    await fi(set_level_rigorous, '本群已经是严格检测了')
 
 
 del_custom_limit_words = on_command('删除自定义违禁词', aliases={'移除自定义违禁词', '去除自定义违禁词'}, priority = 1, permission = GROUP_ADMIN | GROUP_OWNER | SUPERUSER)

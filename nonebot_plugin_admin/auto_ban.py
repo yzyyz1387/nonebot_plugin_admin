@@ -19,9 +19,8 @@ from nonebot.permission import SUPERUSER
 
 from .config import plugin_config
 from .path import *
-from .utils import init, banSb, load, get_user_violation
+from .utils import init, banSb, load, get_user_violation, log_sd, fi
 
-cb_notice = plugin_config.callback_notice
 cron_update = plugin_config.cron_update
 paths_ = [config_path, limit_word_path, limit_word_path_easy, limit_level]
 
@@ -48,21 +47,17 @@ async def _(bot: Bot, event: GroupMessageEvent, matcher: Matcher):
     else:
         custom_limit_words = ''
     if str(gid) in level:
-        if level[str(gid)] == 'easy':
-            limit_path = limit_word_path_easy
-        else:
-            limit_path = limit_word_path
+        limit_path = limit_word_path_easy if level[str(gid)] == 'easy' else limit_word_path
         rules = [re.sub(r'\t+', '\t', rule).split('\t') for rule in
                  (open(limit_path, 'r', encoding = 'utf-8').read() + custom_limit_words).split('\n')]
         msg = re.sub(r'\s', '', str(event.get_message()))
         logger.info(f"{gid}收到{event.user_id}的消息: \"{msg}\"")
         for rule in rules:
             if rule[0] and re.search(rule[0], msg):
-                logger.info(f"敏感词触发: \"{rule[0]}\"")
                 level = (await get_user_violation(gid, event.user_id, 'Porn', event.raw_message))
                 ts: list = time_scop_map[level]
-                await f_word.send(f"你发送了违禁词,现在进行处罚,如有异议请联系管理员\n你的违禁级别为{level}级", at_sender = True)
-                matcher.stop_propagation()
+                await log_sd(f_word, f"你发送了违禁词,现在进行处罚,如有异议请联系管理员\n你的违禁级别为{level}级", f"敏感词触发: \"{rule[0]}\"", True)
+                matcher.stop_propagation()  # block
                 delete, ban = True, True
                 if len(rule) > 1:
                     delete = rule[1].find('$撤回') != -1
@@ -73,23 +68,17 @@ async def _(bot: Bot, event: GroupMessageEvent, matcher: Matcher):
                         logger.info('消息已撤回')
                     except ActionFailed:
                         logger.info('消息撤回失败')
-                uid = event.get_user_id()
-
                 if ban:
-                    baning = banSb(gid, ban_list=[uid], scope = ts)
+                    baning = banSb(gid, ban_list = [event.get_user_id()], scope = ts)
                     async for baned in baning:
                         if baned:
                             try:
                                 await baned
+                                await log_sd(f_word, f"你发送了违禁词,现在进行处罚,如有异议请联系管理员\n你的违禁级别为{level}级", f"禁言成功，用户: {uid}", True)
                             except ActionFailed:
-                                logger.info('禁言失败，权限不足')
-                                await f_word.send('禁言失败，权限不足')
-                            else:
-                                logger.info(f"禁言成功，用户: {uid}")
-                                await f_word.send(f"你发送了违禁词,现在进行处罚,如有异议请联系管理员\n你的违禁级别为{level}级", at_sender = True)
+                                await log_sd(f_word, '禁言失败，权限不足')
                 break
-    elif cb_notice:
-        await f_word.send('本群未配置检测级别，指令如下：\n1.简单违禁词:简单级别\n2.严格违禁词：严格级别\n3.群管初始化：一键配置所有群聊为简单级别\n若重复出现此信息推荐发送【简单违禁词】')
+    await fi(f_word, '本群未配置检测级别，指令如下：\n1.简单违禁词:简单级别\n2.严格违禁词：严格级别\n3.群管初始化：一键配置所有群聊为简单级别\n若重复出现此信息推荐发送【简单违禁词】')
 
 
 if cron_update:
@@ -126,4 +115,4 @@ if cron_update:
     @update_f_words.handle()
     async def _(bot: Bot):
         upload_ = await auto_upload_f_words()
-        await update_f_words.finish('更新时出现错误' if upload_ else '更新成功')
+        await fi(update_f_words, '更新时出现错误' if upload_ else '更新成功')

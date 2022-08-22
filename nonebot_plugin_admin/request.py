@@ -34,7 +34,7 @@ async def _(bot: Bot, event: MessageEvent):
     rely = ''
     for i in answers:
         rely += i + ' : ' + str(answers[i]) + '\n'
-    await super_sp.send(rely)
+    await super_sp.finish(rely)
 
 
 # 按群号添加词条
@@ -44,7 +44,6 @@ super_sp_add = on_command('指定词条+', aliases={'/susp+', '/su审批+'}, pri
 @super_sp_add.handle()
 async def _(bot: Bot, event: MessageEvent):
     msg = str(event.get_message()).split()
-    print(msg)
     logger.info(str(len(msg)), msg)
     if len(msg) == 3:
         gid = msg[1]
@@ -53,9 +52,9 @@ async def _(bot: Bot, event: MessageEvent):
         if gid.isdigit():
             if sp_write:
 
-                await super_sp_add.send(f"群{gid}添加入群审批词条：{answer}")
+                await super_sp_add.finish(f"群{gid}添加入群审批词条：{answer}")
             else:
-                await super_sp_add.send(f"{answer} 已存在于群{gid}的词条中")
+                await super_sp_add.finish(f"{answer} 已存在于群{gid}的词条中")
         else:
             await super_sp_de.finish('输入有误 /susp+ [群号] [词条]')
     else:
@@ -75,11 +74,11 @@ async def _(bot: Bot, event: MessageEvent):
         if gid.isdigit():
             sp_delete = await approve.delete(gid, answer)
             if sp_delete:
-                await super_sp_de.send(f"群{gid}删除入群审批词条：{answer}")
+                await super_sp_de.finish(f"群{gid}删除入群审批词条：{answer}")
             elif not sp_delete:
-                await super_sp_de.send(f"群{gid}不存在此词条")
+                await super_sp_de.finish(f"群{gid}不存在此词条")
             elif sp_delete is None:
-                await super_sp_de.send(f"群{gid}从未配置过词条")
+                await super_sp_de.finish(f"群{gid}从未配置过词条")
         else:
             await super_sp_de.finish('输入有误 /susp- [群号] [词条]')
     else:
@@ -99,9 +98,8 @@ async def _(bot: Bot, event: GroupMessageEvent):
     gid = str(event.group_id)
     if gid in a_config:
         this_config = a_config[gid]
-        await check.send(f"当前群审批词条：{this_config}")
-    else:
-        await check.send('当前群从未配置过审批词条')
+        await check.finish(f"当前群审批词条：{this_config}")
+    await check.finish('当前群从未配置过审批词条')
 
 
 config = on_command('词条+', aliases={'/sp+', '/审批+'}, priority = 1, block = True,
@@ -117,9 +115,8 @@ async def _(bot: Bot, event: GroupMessageEvent, state: T_State):
     sp_write = await approve.write(str(event.group_id), msg)
     gid = str(event.group_id)
     if sp_write:
-        await config.send(f"群{event.group_id}添加词条：{msg}")
-    else:
-        await config.send(f"{msg} 已存在于群{event.group_id}的词条中")
+        await config.finish(f"群{event.group_id}添加词条：{msg}")
+    await config.finish(f"{msg} 已存在于群{event.group_id}的词条中")
 
 
 config_ = on_command('词条-', aliases={'/sp-', '/审批-'}, priority = 1, block = True,
@@ -135,11 +132,11 @@ async def _(bot: Bot, event: GroupMessageEvent, state: T_State):
     sp_delete = await approve.delete(str(event.group_id), msg)
     gid = str(event.group_id)
     if sp_delete:
-        await config_.send(f"群{event.group_id}删除入群审批词条：{msg}")
+        await config_.finish(f"群{event.group_id}删除入群审批词条：{msg}")
     elif not sp_delete:
-        await config_.send("当前群不存在此词条")
+        await config_.finish("当前群不存在此词条")
     elif sp_delete is None:
-        await config_.send("当前群从未配置过词条")
+        await config_.finish("当前群从未配置过词条")
 
 
 # 加群审批

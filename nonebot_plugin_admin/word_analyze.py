@@ -35,9 +35,8 @@ async def _(bot: Bot, event: GroupMessageEvent):
             c.close()
             logger.info(f"开始记录{gid}")
             await word_start.finish('成功')
-        else:
-            logger.info(f"{gid}已存在")
-            await word_start.finish(f"{gid}已存在")
+        logger.info(f"{gid}已存在")
+        await word_start.finish(f"{gid}已存在")
 
 
 word_stop = on_command('停止记录本群', block = True, priority = 1, permission = GROUP_ADMIN | GROUP_OWNER | SUPERUSER)
@@ -169,13 +168,12 @@ async def _(bot: Bot, event: GroupMessageEvent):
                         f"https://fastly.jsdelivr.net/gh/yzyyz1387/blogimages/nonebot/wordcloud/bg{i}.png")).content
                     with open(wordcloud_bg_path / f"{i}.png", 'wb') as f:
                         f.write(img_content)
-                await update_mask.send('更新完成（好耶）')
+                await update_mask.finish('更新完成（好耶）')
             elif num_in_cloud == already_have:
-                await update_mask.send('蚌！已经是最新了耶')
+                await update_mask.finish('蚌！已经是最新了耶')
     except Exception as e:
         logger.info(e)
-        await update_mask.send(f"QAQ,更新mask失败:\n{e}")
-        return
+        await update_mask.finish(f"QAQ,更新mask失败:\n{e}")
 
 
 # FIXME: 这一块重复代码有点多了
@@ -189,10 +187,8 @@ async def _(bot: Bot, event: GroupMessageEvent, matcher: Matcher, args: Message 
     dic_ = await load(group_message_data_path / f"{gid}" / f"{today}.json")
     top = sorted(dic_.items(), key = lambda x: x[1], reverse = True)
     if len(top) == 0:
-        await who_speak_most_today.send('没有任何人说话')
-        return
-    else:
-        await who_speak_most_today.send(f"太强了！今日榜首：\n{top[0][0]}，发了{top[0][1]}条消息")
+        await who_speak_most_today.finish('没有任何人说话')
+    await who_speak_most_today.finish(f"太强了！今日榜首：\n{top[0][0]}，发了{top[0][1]}条消息")
 
 
 speak_top = on_command('今日发言排行', aliases={'今日排行榜', '今日发言排行榜', '今日排行'}, block = True, priority = 1)
@@ -205,12 +201,11 @@ async def _(bot: Bot, event: GroupMessageEvent, matcher: Matcher, args: Message 
     dic_ = await load(group_message_data_path / f"{gid}" / f"{today}.json")
     top = sorted(dic_.items(), key = lambda x: x[1], reverse = True)
     if len(top) == 0:
-        await speak_top.send('没有任何人说话')
-        return
+        await speak_top.finish('没有任何人说话')
     top_list = []
     for i in range(min(len(top), 10)):
         top_list.append(f"{i + 1}. {top[i][0]}，发了{top[i][1]}条消息")
-    await speak_top.send('\n'.join(top_list))
+    await speak_top.finish('\n'.join(top_list))
 
 
 speak_top_yesterday = on_command('昨日发言排行', aliases={'昨日排行榜', '昨日发言排行榜', '昨日排行'}, block = True, priority = 1)
@@ -225,14 +220,13 @@ async def _(bot: Bot, event: GroupMessageEvent, matcher: Matcher, args: Message 
         dic_ = await load(group_message_data_path / f"{gid}" / f"{yesterday}.json")
         top = sorted(dic_.items(), key = lambda x: x[1], reverse = True)
         if len(top) == 0:
-            await speak_top_yesterday.send('没有任何人说话')
-            return
+            await speak_top_yesterday.finish('没有任何人说话')
         top_list = []
         for i in range(min(len(top), 10)):
             top_list.append(f"{i + 1}. {top[i][0]}，发了{top[i][1]}条消息")
-        await speak_top_yesterday.send('\n'.join(top_list))
+        await speak_top_yesterday.finish('\n'.join(top_list))
     else:
-        await speak_top_yesterday.send('昨日没有记录')
+        await speak_top_yesterday.finish('昨日没有记录')
 
 
 who_speak_most = on_command('排行', aliases={'谁话多', '谁屁话最多', '排行', '排行榜'}, block = True, priority = 1)
@@ -244,13 +238,11 @@ async def _(bot: Bot, event: GroupMessageEvent, matcher: Matcher, args: Message 
     dic_ = await load(group_message_data_path / f"{gid}" / 'history.json')
     top = sorted(dic_.items(), key = lambda x: x[1], reverse = True)
     if len(top) == 0:
-        await who_speak_most.send('没有任何人说话')
-        return
-    else:
-        top_list = []
-        for i in range(min(len(top), 10)):
-            top_list.append(f"{i + 1}. {top[i][0]}，发了{top[i][1]}条消息")
-        await who_speak_most.send('\n'.join(top_list))
+        await who_speak_most.finish('没有任何人说话')
+    top_list = []
+    for i in range(min(len(top), 10)):
+        top_list.append(f"{i + 1}. {top[i][0]}，发了{top[i][1]}条消息")
+    await who_speak_most.finish('\n'.join(top_list))
 
 
 get_speak_num = on_command('发言数', aliases={'发言数', '发言', '发言量'}, block = True, priority = 1)

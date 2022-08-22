@@ -98,7 +98,7 @@ async def send_morning():
     while not sendSuccess:
         try:
             await asyncio.sleep(random.randint(1, 10))
-            # await get_bot().send_private_msg(user_id = fire_user_id, message = "🌞早，又是元气满满的一天")# 当未连接到onebot.v11协议端时会抛出异常
+            # await get_bot().send_private_msg(user_id = fire_user_id, message = "🌞早，又是元气满满的一天")  # 当未连接到onebot.v11协议端时会抛出异常
             for gid in send_group_id:
                 if send_mode == 1:
                     await get_bot().send_group_msg(group_id = gid,
@@ -110,7 +110,7 @@ async def send_morning():
         except ValueError as e:
             logger.error("ValueError:{}", e)
             logger.error('群聊推送消息插件获取bot失败，1s后重试')
-            await asyncio.sleep(1)# 重试前时延，防止阻塞
+            await asyncio.sleep(1)  # 重试前时延，防止阻塞
 
 
 async def send_night():
@@ -122,7 +122,7 @@ async def send_night():
     while not sendSuccess:
         try:
             await asyncio.sleep(random.randint(1, 10))
-            # await get_bot().send_private_msg(user_id = fire_user_id, message = "🌛今天续火花了么，晚安啦")# 当未连接到onebot.v11协议端时会抛出异常
+            # await get_bot().send_private_msg(user_id = fire_user_id, message = "🌛今天续火花了么，晚安啦")  # 当未连接到onebot.v11协议端时会抛出异常
             for gid in send_group_id:
                 if send_mode == 1:
                     await get_bot().send_group_msg(group_id = gid,
@@ -134,9 +134,9 @@ async def send_night():
         except ValueError as e:
             logger.error("ValueError:{}", e)
             logger.error('群聊推送消息插件获取bot失败，1s后重试')
-            await asyncio.sleep(1)# 重试前时延，防止阻塞
+            await asyncio.sleep(1)  # 重试前时延，防止阻塞
 
 
 if scheduler:
-    scheduler.add_job(send_morning, 'cron', hour = m_hour, minute = m_minute, id = 'send_morning')# 早上推送
-    scheduler.add_job(send_night, 'cron', hour = n_hour, minute = n_minute, id = 'send_night')# 晚上推送
+    scheduler.add_job(send_morning, 'cron', hour = m_hour, minute = m_minute, id = 'send_morning')  # 早上推送
+    scheduler.add_job(send_night, 'cron', hour = n_hour, minute = n_minute, id = 'send_night')  # 晚上推送
