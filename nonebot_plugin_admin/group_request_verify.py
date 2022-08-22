@@ -5,11 +5,12 @@
 # @Email   :  youzyyz1384@qq.com
 # @File    : group_request_verify.py
 # @Software: PyCharm
-from nonebot import logger
-from typing import Optional
-from fuzzyfinder import fuzzyfinder
 import json
-import aiofiles
+from typing import Optional
+
+from fuzzyfinder import fuzzyfinder
+from nonebot import logger
+
 from .path import *
 
 
@@ -20,8 +21,8 @@ async def verify(word: str, group_id: str) -> Optional[bool]:
     :param group_id: 群号
     :return: bool
     """
-    async with aiofiles.open(config_admin, mode='r') as f:
-        answers_ = await f.read()
+    with open(config_admin, mode='r') as f:
+        answers_ = f.read()
         answers = json.loads(answers_)
     if group_id in answers:
         answer = answers[group_id]

@@ -13,20 +13,21 @@ import os
 import random
 import re
 from typing import Union, Optional
-import aiofiles
+
 import httpx
 import nonebot
 from nonebot import logger
+from nonebot.adapters import Message
+from nonebot.adapters.onebot.v11 import GroupMessageEvent, ActionFailed, Bot
+from nonebot.matcher import Matcher
 from tencentcloud.common import credential
 from tencentcloud.common.exception.tencent_cloud_sdk_exception import TencentCloudSDKException
 from tencentcloud.common.profile.client_profile import ClientProfile
 from tencentcloud.common.profile.http_profile import HttpProfile
 from tencentcloud.ims.v20201229 import ims_client, models
-from .path import *
+
 from .config import plugin_config, global_config
-from nonebot.adapters.onebot.v11 import GroupMessageEvent, ActionFailed, Bot
-from nonebot.adapters import Message
-from nonebot.matcher import Matcher
+from .path import *
 
 TencentID = plugin_config.tenid
 TencentKeys = plugin_config.tenkeys
@@ -135,21 +136,21 @@ async def init():
         level_dict = {}
         for group in g_list:
             level_dict.update({str(group['group_id']): "easy"})
-        async with aiofiles.open(limit_level, "w", encoding='utf-8') as lwp:
-            await lwp.write(f'{json.dumps(level_dict)}')
-            await lwp.close()
+        with open(limit_level, "w", encoding='utf-8') as lwp:
+            lwp.write(f'{json.dumps(level_dict)}')
+            lwp.close()
     if not os.path.exists(switcher_path):
         bot = nonebot.get_bot()
-        logger.info("创建开关配置文件,分群设置,默认开")
+        logger.info("创建开关配置文件,分群设置, 图片检测和违禁词检测默认关,其他默认开")
         g_list = (await bot.get_group_list())
         switcher_dict = {}
         for group in g_list:
             switcher_dict.update({str(group['group_id']): {"admin": True, "requests": True, "wordcloud": True,
-                                                           "auto_ban": True, "img_check": True,
+                                                           "auto_ban": False, "img_check": False,
                                                            "word_analyze": True}})
-        async with aiofiles.open(switcher_path, "w", encoding='utf-8') as swp:
-            await swp.write(f'{json.dumps(switcher_dict)}')
-            await swp.close()
+        with open(switcher_path, "w", encoding='utf-8') as swp:
+            swp.write(f'{json.dumps(switcher_dict)}')
+            swp.close()
     logger.info("Admin 插件 初始化检测完成")
 
 
@@ -182,8 +183,8 @@ async def mk(type_, path_, *mode, **kwargs):
                 logger.info(f"下载文件 {kwargs['dec']} 到 {path_}")
         else:
             if mode:
-                async with aiofiles.open(path_, mode[0]) as f:
-                    await f.write(kwargs["content"])
+                with open(path_, mode[0]) as f:
+                    f.write(kwargs["content"])
                 logger.info(f"创建文件{path_}")
             else:
                 raise Exception("mode 不能为空")
@@ -254,17 +255,26 @@ async def participle_simple_handle() -> list[str]:
              '言', '越', '馨', '趴', '从', '自从', '自', '打', '到', '往', '在', '由', '向', '于',
              '至', '趁', '当', '当着', '沿着', '顺着', '按', '按照', '遵照', '依照', '靠', '本着',
              '用', '通过', '根据', '据', '拿', '比', '因', '因为', '由于', '为', '为了', '为着',
-             '被', '给', '让', '叫', '归', '由', '把', '将', '管', '对', '对于', '关于', '跟', '和', '给', '替', '向', '同', '除了']
+             '被', '给', '让', '叫', '归', '由', '把', '将', '管', '对', '对于', '关于', '跟', '和', '给', '替', '向',
+             '同', '除了']
 
-    pron_ = ["各个", "本人", "这个", "各自", "哪些", "怎的", "我", "大家", "她们", "多少", "怎么", "那么", "那样", "怎样", "几时", "哪儿", "我们", "自我",
-             "什么", "哪个", "那个", "另外", "自己", "哪样", "这儿", "那些", "这样", "那儿", "它们", "它", "他", "你", "谁", "今", "吗", "是", "乌",
-             "如何", "彼此", "其次", "列位", "该", "各", "然", "安", "之", "怎", "夫", "其", "每", "您", "伊", "此", "者", "咱们", "某", "诸位",
-             "这些", "予", "任何", "若", "彼", "恁", "焉", "兹", "俺", "汝", "几许", "多咱", "谁谁", "有些", "干吗", "何如", "怎么样", "好多", "哪门子",
-             "这程子", "他人", "奈何", "人家", "若干", "本身", "旁人", "其他", "其余", "一切", "如此", "谁人", "怎么着", "那会儿", "自家", "哪会儿", "谁边",
-             "这会儿", "几儿", "这么些", "那阵儿", "那么点儿", "这么点儿", "这么样", "这阵儿", "一应", "多会儿", "何许", "若何", "大伙儿", "几多", "恁地", "谁个",
-             "乃尔", "那程子", "多早晚", "如许", "倷", "孰", "侬", "怹", "朕", "他们", "这么着", "那么些", "咱家", "你们", "那么着"]
+    pron_ = ["各个", "本人", "这个", "各自", "哪些", "怎的", "我", "大家", "她们", "多少", "怎么", "那么", "那样",
+             "怎样", "几时", "哪儿", "我们", "自我",
+             "什么", "哪个", "那个", "另外", "自己", "哪样", "这儿", "那些", "这样", "那儿", "它们", "它", "他", "你",
+             "谁", "今", "吗", "是", "乌",
+             "如何", "彼此", "其次", "列位", "该", "各", "然", "安", "之", "怎", "夫", "其", "每", "您", "伊", "此",
+             "者", "咱们", "某", "诸位",
+             "这些", "予", "任何", "若", "彼", "恁", "焉", "兹", "俺", "汝", "几许", "多咱", "谁谁", "有些", "干吗",
+             "何如", "怎么样", "好多", "哪门子",
+             "这程子", "他人", "奈何", "人家", "若干", "本身", "旁人", "其他", "其余", "一切", "如此", "谁人", "怎么着",
+             "那会儿", "自家", "哪会儿", "谁边",
+             "这会儿", "几儿", "这么些", "那阵儿", "那么点儿", "这么点儿", "这么样", "这阵儿", "一应", "多会儿", "何许",
+             "若何", "大伙儿", "几多", "恁地", "谁个",
+             "乃尔", "那程子", "多早晚", "如许", "倷", "孰", "侬", "怹", "朕", "他们", "这么着", "那么些", "咱家",
+             "你们", "那么着"]
 
-    others_ = ['就', '这', '那', '都', '也', '还', '又', '有', '没', '好', '我', '我的', '说', '去', '点', '不是', '就是', '要', '一个', '现在',
+    others_ = ['就', '这', '那', '都', '也', '还', '又', '有', '没', '好', '我', '我的', '说', '去', '点', '不是',
+               '就是', '要', '一个', '现在',
                '啥']
 
     sum_ = prep_ + pron_ + others_
@@ -361,10 +371,10 @@ async def load(path) -> Optional[dict]:
     :return: Optional[dict]
     """
     try:
-        async with aiofiles.open(path, mode='r', encoding="utf-8") as f:
-            contents_ = await f.read()
+        with open(path, mode='r', encoding="utf-8") as f:
+            contents_ = f.read()
             contents = json.loads(contents_)
-            await f.close()
+            f.close()
             return contents
     except FileNotFoundError:
         return None
@@ -376,9 +386,9 @@ async def upload(path, dict_content) -> None:
     :param path: 路径
     :param dict_content: python对象，字典
     """
-    async with aiofiles.open(path, mode='w', encoding="utf-8") as c:
-        await c.write(str(json.dumps(dict_content, ensure_ascii=False)))
-        await c.close()
+    with open(path, mode='w', encoding="utf-8") as c:
+        c.write(json.dumps(dict_content, ensure_ascii=False, indent=2))
+        c.close()
 
 
 async def check_func_status(func_name: str, gid: str) -> bool:
@@ -397,7 +407,8 @@ async def check_func_status(func_name: str, gid: str) -> bool:
         else:
             return False
     except KeyError:  # 新加入的群
-        logger.info(f"本群({gid})尚未初始化！将自动初始化：关闭所有开关且设置过滤级别为简单。\n\n请重新发送指令继续之前的操作")
+        logger.info(
+            f"本群({gid})尚未初始化！将自动初始化：关闭所有开关且设置过滤级别为简单。\n\n请重新发送指令继续之前的操作")
         if cb_notice:
             # await nonebot.get_bot().send_group_msg(group_id=gid, message="本群尚未初始化，将自动初始化：开启所有开关且设置过滤级别为简单。\n\n"
             #                                                              "请重新发送指令继续之前的操作")
@@ -431,10 +442,10 @@ async def del_txt_line(path: Path, matcher: Matcher, event: GroupMessageEvent, a
         if not os.path.exists(this_path):
             await init()
         try:
-            async with aiofiles.open(this_path, mode="r+", encoding="utf-8") as c:
-                is_saved = (await c.read()).split("\n")
-                await c.close()
-            async with aiofiles.open(this_path, mode="w", encoding="utf-8") as c:
+            with open(this_path, mode="r+", encoding="utf-8") as c:
+                is_saved = c.read().split("\n")
+                c.close()
+            with open(this_path, mode="w", encoding="utf-8") as c:
                 success_del = []
                 already_del = []
                 for words in msg:
@@ -445,7 +456,7 @@ async def del_txt_line(path: Path, matcher: Matcher, event: GroupMessageEvent, a
                             is_saved.remove(i)
                             logger.info(f"删除{dec} \"{words}\"成功")
                             success_del.append(words)
-                await c.write("\n".join(is_saved))
+                c.write("\n".join(is_saved))
                 if success_del:
                     await matcher.send(f"{str(success_del)}删除成功")
                 if already_del:
@@ -474,8 +485,8 @@ async def add_txt_line(path: Path, matcher: Matcher, event: GroupMessageEvent, a
         if not os.path.exists(this_path):
             await init()
         try:
-            async with aiofiles.open(this_path, mode="r+", encoding="utf-8") as c:
-                is_saved = (await c.read()).split("\n")
+            with open(this_path, mode="r+", encoding="utf-8") as c:
+                is_saved = c.read().split("\n")
                 success_add = []
                 already_add = []
                 for words in msg:
@@ -492,13 +503,13 @@ async def add_txt_line(path: Path, matcher: Matcher, event: GroupMessageEvent, a
                     await matcher.send(f"{str(success_add)}添加成功")
         except FileNotFoundError:
             success_add = []
-            async with aiofiles.open(this_path, mode="w", encoding="utf-8") as c:
+            with open(this_path, mode="w", encoding="utf-8") as c:
                 for words in msg:
-                    await c.write(words + "\n")
+                    c.write(words + "\n")
                     logger.info(f"添加\"{words}\"为{dec}成功")
                     success_add.append(words)
                 await matcher.send(f"添加{str(success_add)}成功")
-                await c.close()
+                c.close()
     else:
         await matcher.send(f"请输入添加内容,多个以空格分隔，例：\n添加{dec} 内容1 内容2")
 
@@ -518,10 +529,10 @@ async def get_txt_line(path: Path, matcher: Matcher, event: GroupMessageEvent, a
         if not os.path.exists(this_path):
             await init()
         try:
-            async with aiofiles.open(this_path, "r", encoding="utf-8") as c:
-                is_saved = (await c.read()).split("\n")
+            with open(this_path, "r", encoding="utf-8") as c:
+                is_saved = c.read().split("\n")
                 is_saved.remove("")
-                await c.close()
+                c.close()
             await matcher.send(f"{str(is_saved)}")
         except ActionFailed:
             logger.info(f"用户正在查看停用此列表，可能是{dec}太多了，无法发送")
@@ -597,9 +608,9 @@ async def get_user_violation(gid: int, uid: int, label: str, content: str, add_:
 
 
 async def vio_level_init(path_user, uid, this_time, label, content) -> None:
-    async with aiofiles.open(path_user, mode="w", encoding="utf-8") as c:
-        await c.write(json.dumps({uid: {"level": 0, "info": {this_time: [label, content]}}}, ensure_ascii=False))
-        await c.close()
+    with open(path_user, mode="w", encoding="utf-8") as c:
+        c.write(json.dumps({uid: {"level": 0, "info": {this_time: [label, content]}}}, ensure_ascii=False))
+        c.close()
 
 
 async def error_log(gid: int, time: str, matcher: Matcher, err: str) -> None:

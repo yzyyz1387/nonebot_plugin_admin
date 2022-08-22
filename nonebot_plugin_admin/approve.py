@@ -5,13 +5,14 @@
 # @Email   :  youzyyz1384@qq.com
 # @File    : approve.py
 # @Software: PyCharm
+import json
 import os.path
 from typing import Optional
-import aiofiles
-import json
+
 from nonebot import logger
-from .utils import init, load
+
 from .path import *
+from .utils import init, load
 
 
 async def g_admin():
@@ -20,8 +21,8 @@ async def g_admin():
     """
     if not os.path.exists(config_admin):
         await init()
-    async with aiofiles.open(config_group_admin, mode='r') as f:
-        admins_ = await f.read()
+    with open(config_group_admin, mode='r') as f:
+        admins_ = f.read()
         admins = json.loads(admins_)
     return admins
 
@@ -43,15 +44,15 @@ async def g_admin_add(gid: str, qq: int) -> Optional[bool]:
             gadmins = admins[gid]
             gadmins.append(qq)
             admins[gid] = gadmins
-            async with aiofiles.open(config_group_admin, mode='w') as c:
-                await c.write(str(json.dumps(admins)))
+            with open(config_group_admin, mode='w') as c:
+                c.write(str(json.dumps(admins)))
             logger.info(f"群{gid}添加分群管理：{qq}")
             return True
     else:
         logger.info(f'群{gid}首次加入分群管理')
         admins.update({gid: [qq]})
-        async with aiofiles.open(config_group_admin, mode='w') as c:
-            await c.write(str(json.dumps(admins)))
+        with open(config_group_admin, mode='w') as c:
+            c.write(str(json.dumps(admins)))
         return True
 
 
@@ -72,8 +73,8 @@ async def g_admin_del(gid: str, qq: int) -> Optional[bool]:
                 admins[gid] = data
             else:
                 del (admins[gid])
-            async with aiofiles.open(config_group_admin, mode='w') as c:
-                await c.write(str(json.dumps(admins)))
+            with open(config_group_admin, mode='w') as c:
+                c.write(str(json.dumps(admins)))
             return True
         else:
             logger.info(f'删除失败：群{gid}中{qq}还不是分群管理')
@@ -88,14 +89,14 @@ async def su_on_off() -> Optional[bool]:
     if admins['su'] == 'False':
         admins['su'] = 'True'
         logger.info("打开超管消息接收")
-        async with aiofiles.open(config_group_admin, mode='w') as c:
-            await c.write(str(json.dumps(admins)))
+        with open(config_group_admin, mode='w') as c:
+            c.write(str(json.dumps(admins)))
         return True
     else:
         admins['su'] = 'False'
         logger.info("关闭超管消息接收")
-        async with aiofiles.open(config_group_admin, mode='w') as c:
-            await c.write(str(json.dumps(admins)))
+        with open(config_group_admin, mode='w') as c:
+            c.write(str(json.dumps(admins)))
         return False
 
 
@@ -115,16 +116,16 @@ async def write(gid: str, answer: str) -> Optional[bool]:
         else:
             data.append(answer)
             contents[gid] = data
-            async with aiofiles.open(config_admin, mode='w') as c:
-                await c.write(str(json.dumps(contents)))
+            with open(config_admin, mode='w') as c:
+                c.write(str(json.dumps(contents)))
             logger.info(f"群{gid}添加入群审批词条：{answer}")
             return True
 
     else:
         logger.info(f'群{gid}第一次配置此词条：{answer}')
         contents.update({gid: [answer]})
-        async with aiofiles.open(config_admin, mode='w') as c:
-            await c.write(str(json.dumps(contents)))
+        with open(config_admin, mode='w') as c:
+            c.write(str(json.dumps(contents)))
         return True
 
 
@@ -144,8 +145,8 @@ async def delete(gid: str, answer: str) -> Optional[bool]:
                 contents[gid] = data
             else:
                 del (contents[gid])
-            async with aiofiles.open(config_admin, mode='w') as c:
-                await c.write(str(json.dumps(contents)))
+            with open(config_admin, mode='w') as c:
+                c.write(str(json.dumps(contents)))
             logger.info(f'群{gid}删除词条：{answer}')
             return True
 

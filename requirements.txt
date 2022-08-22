@@ -1,4 +1,3 @@
-aiofiles
 fuzzyfinder
 httpx
 jieba

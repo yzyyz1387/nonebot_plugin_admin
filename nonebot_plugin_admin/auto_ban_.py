@@ -7,7 +7,6 @@
 # @Software: PyCharm
 from json import dumps as to_json
 
-from aiofiles import open as a_open
 from nonebot import on_message, on_command
 from nonebot.adapters import Message
 from nonebot.adapters.onebot.v11 import Bot, GroupMessageEvent
@@ -35,8 +34,8 @@ async def _(bot: Bot, event: GroupMessageEvent):
     level = await load(limit_level)
     if gid not in level or level[gid] != "easy":
         level.update({gid: "easy"})
-        async with a_open(limit_level, 'w') as f:
-            await f.write(str(to_json(level)))
+        with open(limit_level, 'w') as f:
+            f.write(str(to_json(level)))
         await set_level_easy.finish("设置成功")
     else:
         await set_level_easy.finish("本群已经是简单检测了")
@@ -51,8 +50,8 @@ async def _(bot: Bot, event: GroupMessageEvent):
     level = await load(limit_level)
     if gid not in level or level[gid] != 'rigorous':
         level.update({gid: "rigorous"})
-        async with a_open(limit_level, 'w') as f:
-            await f.write(str(to_json(level)))
+        with open(limit_level, 'w') as f:
+            f.write(str(to_json(level)))
         await set_level_rigorous.finish("设置成功")
     else:
         await set_level_rigorous.finish("本群已经是严格检测了")

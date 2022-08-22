@@ -6,22 +6,20 @@
 # @File    : auto_ban.py
 # @Software: PyCharm
 import os
-import aiofiles
-from nonebot import logger, on_message, on_command, require
-from nonebot.adapters.onebot.v11 import Bot, GroupMessageEvent
-from nonebot.adapters.onebot.exception import ActionFailed
-from nonebot.adapters.onebot.v11.permission import GROUP_ADMIN, GROUP_OWNER
-from nonebot.permission import SUPERUSER
-from nonebot.matcher import Matcher
-from .path import *
-from .utils import init, banSb, load, check_func_status, get_user_violation
-from .config import plugin_config
-from os import path
-from json import dumps as to_json
-from aiofiles import open as a_open
-from httpx import AsyncClient
 import re
+from os import path
+
+from httpx import AsyncClient
+from nonebot import logger, on_message, on_command, require
+from nonebot.adapters.onebot.exception import ActionFailed
+from nonebot.adapters.onebot.v11 import Bot, GroupMessageEvent
+from nonebot.adapters.onebot.v11.permission import GROUP_ADMIN, GROUP_OWNER
+from nonebot.matcher import Matcher
+from nonebot.permission import SUPERUSER
+
 from .config import plugin_config
+from .path import *
+from .utils import init, banSb, load, get_user_violation
 
 cb_notice = plugin_config.callback_notice
 cron_update = plugin_config.cron_update
@@ -45,7 +43,7 @@ async def _(bot: Bot, event: GroupMessageEvent, matcher: Matcher):
     gid = event.group_id
     level = await load(limit_level)
     if os.path.exists(limit_word_path_custom / f'{gid}.txt'):  # 是否存在自定义违禁词
-        async with aiofiles.open(limit_word_path_custom / f'{gid}.txt', 'r', encoding='utf-8') as f:
+        with open(limit_word_path_custom / f'{gid}.txt', 'r', encoding='utf-8') as f:
             custom_limit_words = await f.read()
     else:
         custom_limit_words = ''
@@ -103,8 +101,8 @@ if cron_update:
             except Exception as err:
                 logger.error(f"自动更新严格违禁词库失败：{err}")
                 return True
-        async with a_open(limit_word_path, "w", encoding='utf-8') as f:
-            await f.write(r)
+        with open(limit_word_path, "w", encoding='utf-8') as f:
+            f.write(r)
         logger.info("正在更新简单违禁词库")
         async with AsyncClient() as client:
             try:
@@ -112,8 +110,8 @@ if cron_update:
             except Exception as err:
                 logger.error(f"自动更新简单违禁词库失败：{err}")
                 return True
-        async with a_open(limit_word_path_easy, "w", encoding='utf-8') as f:
-            await f.write(r)
+        with open(limit_word_path_easy, "w", encoding='utf-8') as f:
+            f.write(r)
         logger.info("更新完成")
 
 
