@@ -6,21 +6,19 @@
 # @File    : word_analyze.py
 # @Software: PyCharm
 import datetime
-import json
 import os
 
-import aiofiles
 import httpx
 from nonebot import on_command, logger, on_message
 from nonebot.adapters import Message
-from nonebot.adapters.onebot.v11 import Bot, GroupMessageEvent, ActionFailed
+from nonebot.adapters.onebot.v11 import Bot, GroupMessageEvent
 from nonebot.adapters.onebot.v11.permission import GROUP_ADMIN, GROUP_OWNER
 from nonebot.matcher import Matcher
 from nonebot.params import CommandArg
 from nonebot.permission import SUPERUSER
 
 from .path import *
-from .utils import init, replace_tmr, del_txt_line, add_txt_line, get_txt_line, upload, load, At, MsgText, error_log
+from .utils import init, replace_tmr, del_txt_line, add_txt_line, get_txt_line, upload, load, At, MsgText
 
 word_start = on_command("记录本群", block=True, priority=1, permission=GROUP_ADMIN | GROUP_OWNER | SUPERUSER)
 
@@ -81,46 +79,37 @@ async def _(bot: Bot, event: GroupMessageEvent, matcher: Matcher):
     # datetime获取今日日期
     today = datetime.datetime.now().strftime("%Y-%m-%d")
     this_time = datetime.datetime.now().strftime("%Y-%m-%d-%H:%M:%S")
-    try:
-        if not os.path.exists(word_path) or not os.path.exists(group_message_data_path):
-            await init()
-        if not os.path.exists(message_path_group):
-            os.mkdir(message_path_group)
-        if not os.path.exists(message_path_group / "sum.json"):  # 总记录 {日期：{时间：[uid, 消息]}}
-            await upload(message_path_group / "sum.json", {today: {this_time: [uid, event.raw_message]}})
+    # try:
+    if not os.path.exists(word_path) or not os.path.exists(group_message_data_path):
+        await init()
+    if not os.path.exists(message_path_group):
+        os.mkdir(message_path_group)
+    if not os.path.exists(message_path_group / f"{today}.json"):  # 日消息条数记录 {uid：消息数}
+        await upload(message_path_group / f"{today}.json", {uid: 1})
+    else:
+        dic_ = await load(message_path_group / f"{today}.json")
+        if uid not in dic_:
+            dic_[uid] = 1
         else:
-            dic_ = await load(message_path_group / "sum.json")
-            if today not in dic_:
-                dic_[today] = {this_time: [uid, event.raw_message]}
-            else:
-                dic_[today][this_time] = [uid, event.raw_message]
-            await upload(message_path_group / "sum.json", dic_)
-        if not os.path.exists(message_path_group / f"{today}.json"):  # 日消息条数记录 {uid：消息数}
-            await upload(message_path_group / f"{today}.json", {uid: 1})
+            dic_[uid] += 1
+        await upload(message_path_group / f"{today}.json", dic_)
+    if not os.path.exists(message_path_group / "history.json"):  # 历史发言条数记录 {uid：消息数}
+        await upload(message_path_group / "history.json", {uid: 1})
+    else:
+        dic_ = await load(message_path_group / "history.json")
+        if uid not in dic_:
+            dic_[uid] = 1
         else:
-            dic_ = await load(message_path_group / f"{today}.json")
-            if uid not in dic_:
-                dic_[uid] = 1
-            else:
-                dic_[uid] += 1
-            await upload(message_path_group / f"{today}.json", dic_)
-        if not os.path.exists(message_path_group / "history.json"):  # 历史发言条数记录 {uid：消息数}
-            await upload(message_path_group / "history.json", {uid: 1})
-        else:
-            dic_ = await load(message_path_group / "history.json")
-            if uid not in dic_:
-                dic_[uid] = 1
-            else:
-                dic_[uid] += 1
-            await upload(message_path_group / "history.json", dic_)
-        txt = open(word_path, "r", encoding="utf-8").read().split("\n")
-        if gid in txt:
-            msg = await replace_tmr(msg)
-            with open(path_temp, "a+", encoding="utf-8") as c:
-                c.write(msg + "\n")
-    except Exception as e:
-        logger.error("word_analyze.py 消息记录发生错误：" + str(e))
-        await error_log(event.group_id, this_time, matcher, str(e))
+            dic_[uid] += 1
+        await upload(message_path_group / "history.json", dic_)
+    txt = open(word_path, "r", encoding="utf-8").read().split("\n")
+    if gid in txt:
+        msg = await replace_tmr(msg)
+        with open(path_temp, "a+", encoding="utf-8") as c:
+            c.write(msg + "\n")
+    # except Exception as e:
+    #     logger.error("word_analyze.py 消息记录发生错误：" + str(e))
+    #     await error_log(event.group_id, this_time, matcher, str(e))
 
 
 stop_words_add = on_command("添加停用词", aliases={'增加停用词', '新增停用词'}, block=True, priority=1,
