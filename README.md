@@ -44,7 +44,7 @@
 `pip install --upgrade nonebot-plugin-admin `
 
 ## 配置
-鉴黄配置：  
+**鉴黄配置**：  
 腾讯云图片安全，开通地址：[https://console.cloud.tencent.com/cms](https://console.cloud.tencent.com/cms)  
 文档：[https://cloud.tencent.com/document/product/1125](https://cloud.tencent.com/document/product/1125)
 
@@ -55,6 +55,20 @@ tenid="xxxxxx"
 tenkeys="xxxxxx"
 # 是否开启禁言等操作的成功提示【不开启的话踢人/禁言等成功没有QQ消息提示】
 callback_notice=true # 如果不想开启设置成 false 或者不添加此配置项【默认关闭】
+```
+**早晚安配置**
+
+额外依赖pip install nonebot_plugin_apscheduler
+定时推送群消息需要在.evn中配置:
+```yaml
+send_group_id = ["xxx","xxx"]    # 必填 群号
+send_switch_morning = False                      # 选填 True/False 默认开启 早上消息推送是否开启
+send_switch_night = False                        # 选填 True/False 默认开启 晚上消息推送是否开启
+send_mode = 1                 # 选填 默认模式2 模式1发送自定义句子，模式2随机调用一句
+send_sentence_moring = ["句子1","句子2","..."]    # 如果是模式1 此项必填，早上随机发送该字段中的一句
+send_sentence_night = ["句子1","句子2","..."]     # 如果是模式1 此项必填，晚上随机发送该字段中的一句
+send_time_moring = "8 0"    # 选填 早上发送时间默认为7:00
+send_time_night = "23 0"    # 选填 晚上发送时间默认为22:00              
 ```
 
 更多配置项请查看 [config.py](./nonebot_plugin_admin/config.py)
