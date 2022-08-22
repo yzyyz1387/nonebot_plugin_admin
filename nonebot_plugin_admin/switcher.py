@@ -5,7 +5,7 @@
 # @Email   :  youzyyz1384@qq.com
 # @File    : switcher.py
 # @Software: PyCharm
-from .utils import init, load, upload, fi, log_fi
+from .utils import load, upload, fi, log_fi
 from .path import *
 from nonebot import logger, on_command
 from nonebot.typing import T_State
@@ -43,8 +43,6 @@ switcher_html = on_command('开关状态', priority = 1, block = True, permissio
 async def _(bot: Bot, event: GroupMessageEvent):
     gid = str(event.group_id)
     funcs_status = (await load(switcher_path))
-    if not funcs_status or not os.path.exists(template_path):
-        await init()
     try:
         from os.path import dirname
         from jinja2 import Environment, FileSystemLoader
@@ -76,7 +74,7 @@ async def save_image(url, img_path):
     :param img_path: 图片存放位置
     :return:
     '''
-    browser = await launch(options={'args': ['--no-sandbox']}, handleSIGINT = False)
+    browser = await launch(options = {'args': ['--no-sandbox']}, handleSIGINT = False)
     page = await browser.newPage()
     # 加载指定的网页url
     await page.goto(url)

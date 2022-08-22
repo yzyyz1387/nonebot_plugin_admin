@@ -7,7 +7,7 @@
 # @Software: PyCharm
 
 import json
-from asyncio import sleep as asleep
+import asyncio
 from traceback import print_exc
 from random import randint
 from nonebot.params import CommandArg
@@ -34,18 +34,11 @@ from . import (
     switcher,
     utils,
 )
-from .utils import At, Reply, MsgText, banSb, init, check_func_status, change_s_title, log_sd, fi, log_fi
+from .utils import At, Reply, MsgText, banSb, check_func_status, change_s_title, log_sd, fi, log_fi
 from .group_request_verify import verify
 from .config import global_config
 
 su = global_config.superusers
-
-admin_init = on_command('群管初始化', priority = 1, block = True, permission = SUPERUSER | GROUP_ADMIN | GROUP_OWNER)
-
-
-@admin_init.handle()
-async def _(bot: Bot, event: GroupMessageEvent):
-    await init()
 
 
 ban = on_command('禁', priority = 1, block = True, permission = SUPERUSER | GROUP_ADMIN | GROUP_OWNER)
@@ -96,7 +89,7 @@ async def _(bot: Bot, event: GroupMessageEvent):
             await fi(unban, '权限不足')
 
 
-ban_all = on_command('/all', aliases={'/全员'}, permission = SUPERUSER | GROUP_ADMIN | GROUP_OWNER, priority = 1, block = True)
+ban_all = on_command('/all', aliases = {'/全员'}, permission = SUPERUSER | GROUP_ADMIN | GROUP_OWNER, priority = 1, block = True)
 
 
 @ban_all.handle()
@@ -310,7 +303,7 @@ async def _(bot: Bot, event: GroupMessageEvent):
         await fi(unset_g_admin, '指令不正确 或 不能含有@全体成员')
 
 
-msg_recall = on_command('撤回', priority = 1, aliases={'删除', 'recall'}, block = True,
+msg_recall = on_command('撤回', priority = 1, aliases = {'删除', 'recall'}, block = True,
                         permission = SUPERUSER | GROUP_ADMIN | GROUP_OWNER)
 
 
@@ -345,7 +338,7 @@ async def _(bot: Bot, event: GroupMessageEvent):  # by: @tom-snow
 
         try:
             for i in range(counts):  # 获取 n 次
-                await asleep(randint(0, 5))  # 睡眠随机时间，避免黑号
+                await asyncio.sleep(randint(0, 5))  # 睡眠随机时间，避免黑号
                 res = await bot.call_api('get_group_msg_history', group_id = gid, message_seq = seq)  # 获取历史消息
                 flag = True
                 for message in res['messages']:  # 历史消息列表
@@ -363,7 +356,7 @@ async def _(bot: Bot, event: GroupMessageEvent):  # by: @tom-snow
     # 实际进行撤回的部分
     try:
         for msg_id in recall_msg_id:
-            await asleep(randint(0, 2))  # 睡眠随机时间，避免黑号
+            await asyncio.sleep(randint(0, 2))  # 睡眠随机时间，避免黑号
             await bot.delete_msg(message_id = msg_id)
         await log_fi(msg_recall, f"操作成功，一共撤回了 {len(recall_msg_id)} 条消息")
     except ActionFailed as e:

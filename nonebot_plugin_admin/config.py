@@ -1,6 +1,7 @@
 # from typing import Optional
 from nonebot import get_driver
 from pydantic import BaseModel, Extra
+from . import utils
 
 
 class Config(BaseModel, extra = Extra.ignore):
@@ -12,5 +13,11 @@ class Config(BaseModel, extra = Extra.ignore):
     ban_rand_time_max: int = 2591999  # 随机禁言最长时间(s) default: 30天: 60*60*24*30
 
 
-global_config = get_driver().config
+driver = get_driver()
+global_config = driver.config
 plugin_config = Config.parse_obj(global_config)
+
+
+@driver.on_bot_connect
+async def _():
+    await utils.init()

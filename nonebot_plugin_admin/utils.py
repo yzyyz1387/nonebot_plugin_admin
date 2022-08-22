@@ -110,48 +110,47 @@ async def init():
     初始化配置文件
     :return:
     '''
-    async with asyncio.Lock():
-        for d in dirs:
-            if not os.path.exists(d):
-                await mk('dir', d, mode = None)
-        if not os.path.exists(config_admin):
-            await mk('file', config_admin, 'w', content = '{"1008611": ["This_is_an_example"]}')
-        if not os.path.exists(config_group_admin):
-            await mk('file', config_group_admin, 'w', content = '{"su": "True"}')
-        if not os.path.exists(word_path):
-            await mk('file', word_path, 'w', content = '123456789\n')
-        if not os.path.exists(limit_level):
-            bot = nonebot.get_bot()
-            logger.info('创建违禁词监控等级配置文件,分群设置,默认easy')
-            g_list = (await bot.get_group_list())
-            level_dict = {}
-            for group in g_list:
-                level_dict.update({str(group['group_id']): 'easy'})
-            with open(limit_level, 'w', encoding = 'utf-8') as lwp:
-                lwp.write(f"{json.dumps(level_dict)}")
-                lwp.close()
-        if not os.path.exists(switcher_path):
-            bot = nonebot.get_bot()
-            logger.info('创建开关配置文件,分群设置, 图片检测和违禁词检测默认关,其他默认开')
-            g_list = (await bot.get_group_list())
-            switcher_dict = {}
-            for group in g_list:
-                switcher_dict.update({str(group['group_id']): {'admin': True, 'requests': True, 
-                                                               'wordcloud': True, 'auto_ban': False,
-                                                               'img_check': False, 'word_analyze': True}})
-            with open(switcher_path, 'w', encoding = 'utf-8') as swp:
-                swp.write(f"{json.dumps(switcher_dict)}")
-                swp.close()
-        if not os.path.exists(limit_word_path_easy):  # 要联网的都丢最后面去
-            await mk('file', limit_word_path_easy, 'w',
-                     url = 'https://fastly.jsdelivr.net/gh/yzyyz1387/nwafu/f_words/f_word_easy', dec = '简单违禁词词库')
-        if not os.path.exists(limit_word_path):
-            await mk('file', limit_word_path, 'w', url = 'https://fastly.jsdelivr.net/gh/yzyyz1387/nwafu/f_words/f_word_s',
-                     dec = '严格违禁词词库')
-        if not os.path.exists(ttf_name):
-            await mk('file', ttf_name, 'wb', url = 'https://fastly.jsdelivr.net/gh/yzyyz1387/blogimages/msyhblod.ttf',
-                     dec = '资源字体')
-        logger.info('Admin 插件 初始化检测完成')
+    for d in dirs:
+        if not os.path.exists(d):
+            await mk('dir', d, mode = None)
+    if not os.path.exists(config_admin):
+        await mk('file', config_admin, 'w', content = '{"1008611": ["This_is_an_example"]}')
+    if not os.path.exists(config_group_admin):
+        await mk('file', config_group_admin, 'w', content = '{"su": "True"}')
+    if not os.path.exists(word_path):
+        await mk('file', word_path, 'w', content = '123456789\n')
+    if not os.path.exists(limit_level):
+        bot = nonebot.get_bot()
+        logger.info('创建违禁词监控等级配置文件,分群设置,默认easy')
+        g_list = (await bot.get_group_list())
+        level_dict = {}
+        for group in g_list:
+            level_dict.update({str(group['group_id']): 'easy'})
+        with open(limit_level, 'w', encoding = 'utf-8') as lwp:
+            lwp.write(f"{json.dumps(level_dict)}")
+            lwp.close()
+    if not os.path.exists(switcher_path):
+        bot = nonebot.get_bot()
+        logger.info('创建开关配置文件,分群设置, 图片检测和违禁词检测默认关,其他默认开')
+        g_list = (await bot.get_group_list())
+        switcher_dict = {}
+        for group in g_list:
+            switcher_dict.update({str(group['group_id']): {'admin': True, 'requests': True, 
+                                                           'wordcloud': True, 'auto_ban': False,
+                                                           'img_check': False, 'word_analyze': True}})
+        with open(switcher_path, 'w', encoding = 'utf-8') as swp:
+            swp.write(f"{json.dumps(switcher_dict)}")
+            swp.close()
+    if not os.path.exists(limit_word_path_easy):  # 要联网的都丢最后面去
+        await mk('file', limit_word_path_easy, 'w',
+                 url = 'https://fastly.jsdelivr.net/gh/yzyyz1387/nwafu/f_words/f_word_easy', dec = '简单违禁词词库')
+    if not os.path.exists(limit_word_path):
+        await mk('file', limit_word_path, 'w', url = 'https://fastly.jsdelivr.net/gh/yzyyz1387/nwafu/f_words/f_word_s',
+                 dec = '严格违禁词词库')
+    if not os.path.exists(ttf_name):
+        await mk('file', ttf_name, 'wb', url = 'https://fastly.jsdelivr.net/gh/yzyyz1387/blogimages/msyhblod.ttf',
+                 dec = '资源字体')
+    logger.info('Admin 插件 初始化检测完成')
 
 
 async def mk(type_, path_, *mode, **kwargs):
@@ -438,8 +437,6 @@ async def del_txt_line(path: Path, matcher: Matcher, event: GroupMessageEvent, a
         msg = str(args).split(' ')
         logger.info(msg)
         this_path = path / f"{str(gid)}.txt"
-        if not os.path.exists(this_path):
-            await init()
         try:
             with open(this_path, mode = 'r+', encoding = 'utf-8') as c:
                 is_saved = c.read().split("\n")
@@ -481,8 +478,6 @@ async def add_txt_line(path: Path, matcher: Matcher, event: GroupMessageEvent, a
         msg = str(args).split(' ')
         logger.info(msg)
         this_path = path / f"{str(gid)}.txt"
-        if not os.path.exists(this_path):
-            await init()
         try:
             with open(this_path, mode = 'r+', encoding = 'utf-8') as c:
                 is_saved = c.read().split('\n')
@@ -524,8 +519,6 @@ async def get_txt_line(path: Path, matcher: Matcher, event: GroupMessageEvent, a
     gid = str(event.group_id)
     try:
         this_path = path / f"{str(gid)}.txt"
-        if not os.path.exists(this_path):
-            await init()
         try:
             with open(this_path, 'r', encoding = 'utf-8') as c:
                 is_saved = c.read().split('\n')
@@ -536,7 +529,7 @@ async def get_txt_line(path: Path, matcher: Matcher, event: GroupMessageEvent, a
         except FileNotFoundError:
             await matcher.finish(f"该群没有{dec}")
     except FileNotFoundError:
-        await init()
+        logger.error('文件不存在!!!!!')
 
 
 async def change_s_title(bot: Bot, matcher: Matcher, gid: int, uid: int, s_title: Optional[str]):

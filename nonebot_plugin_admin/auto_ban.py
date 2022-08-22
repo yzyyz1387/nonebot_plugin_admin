@@ -19,7 +19,7 @@ from nonebot.permission import SUPERUSER
 
 from .config import plugin_config
 from .path import *
-from .utils import init, banSb, load, get_user_violation, log_sd, fi
+from .utils import banSb, load, get_user_violation, log_sd, fi
 
 cron_update = plugin_config.cron_update
 paths_ = [config_path, limit_word_path, limit_word_path_easy, limit_level]
@@ -35,10 +35,6 @@ async def _(bot: Bot, event: GroupMessageEvent, matcher: Matcher):
     :param event:
     :return:
     '''
-    for p in paths_:
-        if not path.exists(p):
-            await init()
-            break
     gid = event.group_id
     level = await load(limit_level)
     if os.path.exists(limit_word_path_custom / f"{gid}.txt"):  # 是否存在自定义违禁词

@@ -10,7 +10,7 @@ from nonebot import on_command, logger, on_message
 from nonebot.adapters.onebot.v11 import Bot, GroupMessageEvent, MessageSegment
 from nonebot.adapters.onebot.v11.permission import GROUP_ADMIN, GROUP_OWNER
 from nonebot.permission import SUPERUSER
-from .utils import init, replace_tmr, participle_simple_handle, check_func_status
+from .utils import replace_tmr, participle_simple_handle, check_func_status
 from pathlib import Path
 import os
 from .path import *
@@ -31,8 +31,6 @@ async def _(bot: Bot, event: GroupMessageEvent):
         gid = str(event.group_id)
         path_temp = words_contents_path / f"{gid}.txt"
         dir_list = os.listdir(words_contents_path)
-        if not os.path.exists(wordcloud_bg_path):
-            await init()
         background_img = os.listdir(wordcloud_bg_path)
         if background_img:
             wordcloud_bg = random.choice(os.listdir(wordcloud_bg_path))

@@ -25,7 +25,7 @@ from .config import global_config
 su = global_config.superusers
 
 # 查看所有审批词条
-super_sp = on_command('所有词条', aliases={'/susp', '/su审批'}, priority = 1, block = True, permission = SUPERUSER)
+super_sp = on_command('所有词条', aliases = {'/susp', '/su审批'}, priority = 1, block = True, permission = SUPERUSER)
 
 
 @super_sp.handle()
@@ -38,7 +38,7 @@ async def _(bot: Bot, event: MessageEvent):
 
 
 # 按群号添加词条
-super_sp_add = on_command('指定词条+', aliases={'/susp+', '/su审批+'}, priority = 1, block = True, permission = SUPERUSER)
+super_sp_add = on_command('指定词条+', aliases = {'/susp+', '/su审批+'}, priority = 1, block = True, permission = SUPERUSER)
 
 
 @super_sp_add.handle()
@@ -62,7 +62,7 @@ async def _(bot: Bot, event: MessageEvent):
 
 
 # 按群号删除词条
-super_sp_de = on_command('指定词条-', aliases={'/susp-', '/su审批-'}, priority = 1, block = True, permission = SUPERUSER)
+super_sp_de = on_command('指定词条-', aliases = {'/susp-', '/su审批-'}, priority = 1, block = True, permission = SUPERUSER)
 
 
 @super_sp_de.handle()
@@ -85,7 +85,7 @@ async def _(bot: Bot, event: MessageEvent):
         await super_sp_de.finish('输入有误 /susp- [群号] [词条]')
 
 
-check = on_command('查看词条', aliases={'/sp', '/审批'}, priority = 1, block = True,
+check = on_command('查看词条', aliases = {'/sp', '/审批'}, priority = 1, block = True,
                    permission = GROUP_ADMIN | GROUP_OWNER | SUPERUSER)
 
 
@@ -102,7 +102,7 @@ async def _(bot: Bot, event: GroupMessageEvent):
     await check.finish('当前群从未配置过审批词条')
 
 
-config = on_command('词条+', aliases={'/sp+', '/审批+'}, priority = 1, block = True,
+config = on_command('词条+', aliases = {'/sp+', '/审批+'}, priority = 1, block = True,
                     permission = GROUP_ADMIN | GROUP_OWNER | SUPERUSER)
 
 
@@ -119,7 +119,7 @@ async def _(bot: Bot, event: GroupMessageEvent, state: T_State):
     await config.finish(f"{msg} 已存在于群{event.group_id}的词条中")
 
 
-config_ = on_command('词条-', aliases={'/sp-', '/审批-'}, priority = 1, block = True,
+config_ = on_command('词条-', aliases = {'/sp-', '/审批-'}, priority = 1, block = True,
                      permission = GROUP_ADMIN | GROUP_OWNER | SUPERUSER)
 
 

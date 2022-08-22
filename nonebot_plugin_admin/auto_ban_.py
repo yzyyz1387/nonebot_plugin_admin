@@ -54,7 +54,7 @@ async def _(bot: Bot, event: GroupMessageEvent):
     await fi(set_level_rigorous, '本群已经是严格检测了')
 
 
-del_custom_limit_words = on_command('删除自定义违禁词', aliases={'移除自定义违禁词', '去除自定义违禁词'}, priority = 1, permission = GROUP_ADMIN | GROUP_OWNER | SUPERUSER)
+del_custom_limit_words = on_command('删除自定义违禁词', aliases = {'移除自定义违禁词', '去除自定义违禁词'}, priority = 1, permission = GROUP_ADMIN | GROUP_OWNER | SUPERUSER)
 
 
 @del_custom_limit_words.handle()
@@ -62,7 +62,7 @@ async def _(bot: Bot, event: GroupMessageEvent, matcher: Matcher, args: Message 
     await del_txt_line(limit_word_path_custom, matcher, event, args, '自定义违禁词')
 
 
-add_custom_limit_words = on_command('添加自定义违禁词', aliases={'增加自定义违禁词', '新增自定义违禁词'},  priority = 1, permission = GROUP_ADMIN | GROUP_OWNER | SUPERUSER)
+add_custom_limit_words = on_command('添加自定义违禁词', aliases = {'增加自定义违禁词', '新增自定义违禁词'},  priority = 1, permission = GROUP_ADMIN | GROUP_OWNER | SUPERUSER)
 
 
 @add_custom_limit_words.handle()
@@ -70,7 +70,7 @@ async def _(bot: Bot, event: GroupMessageEvent, matcher: Matcher, args: Message 
     await add_txt_line(limit_word_path_custom, matcher, event, args, '自定义违禁词')
 
 
-get_custom_limit_words = on_command('查看自定义违禁词', aliases={'查看自定义违禁词', '查询自定义违禁词', '自定义违禁词列表'}, priority = 1, permission = GROUP_ADMIN | GROUP_OWNER | SUPERUSER)
+get_custom_limit_words = on_command('查看自定义违禁词', aliases = {'查看自定义违禁词', '查询自定义违禁词', '自定义违禁词列表'}, priority = 1, permission = GROUP_ADMIN | GROUP_OWNER | SUPERUSER)
 
 
 @get_custom_limit_words.handle()

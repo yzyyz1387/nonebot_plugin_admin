@@ -12,15 +12,13 @@ from typing import Optional
 from nonebot import logger
 
 from .path import *
-from .utils import init, load
+from .utils import load
 
 
 async def g_admin():
     '''
     :return : 分群管理json对象
     '''
-    if not os.path.exists(config_admin):
-        await init()
     with open(config_group_admin, mode = 'r') as f:
         admins_ = f.read()
         admins = json.loads(admins_)
