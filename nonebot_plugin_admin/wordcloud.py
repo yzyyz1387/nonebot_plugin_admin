@@ -80,5 +80,7 @@ async def _(bot: Bot, event: GroupMessageEvent):
                 await cloud.finish(MessageSegment.image(img))
             except Exception as err:
                 await cloud.finish(f"出现错误{type(err)}:{err}")
+        else:
+            await cloud.finish("当前群未被记录，请先在群内发送，【记录本群】")
     except ModuleNotFoundError:
         await cloud.finish('未安装wordcloud库')

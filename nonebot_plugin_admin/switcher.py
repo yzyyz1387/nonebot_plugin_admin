@@ -16,7 +16,7 @@ from nonebot.permission import SUPERUSER
 import os
 from pyppeteer import launch
 
-switcher = on_command('开关', priority = 1, block = True, permission = SUPERUSER | GROUP_ADMIN | GROUP_OWNER)
+switcher = on_command('开关', priority=1, block=True, permission=SUPERUSER | GROUP_ADMIN | GROUP_OWNER)
 
 
 @switcher.handle()
@@ -36,7 +36,7 @@ async def _(bot: Bot, event: GroupMessageEvent, state: T_State):
                 await fi(switcher, '已开启' + user_input_func_name)
 
 
-switcher_html = on_command('开关状态', priority = 1, block = True, permission = SUPERUSER | GROUP_ADMIN | GROUP_OWNER)
+switcher_html = on_command('开关状态', priority=1, block=True, permission=SUPERUSER | GROUP_ADMIN | GROUP_OWNER)
 
 
 @switcher_html.handle()
@@ -46,10 +46,10 @@ async def _(bot: Bot, event: GroupMessageEvent):
     try:
         from os.path import dirname
         from jinja2 import Environment, FileSystemLoader
-        env = Environment(loader = FileSystemLoader(str(dirname(__file__))))
+        env = Environment(loader=FileSystemLoader(str(dirname(__file__))))
         template = env.get_template('switcher.html')
-        html = template.render(funcs_status = funcs_status[gid], funcs_name = admin_funcs, gid = gid)
-        with open((template_path / f"{gid}.html").resolve(), 'w', encoding = 'utf-8') as f:
+        html = template.render(funcs_status=funcs_status[gid], funcs_name=admin_funcs, gid=gid)
+        with open((template_path / f"{gid}.html").resolve(), 'w', encoding='utf-8') as f:
             f.write(html)
             f.close()
         await save_image(f"file:///{(template_path / f'{gid}.html').resolve()}",
@@ -59,12 +59,16 @@ async def _(bot: Bot, event: GroupMessageEvent):
         await fi(switcher_html, MessageSegment.image(img_bytes))
     except ActionFailed:
         await log_fi(switcher_html,
-                     '当前群组开关状态：\n' + '\n'.join([f"{admin_funcs[func][0]}：{'开启' if funcs_status[gid][func] else '关闭'}" for func in admin_funcs]),
-                     '可能被风控，已使用文字发送', err = True)
+                     '当前群组开关状态：\n' + '\n'.join(
+                         [f"{admin_funcs[func][0]}：{'开启' if funcs_status[gid][func] else '关闭'}" for func in
+                          admin_funcs]),
+                     '可能被风控，已使用文字发送', err=True)
     except Exception as e:
         await log_fi(switcher_html,
-                     '当前群组开关状态：\n' + '\n'.join([f"{admin_funcs[func][0]}：{'开启' if funcs_status[gid][func] else '关闭'}" for func in admin_funcs]),
-                     f'开关渲染网页并截图失败，已使用文字发送，错误信息：\n{"-"*30}{e}{"-"*30}', err = True)
+                     '当前群组开关状态：\n' + '\n'.join(
+                         [f"{admin_funcs[func][0]}：{'开启' if funcs_status[gid][func] else '关闭'}" for func in
+                          admin_funcs]),
+                     f'开关渲染网页并截图失败，已使用文字发送，错误信息：\n{"-" * 30}{e}{"-" * 30}', err=True)
 
 
 async def save_image(url, img_path):
@@ -74,7 +78,7 @@ async def save_image(url, img_path):
     :param img_path: 图片存放位置
     :return:
     '''
-    browser = await launch(options = {'args': ['--no-sandbox']}, handleSIGINT = False)
+    browser = await launch(options={'args': ['--no-sandbox']}, handleSIGINT=False)
     page = await browser.newPage()
     # 加载指定的网页url
     await page.goto(url)

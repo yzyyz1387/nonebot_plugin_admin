@@ -12,7 +12,7 @@ import json
 import os
 import random
 import re
-from typing import Union, Optional
+from typing import Union, Optional, Type
 
 import httpx
 import nonebot
@@ -112,13 +112,13 @@ async def init():
     '''
     for d in dirs:
         if not os.path.exists(d):
-            await mk('dir', d, mode = None)
+            await mk('dir', d, mode=None)
     if not os.path.exists(config_admin):
-        await mk('file', config_admin, 'w', content = '{"1008611": ["This_is_an_example"]}')
+        await mk('file', config_admin, 'w', content='{"1008611": ["This_is_an_example"]}')
     if not os.path.exists(config_group_admin):
-        await mk('file', config_group_admin, 'w', content = '{"su": "True"}')
+        await mk('file', config_group_admin, 'w', content='{"su": "True"}')
     if not os.path.exists(word_path):
-        await mk('file', word_path, 'w', content = '123456789\n')
+        await mk('file', word_path, 'w', content='123456789\n')
     if not os.path.exists(limit_level):
         bot = nonebot.get_bot()
         logger.info('创建违禁词监控等级配置文件,分群设置,默认easy')
@@ -126,7 +126,7 @@ async def init():
         level_dict = {}
         for group in g_list:
             level_dict.update({str(group['group_id']): 'easy'})
-        with open(limit_level, 'w', encoding = 'utf-8') as lwp:
+        with open(limit_level, 'w', encoding='utf-8') as lwp:
             lwp.write(f"{json.dumps(level_dict)}")
             lwp.close()
     if not os.path.exists(switcher_path):
@@ -135,21 +135,21 @@ async def init():
         g_list = (await bot.get_group_list())
         switcher_dict = {}
         for group in g_list:
-            switcher_dict.update({str(group['group_id']): {'admin': True, 'requests': True, 
+            switcher_dict.update({str(group['group_id']): {'admin': True, 'requests': True,
                                                            'wordcloud': True, 'auto_ban': False,
                                                            'img_check': False, 'word_analyze': True}})
-        with open(switcher_path, 'w', encoding = 'utf-8') as swp:
+        with open(switcher_path, 'w', encoding='utf-8') as swp:
             swp.write(f"{json.dumps(switcher_dict)}")
             swp.close()
     if not os.path.exists(limit_word_path_easy):  # 要联网的都丢最后面去
         await mk('file', limit_word_path_easy, 'w',
-                 url = 'https://fastly.jsdelivr.net/gh/yzyyz1387/nwafu/f_words/f_word_easy', dec = '简单违禁词词库')
+                 url='https://fastly.jsdelivr.net/gh/yzyyz1387/nwafu/f_words/f_word_easy', dec='简单违禁词词库')
     if not os.path.exists(limit_word_path):
-        await mk('file', limit_word_path, 'w', url = 'https://fastly.jsdelivr.net/gh/yzyyz1387/nwafu/f_words/f_word_s',
-                 dec = '严格违禁词词库')
+        await mk('file', limit_word_path, 'w', url='https://fastly.jsdelivr.net/gh/yzyyz1387/nwafu/f_words/f_word_s',
+                 dec='严格违禁词词库')
     if not os.path.exists(ttf_name):
-        await mk('file', ttf_name, 'wb', url = 'https://fastly.jsdelivr.net/gh/yzyyz1387/blogimages/msyhblod.ttf',
-                 dec = '资源字体')
+        await mk('file', ttf_name, 'wb', url='https://fastly.jsdelivr.net/gh/yzyyz1387/blogimages/msyhblod.ttf',
+                 dec='资源字体')
     logger.info('Admin 插件 初始化检测完成')
 
 
@@ -175,7 +175,7 @@ async def mk(type_, path_, *mode, **kwargs):
                 try:
                     r = await client.get(kwargs['url'])
                     if mode[0] == 'w':
-                        with open(path_, 'w', encoding = 'utf-8') as f:
+                        with open(path_, 'w', encoding='utf-8') as f:
                             f.write(r.text)
                     elif mode[0] == 'wb':
                         with open(path_, 'wb') as f:
@@ -205,8 +205,8 @@ async def banSb(gid: int, ban_list: list, time: int = None, scope: list = None):
     '''
     if 'all' in ban_list:
         yield nonebot.get_bot().set_group_whole_ban(
-            group_id = gid,
-            enable = True
+            group_id=gid,
+            enable=True
         )
     else:
         if time is None:
@@ -221,9 +221,9 @@ async def banSb(gid: int, ban_list: list, time: int = None, scope: list = None):
                 #     await nonebot.get_bot().send_group_msg(group_id = gid, message = 'SUPERUSER无法被禁言')
             else:
                 yield nonebot.get_bot().set_group_ban(
-                    group_id = gid,
-                    user_id = qq,
-                    duration = time,
+                    group_id=gid,
+                    user_id=qq,
+                    duration=time,
                 )
 
 
@@ -369,7 +369,7 @@ async def load(path) -> Optional[dict]:
     :return: Optional[dict]
     '''
     try:
-        with open(path, mode = 'r', encoding = 'utf-8') as f:
+        with open(path, mode='r', encoding='utf-8') as f:
             contents_ = f.read()
             contents = json.loads(contents_)
             f.close()
@@ -384,8 +384,8 @@ async def upload(path, dict_content) -> None:
     :param path: 路径
     :param dict_content: python对象，字典
     '''
-    with open(path, mode = 'w', encoding = 'utf-8') as c:
-        c.write(json.dumps(dict_content, ensure_ascii = False, indent = 2))
+    with open(path, mode='w', encoding='utf-8') as c:
+        c.write(json.dumps(dict_content, ensure_ascii=False, indent=2))
         c.close()
 
 
@@ -438,10 +438,10 @@ async def del_txt_line(path: Path, matcher: Matcher, event: GroupMessageEvent, a
         logger.info(msg)
         this_path = path / f"{str(gid)}.txt"
         try:
-            with open(this_path, mode = 'r+', encoding = 'utf-8') as c:
+            with open(this_path, mode='r+', encoding='utf-8') as c:
                 is_saved = c.read().split("\n")
                 c.close()
-            with open(this_path, mode = 'w', encoding = 'utf-8') as c:
+            with open(this_path, mode='w', encoding='utf-8') as c:
                 success_del = []
                 already_del = []
                 for words in msg:
@@ -479,7 +479,7 @@ async def add_txt_line(path: Path, matcher: Matcher, event: GroupMessageEvent, a
         logger.info(msg)
         this_path = path / f"{str(gid)}.txt"
         try:
-            with open(this_path, mode = 'r+', encoding = 'utf-8') as c:
+            with open(this_path, mode='r+', encoding='utf-8') as c:
                 is_saved = c.read().split('\n')
                 success_add = []
                 already_add = []
@@ -497,7 +497,7 @@ async def add_txt_line(path: Path, matcher: Matcher, event: GroupMessageEvent, a
                     await matcher.send(f"{str(success_add)}添加成功")
         except FileNotFoundError:
             success_add = []
-            with open(this_path, mode = 'w', encoding = 'utf-8') as c:
+            with open(this_path, mode='w', encoding='utf-8') as c:
                 for words in msg:
                     c.write(words + '\n')
                     logger.info(f"添加\"{words}\"为{dec}成功")
@@ -520,7 +520,7 @@ async def get_txt_line(path: Path, matcher: Matcher, event: GroupMessageEvent, a
     try:
         this_path = path / f"{str(gid)}.txt"
         try:
-            with open(this_path, 'r', encoding = 'utf-8') as c:
+            with open(this_path, 'r', encoding='utf-8') as c:
                 is_saved = c.read().split('\n')
                 is_saved.remove('')
             await matcher.finish(f"{str(is_saved)}")
@@ -543,9 +543,9 @@ async def change_s_title(bot: Bot, matcher: Matcher, gid: int, uid: int, s_title
     '''
     try:
         await bot.set_group_special_title(
-            group_id = gid,
-            user_id = uid,
-            special_title = s_title,
+            group_id=gid,
+            user_id=uid,
+            special_title=s_title,
             duration=-1,
         )
         log_fi(matcher, f"头衔操作成功:{s_title}")
@@ -568,9 +568,9 @@ async def get_user_violation(gid: int, uid: int, label: str, content: str, add_:
     this_time = str(datetime.datetime.now()).replace(' ', '-')
     uid = str(uid)
     if not os.path.exists(user_violation_info_path):
-        await mk('dir', user_violation_info_path, mode = None)
+        await mk('dir', user_violation_info_path, mode=None)
     if not os.path.exists(path_grop):
-        await mk('dir', path_grop, mode = None)
+        await mk('dir', path_grop, mode=None)
         await vio_level_init(path_user, uid, this_time, label, content)
         return 0
     try:
@@ -594,15 +594,15 @@ async def get_user_violation(gid: int, uid: int, label: str, content: str, add_:
 
 
 async def vio_level_init(path_user, uid, this_time, label, content) -> None:
-    with open(path_user, mode = 'w', encoding = 'utf-8') as c:
-        c.write(json.dumps({uid: {'level': 0, 'info': {this_time: [label, content]}}}, ensure_ascii = False))
+    with open(path_user, mode='w', encoding='utf-8') as c:
+        c.write(json.dumps({uid: {'level': 0, 'info': {this_time: [label, content]}}}, ensure_ascii=False))
         c.close()
 
 
 async def error_log(gid: int, time: str, matcher: Matcher, err: str) -> None:
     module = str(matcher.module_name)
     if not os.path.exists(error_path):
-        await mk('dir', error_path, mode = None)
+        await mk('dir', error_path, mode=None)
     if not os.path.exists(error_path / f"{str(gid)}.json"):
         await upload(error_path / f"{str(gid)}.json", {str(gid): {time: [module, err]}})
     else:
@@ -614,16 +614,19 @@ async def error_log(gid: int, time: str, matcher: Matcher, err: str) -> None:
             logger.error(f"写入错误日志出错：{e}")
 
 
-async def sd(cmd: Matcher, msg: str, at = False) -> None:
-    if cb_notice: await cmd.send(msg, at_sender = at)
+async def sd(cmd: Type[Matcher], msg: str, at=False) -> None:
+    if cb_notice: await cmd.send(msg, at_sender=at)
 
-async def log_sd(cmd: Matcher, msg: str, log: str = None, at = False, err = False) -> None:
+
+async def log_sd(cmd: Type[Matcher], msg: str, log: str = None, at=False, err=False) -> None:
     (logger.error if err else logger.info)(log if log else msg)
     await sd(cmd, msg, at)
 
-async def fi(cmd: Matcher, msg) -> None:
+
+async def fi(cmd: Type[Matcher], msg) -> None:
     await cmd.finish(msg if cb_notice else None)
 
-async def log_fi(cmd: Matcher, msg, log: str = None, err = False) -> None:
+
+async def log_fi(cmd: Type[Matcher], msg, log: str = None, err=False) -> None:
     (logger.error if err else logger.info)(log if log else msg)
     await fi(cmd, msg)
