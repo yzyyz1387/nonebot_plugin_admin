@@ -91,9 +91,9 @@ check = on_command('查看词条', aliases = {'/sp', '/审批'}, priority = 1, b
 
 @check.handle()
 async def _(bot: Bot, event: GroupMessageEvent):
-    '''
+    """
     /sp 查看本群词条
-    '''
+    """
     a_config = (await load(config_admin))
     gid = str(event.group_id)
     if gid in a_config:
@@ -108,9 +108,9 @@ config = on_command('词条+', aliases = {'/sp+', '/审批+'}, priority = 1, blo
 
 @config.handle()
 async def _(bot: Bot, event: GroupMessageEvent, state: T_State):
-    '''
+    """
     /sp+ 增加本群词条
-    '''
+    """
     msg = str(state['_prefix']['command_arg'])
     sp_write = await approve.write(str(event.group_id), msg)
     gid = str(event.group_id)
@@ -125,9 +125,9 @@ config_ = on_command('词条-', aliases = {'/sp-', '/审批-'}, priority = 1, bl
 
 @config_.handle()
 async def _(bot: Bot, event: GroupMessageEvent, state: T_State):
-    '''
+    """
     /sp- 删除本群某词条
-    '''
+    """
     msg = str(state['_prefix']['command_arg'])
     sp_delete = await approve.delete(str(event.group_id), msg)
     gid = str(event.group_id)

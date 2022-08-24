@@ -31,12 +31,14 @@ su = global_config.superusers
 
 @run_preprocessor
 async def _(matcher: Matcher, bot: Bot, state: T_State, event: Event):
-    which_module = str(matcher.module_name).split('.')[-1]
+    module = str(matcher.module_name).split('.')
+    if module[1] != 'nonebot_plugin_admin': return
+    which_module = module[-1]
     # logger.info(f"{which_module}插件开始hook处理")
     if isinstance(event, GroupMessageEvent):
         gid = event.group_id
         try:
-            if event.get_user_id() not in su and which_module in admin_funcs: # FIXME: 不只是su
+            if which_module in admin_funcs:
                 status = await check_func_status(which_module, str(gid))
                 if not status and which_module not in ['auto_ban', 'img_check']:  # 违禁词检测和图片检测日志太多了，不用logger记录或者发消息记录
                     if cb_notice:
@@ -51,7 +53,7 @@ async def _(matcher: Matcher, bot: Bot, state: T_State, event: Event):
     elif isinstance(event, GroupRequestEvent):
         gid = event.group_id
         try:
-            if which_module == 'request':
+            if which_module == 'request': # FIXME
                 logger.info(event.flag)
                 status = await check_func_status(which_module, str(gid))
                 if not status:

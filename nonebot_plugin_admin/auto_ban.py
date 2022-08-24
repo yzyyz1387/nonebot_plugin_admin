@@ -5,36 +5,29 @@
 # @Email   :  youzyyz1384@qq.com
 # @File    : auto_ban.py
 # @Software: PyCharm
-import os
 import re
-from os import path
 
-from nonebot.adapters import Message
-from nonebot import logger, on_message, on_command
+from nonebot import logger, on_message
 from nonebot.adapters.onebot.exception import ActionFailed
 from nonebot.adapters.onebot.v11 import Bot, GroupMessageEvent
 from nonebot.adapters.onebot.v11.permission import GROUP_ADMIN, GROUP_OWNER
 from nonebot.matcher import Matcher
-from nonebot.params import CommandArg
 from nonebot.permission import SUPERUSER
 
-from .config import plugin_config
 from .path import *
-from .utils import banSb, load, get_user_violation, log_sd, fi
-
-cb_notice = plugin_config.callback_notice
+from .utils import banSb, get_user_violation, sd
 
 f_word = on_message(priority = 2, block = False)
 
 
 @f_word.handle()
 async def _(bot: Bot, event: GroupMessageEvent, matcher: Matcher):
-    '''
+    """
     违禁词禁言
     :param bot:
     :param event:
     :return:
-    '''
+    """
     rules = [re.sub(r'\t+', '\t', rule).split('\t') for rule in open(limit_word_path, 'r', encoding = 'utf-8').read().split('\n')]
     msg = re.sub(r'\s', '', str(event.get_message()))
     gid = event.group_id
@@ -66,29 +59,3 @@ async def _(bot: Bot, event: GroupMessageEvent, matcher: Matcher):
                         except ActionFailed:
                             logger.info('禁言失败，权限不足')
             break
-
-
-del_custom_limit_words = on_command('删除自定义违禁词', aliases = {'移除自定义违禁词', '去除自定义违禁词'}, priority = 1, permission = GROUP_ADMIN | GROUP_OWNER | SUPERUSER)
-
-
-@del_custom_limit_words.handle()
-async def _(bot: Bot, event: GroupMessageEvent, matcher: Matcher, args: Message = CommandArg()):
-    await del_txt_line(limit_word_path, matcher, event, args, '自定义违禁词')
-
-
-# TODO: 支持配置是否撤回&禁言
-add_custom_limit_words = on_command('添加自定义违禁词', aliases = {'增加自定义违禁词', '新增自定义违禁词'},  priority = 1, permission = GROUP_ADMIN | GROUP_OWNER | SUPERUSER)
-
-
-@add_custom_limit_words.handle()
-async def _(bot: Bot, event: GroupMessageEvent, matcher: Matcher, args: Message = CommandArg()):
-    await add_txt_line(limit_word_path, matcher, event, args, '自定义违禁词')
-
-
-get_custom_limit_words = on_command('查看自定义违禁词', aliases = {'查看自定义违禁词', '查询自定义违禁词', '自定义违禁词列表'}, priority = 1, permission = GROUP_ADMIN | GROUP_OWNER | SUPERUSER)
-
-
-@get_custom_limit_words.handle()
-async def _(bot: Bot, event: GroupMessageEvent, matcher: Matcher, args: Message = CommandArg()):
-    if cb_notice:
-        await get_txt_line(limit_word_path, matcher, event, args, '自定义违禁词')

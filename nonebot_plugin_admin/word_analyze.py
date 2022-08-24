@@ -60,12 +60,12 @@ word = on_message(priority=10, block=False)
 
 @word.handle()
 async def _(bot: Bot, event: GroupMessageEvent, matcher: Matcher):
-    '''
+    """
     记录聊天内容
     :param bot:
     :param event:
     :return:
-    '''
+    """
     gid = str(event.group_id)
     uid = str(event.user_id)
     msg = str(MsgText(event.json())).replace(' ', '')
@@ -111,9 +111,9 @@ stop_words_add = on_command('添加停用词', aliases={'增加停用词', '新�
 
 @stop_words_add.handle()
 async def _(bot: Bot, event: GroupMessageEvent, matcher: Matcher, args: Message = CommandArg()):
-    '''
+    """
     添加停用词
-    '''
+    """
     await add_txt_line(stop_words_path, matcher, event, args, '停用词')
 
 
@@ -123,9 +123,9 @@ stop_words_del = on_command('删除停用词', aliases={'移除停用词', '去�
 
 @stop_words_del.handle()
 async def _(bot: Bot, event: GroupMessageEvent, matcher: Matcher, args: Message = CommandArg()):
-    '''
+    """
     删除停用词
-    '''
+    """
     await del_txt_line(stop_words_path, matcher, event, args, '停用词')
 
 
@@ -135,9 +135,9 @@ stop_words_list = on_command('停用词列表', aliases={'查看停用词', '查
 
 @stop_words_list.handle()
 async def _(bot: Bot, event: GroupMessageEvent, matcher: Matcher, args: Message = CommandArg()):
-    '''
+    """
     停用词列表
-    '''
+    """
     await get_txt_line(stop_words_path, matcher, event, args, '停用词')
 
 
@@ -147,9 +147,9 @@ update_mask = on_command('更新mask', aliases={'下载mask'}, block=True, prior
 
 @update_mask.handle()
 async def _(bot: Bot, event: GroupMessageEvent):
-    '''
+    """
     更新mask
-    '''
+    """
     already_have = len(os.listdir(wordcloud_bg_path))
     try:
         async with httpx.AsyncClient() as client:

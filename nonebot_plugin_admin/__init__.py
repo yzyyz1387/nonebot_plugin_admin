@@ -22,6 +22,7 @@ from nonebot.permission import SUPERUSER
 from . import (
     approve,
     auto_ban,
+    auto_ban_,
     func_hook,
     group_request_verify,
     img_check,
@@ -45,9 +46,9 @@ ban = on_command('禁', priority = 1, block = True, permission = SUPERUSER | GRO
 
 @ban.handle()
 async def _(bot: Bot, event: GroupMessageEvent):
-    '''
+    """
     /禁 @user 禁言
-    '''
+    """
     try:
         msg = MsgText(event.json()).replace(' ', '').replace('禁', '')
         time = int(''.join(map(str, list(map(lambda x: int(x), filter(lambda x: x.isdigit(), msg))))))
@@ -72,9 +73,9 @@ unban = on_command('解', priority = 1, block = True, permission = SUPERUSER | G
 
 @unban.handle()
 async def _(bot: Bot, event: GroupMessageEvent):
-    '''
+    """
     /解 @user 解禁
-    '''
+    """
     sb = At(event.json())
     gid = event.group_id
     if sb:
@@ -93,12 +94,12 @@ ban_all = on_command('/all', aliases = {'/全员'}, permission = SUPERUSER | GRO
 
 @ban_all.handle()
 async def _(bot: Bot, event: GroupMessageEvent):
-    '''
+    """
     （测试时没用..） 
     # note: 如果在 .env.* 文件内设置了 COMMAND_START ，且不包含 "" (即所有指令都有前缀，假设 '/' 是其中一个前缀)，则应该发 //all 触发 
     /all 全员禁言
     /all  解 关闭全员禁言
-    '''
+    """
     msg = event.get_message()
     if msg and '解' in str(msg):
         enable = False
@@ -119,9 +120,9 @@ change = on_command('改', permission = SUPERUSER | GROUP_ADMIN | GROUP_OWNER, p
 
 @change.handle()
 async def _(bot: Bot, event: GroupMessageEvent):
-    '''
+    """
     /改 @user xxx 改群昵称
-    '''
+    """
     msg = str(event.get_message())
     logger.info(msg.split())
     sb = At(event.json())
@@ -144,9 +145,9 @@ title = on_command('头衔', priority = 1, block = True)
 
 @title.handle()
 async def _(bot: Bot, matcher: Matcher, event: GroupMessageEvent):
-    '''
+    """
     /头衔 @user  xxx  给某人头衔
-    '''
+    """
     # msg = str(event.get_message())
     msg = MsgText(event.json())
     s_title = msg.replace(' ', '').replace('头衔', '',1)
@@ -171,9 +172,9 @@ title_ = on_command('删头衔', priority = 1, block = True)
 
 @title_.handle()
 async def _(bot: Bot, matcher: Matcher, event: GroupMessageEvent):
-    '''
+    """
     /删头衔 @user 删除头衔
-    '''
+    """
     msg = MsgText(event.json())
     s_title = ''
     sb = At(event.json())
@@ -197,9 +198,9 @@ kick = on_command('踢', permission = SUPERUSER | GROUP_ADMIN | GROUP_OWNER, pri
 
 @kick.handle()
 async def _(bot: Bot, event: GroupMessageEvent):
-    '''
+    """
     /踢 @user 踢出某人
-    '''
+    """
     msg = str(event.get_message())
     sb = At(event.json())
     gid = event.group_id
@@ -223,9 +224,9 @@ kick_ = on_command('黑', permission = SUPERUSER | GROUP_ADMIN | GROUP_OWNER, pr
 
 @kick_.handle()
 async def _(bot: Bot, event: GroupMessageEvent):
-    '''
+    """
     黑 @user 踢出并拉黑某人
-    '''
+    """
     msg = str(event.get_message())
     sb = At(event.json())
     gid = event.group_id
@@ -249,9 +250,9 @@ set_g_admin = on_command('管理员+', permission = SUPERUSER | GROUP_OWNER, pri
 
 @set_g_admin.handle()
 async def _(bot: Bot, event: GroupMessageEvent):
-    '''
+    """
     管理员+ @user 添加群管理员
-    '''
+    """
     msg = str(event.get_message())
     logger.info(msg)
     logger.info(msg.split())
@@ -278,9 +279,9 @@ unset_g_admin = on_command('管理员-', permission = SUPERUSER | GROUP_OWNER, p
 
 @unset_g_admin.handle()
 async def _(bot: Bot, event: GroupMessageEvent):
-    '''
+    """
     管理员+ @user 添加群管理员
-    '''
+    """
     msg = str(event.get_message())
     logger.info(msg)
     logger.info(msg.split())
@@ -308,12 +309,12 @@ msg_recall = on_command('撤回', priority = 1, aliases = {'删除', 'recall'}, 
 
 @msg_recall.handle()
 async def _(bot: Bot, event: GroupMessageEvent):  # by: @tom-snow
-    '''
+    """
     指令格式:
     /撤回 @user n
     回复指定消息时撤回该条消息；使用艾特时撤回被艾特的人在本群 n*19 历史消息内的所有消息。
     不输入 n 则默认 n = 5
-    '''
+    """
     # msg = str(event.get_message())
     msg = MsgText(event.json())
     sb = At(event.json())
@@ -362,12 +363,12 @@ async def _(bot: Bot, event: GroupMessageEvent):  # by: @tom-snow
         await log_fi(msg_recall, '撤回失败', f"撤回失败 {e}")
 
 
-'''
+"""
 ! 消息防撤回模块，默认不开启，有需要的自行开启，想对部分群生效也需自行实现(可以并入本插件的开关系统内，也可控制 go-cqhttp 的事件过滤器)
 
 如果在 go-cqhttp 开启了事件过滤器，请确保允许 post_type = notice 通行
 【至少也得允许 notice_type = group_recall 通行】
-'''
+"""
 
 
 async def _group_recall(bot: Bot, event: NoticeEvent) -> bool:
@@ -399,7 +400,7 @@ async def _(bot: Bot, event: NoticeEvent):
     await bot.send_group_msg(group_id = group_id, message = recall_notice + recalled_message['message'])
 
 
-__usage__ = '''
+__usage__ = """
 【初始化】：
   群管初始化 ：初始化插件
 
@@ -477,7 +478,7 @@ __usage__ = '''
     ['违禁词', '违禁词检测'] #违禁词检测
     ['图片检测', '图片鉴黄', '涩图检测', '色图检测'] #图片检测
 所有功能默认开
-'''
+"""
 __help_plugin_name__ = '简易群管'
 
 __permission__ = 1

@@ -16,9 +16,9 @@ from .utils import load
 
 
 async def g_admin():
-    '''
+    """
     :return : 分群管理json对象
-    '''
+    """
     with open(config_group_admin, mode = 'r') as f:
         admins_ = f.read()
         admins = json.loads(admins_)
@@ -26,12 +26,12 @@ async def g_admin():
 
 
 async def g_admin_add(gid: str, qq: int) -> Optional[bool]:
-    '''
+    """
     添加分群管理（处理加群请求时接收处理结果）
     :param gid: 群号
     :param qq: qq
     :return: bool
-    '''
+    """
     admins = await g_admin()
     if gid in admins:
         if qq in admins[gid]:
@@ -54,12 +54,12 @@ async def g_admin_add(gid: str, qq: int) -> Optional[bool]:
 
 
 async def g_admin_del(gid: str, qq: int) -> Optional[bool]:
-    '''
+    """
     删除分群管理
     :param gid: 群号
     :param qq: qq
     :return: bool
-    '''
+    """
     admins = await g_admin()
     if gid in admins:
         if qq in admins[gid]:
@@ -98,12 +98,12 @@ async def su_on_off() -> Optional[bool]:
 
 
 async def write(gid: str, answer: str) -> Optional[bool]:
-    '''
+    """
     写入词条
     :param gid: 群号
     :param answer: 词条
     :return: bool
-    '''
+    """
     contents = await load(config_admin)
     if gid in contents:
         data = contents[gid]
@@ -127,12 +127,12 @@ async def write(gid: str, answer: str) -> Optional[bool]:
 
 
 async def delete(gid: str, answer: str) -> Optional[bool]:
-    '''
+    """
     删除词条
     :param gid: 群号
     :param answer: 词条
     :return: bool
-    '''
+    """
     contents = await load(config_admin)
     if gid in contents:
         if answer in contents[gid]:

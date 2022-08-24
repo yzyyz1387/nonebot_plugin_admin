@@ -53,12 +53,12 @@ async def check_pic(bot: Bot, event: GroupMessageEvent):
 
 
 async def send_pics_ban(bot: Bot, event: GroupMessageEvent, scope: list = None):
-    '''
+    """
     发送违规图片，禁言用户
     :param bot:
     :param event:
     :param scope: 时间范围
-    '''
+    """
     gid = event.group_id
     uid = [event.user_id]
     eid = event.message_id

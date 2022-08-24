@@ -36,13 +36,13 @@ cb_notice = plugin_config.callback_notice
 
 
 def At(data: str) -> Union[list[str], list[int], list]:
-    '''
+    """
     检测at了谁，返回[qq, qq, qq,...]
     包含全体成员直接返回['all']
     如果没有at任何人，返回[]
     :param data: event.json
     :return: list
-    '''
+    """
     try:
         qq_list = []
         data = json.loads(data)
@@ -58,12 +58,12 @@ def At(data: str) -> Union[list[str], list[int], list]:
 
 
 def Reply(data: str):
-    '''
+    """
     检测回复哪条消息，返回 reply 对象
     如果没有回复任何人，返回 None
     :param data: event.json()
     :return: dict | None
-    '''
+    """
     try:
         data = json.loads(data)
         if data['reply'] and data['reply']['message_id']:  # 待优化
@@ -75,11 +75,11 @@ def Reply(data: str):
 
 
 def MsgText(data: str):
-    '''
+    """
     返回消息文本段内容(即去除 cq 码后的内容)
     :param data: event.json()
     :return: str
-    '''
+    """
     try:
         data = json.loads(data)
         # 过滤出类型为 text 的【并且过滤内容为空的】
@@ -105,10 +105,10 @@ dirs = [config_path,
 
 
 async def init():
-    '''
+    """
     初始化配置文件
     :return:
-    '''
+    """
     for d in dirs:
         if not os.path.exists(d):
             await mk('dir', d, mode=None)
@@ -140,14 +140,14 @@ async def init():
 
 
 async def mk(type_, path_, *mode, **kwargs):
-    '''
+    """
     创建文件夹 下载文件
     :param type_: ['dir', 'file']
     :param path_: Path
     :param mode: ['wb', 'w']
     :param kwargs: ['url', 'content', 'dec', 'info'] 文件地址 写入内容 描述信息 和 额外信息
     :return: None
-    '''
+    """
     if 'info' in kwargs:
         logger.info(kwargs['info'])
     if type_ == 'dir':
@@ -181,14 +181,14 @@ async def mk(type_, path_, *mode, **kwargs):
 
 
 async def banSb(gid: int, ban_list: list, time: int = None, scope: list = None):
-    '''
+    """
     构造禁言
     :param gid: 群号
     :param time: 时间（s)
     :param ban_list: at列表
     :param scope: 用于被动检测禁言的时间范围
     :return:禁言操作
-    '''
+    """
     if 'all' in ban_list:
         yield nonebot.get_bot().set_group_whole_ban(
             group_id=gid,
@@ -214,11 +214,11 @@ async def banSb(gid: int, ban_list: list, time: int = None, scope: list = None):
 
 
 async def replace_tmr(msg: str) -> str:
-    '''
+    """
     原始消息简单处理
     :param msg: 消息字符串
     :return: 去除cq码,链接等
-    '''
+    """
     find_cq = re.compile(r"(\[CQ:.*])")
     find_link = re.compile("(https?://.*[^\u4e00-\u9fa5])")
     cq_code = re.findall(find_cq, msg)
@@ -231,9 +231,9 @@ async def replace_tmr(msg: str) -> str:
 
 
 async def participle_simple_handle() -> list[str]:
-    '''
+    """
     wordcloud停用词
-    '''
+    """
     prep_ = ['么', '了', '与', '不', '且', '之', '为', '兮', '其', '到', '云', '阿', '却', '个',
              '以', '们', '价', '似', '讫', '诸', '取', '若', '得', '逝', '将', '夫', '头', '只',
              '吗', '向', '吧', '呗', '呃', '呀', '员', '呵', '呢', '哇', '咦', '哟', '哉', '啊',
@@ -350,10 +350,10 @@ def bytes_to_base64(data):
 
 
 async def load(path) -> Optional[dict]:
-    '''
+    """
     加载json文件
     :return: Optional[dict]
-    '''
+    """
     try:
         with open(path, mode='r', encoding='utf-8') as f:
             contents_ = f.read()
@@ -365,23 +365,23 @@ async def load(path) -> Optional[dict]:
 
 
 async def upload(path, dict_content) -> None:
-    '''
+    """
     更新json文件
     :param path: 路径
     :param dict_content: python对象，字典
-    '''
+    """
     with open(path, mode='w', encoding='utf-8') as c:
         c.write(json.dumps(dict_content, ensure_ascii=False, indent=2))
         c.close()
 
 
 async def check_func_status(func_name: str, gid: str) -> bool:
-    '''
+    """
     检查某个群的某个功能是否开启
     :param func_name: 功能名
     :param gid: 群号
     :return: bool
-    '''
+    """
     funcs_status = (await load(switcher_path))
     if funcs_status is None:
         raise FileNotFoundError(switcher_path)
@@ -403,14 +403,14 @@ async def check_func_status(func_name: str, gid: str) -> bool:
 
 
 async def del_txt_line(path: Path, matcher: Matcher, event: GroupMessageEvent, args: Message, dec: str) -> None:
-    '''
+    """
     分群、按行删除txt内容
     :param path: 文件父级路径（文件以群号命名）
     :param matcher: matcher
     :param event: 事件
     :param args: 文本
     :param dec: 描述
-    '''
+    """
     gid = str(event.group_id)
     logger.info(args)
     if args:
@@ -444,14 +444,14 @@ async def del_txt_line(path: Path, matcher: Matcher, event: GroupMessageEvent, a
 
 
 async def add_txt_line(path: Path, matcher: Matcher, event: GroupMessageEvent, args: Message, dec: str) -> None:
-    '''
+    """
     分群、按行添加txt内容
     :param path: 文件父级路径（文件以群号命名）
     :param matcher: matcher
     :param event: 事件
     :param args: 文本
     :param dec: 描述
-    '''
+    """
     gid = str(event.group_id)
     logger.info(args)
     if args:
@@ -488,14 +488,14 @@ async def add_txt_line(path: Path, matcher: Matcher, event: GroupMessageEvent, a
 
 
 async def get_txt_line(path: Path, matcher: Matcher, event: GroupMessageEvent, args: Message, dec: str) -> None:
-    '''
+    """
     分群、按行获取txt内容
     :param path: 文件父级路径（文件以群号命名）
     :param matcher: matcher
     :param event: 事件
     :param args: 文本
     :param dec: 描述
-    '''
+    """
     gid = str(event.group_id)
     try:
         this_path = path / f"{str(gid)}.txt"
@@ -513,14 +513,14 @@ async def get_txt_line(path: Path, matcher: Matcher, event: GroupMessageEvent, a
 
 
 async def change_s_title(bot: Bot, matcher: Matcher, gid: int, uid: int, s_title: Optional[str]):
-    '''
+    """
     改头衔
     :param bot: bot
     :param matcher: matcher
     :param gid: 群号
     :param uid: 用户号
     :param s_title: 头衔
-    '''
+    """
     try:
         await bot.set_group_special_title(
             group_id=gid,
@@ -534,7 +534,7 @@ async def change_s_title(bot: Bot, matcher: Matcher, gid: int, uid: int, s_title
 
 
 async def get_user_violation(gid: int, uid: int, label: str, content: str, add_: bool = True) -> int:
-    '''
+    """
     获取用户违规情况
     :param gid: 群号
     :param uid: 用户号
@@ -542,7 +542,7 @@ async def get_user_violation(gid: int, uid: int, label: str, content: str, add_:
     :param content: 内容
     :param add_: 等级是否+1
     :return: 违规等级
-    '''
+    """
     path_grop = user_violation_info_path / f"{str(gid)}"
     path_user = path_grop / f"{str(uid)}.json"
     this_time = str(datetime.datetime.now()).replace(' ', '-')

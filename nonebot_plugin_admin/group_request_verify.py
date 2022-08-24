@@ -15,12 +15,12 @@ from .path import *
 
 
 async def verify(word: str, group_id: str) -> Optional[bool]:
-    '''
+    """
     验证答案，验证消息必须大于等于答案长度的1/2
     :param word: 用户答案
     :param group_id: 群号
     :return: bool
-    '''
+    """
     with open(config_admin, mode = 'r') as f:
         answers = json.loads(f.read())
         if group_id in answers:
