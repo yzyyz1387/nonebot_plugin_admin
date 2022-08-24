@@ -27,7 +27,6 @@ async def g_admin():
 
 async def g_admin_add(gid: str, qq: int) -> Optional[bool]:
     '''
-
     添加分群管理（处理加群请求时接收处理结果）
     :param gid: 群号
     :param qq: qq

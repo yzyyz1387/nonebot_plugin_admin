@@ -36,17 +36,14 @@ async def _(matcher: Matcher, bot: Bot, state: T_State, event: Event):
     if isinstance(event, GroupMessageEvent):
         gid = event.group_id
         try:
-            if '开关' not in event.get_message():
-                if which_module in admin_funcs:
-                    status = await check_func_status(which_module, str(gid))
-                    if not status and which_module not in ['auto_ban', 'img_check']:  # 违禁词检测和图片检测日志太多了，不用logger记录或者发消息记录
-                        logger.info(f"{admin_funcs[which_module][0]}功能处于关闭状态，若要启用请发送【开关{admin_funcs[which_module][0]}】开启")
-                        if cb_notice:
-                            await bot.send_group_msg(group_id = gid, message = f"功能处于关闭状态，发送【开关{admin_funcs[which_module][0]}】开启")
-                        raise IgnoredException('未开启此功能...')
-                    elif not status and which_module in ['auto_ban', 'img_check']:
-                        logger.info(f"{admin_funcs[which_module][0]}功能处于关闭状态，若要启用请发送【开关{admin_funcs[which_module][0]}】开启")
-                        raise IgnoredException('未开启此功能...')
+            if event.get_user_id() not in su and which_module in admin_funcs: # FIXME: 不只是su
+                status = await check_func_status(which_module, str(gid))
+                if not status and which_module not in ['auto_ban', 'img_check']:  # 违禁词检测和图片检测日志太多了，不用logger记录或者发消息记录
+                    if cb_notice:
+                        await bot.send_group_msg(group_id = gid, message = f"功能处于关闭状态，发送【开关{admin_funcs[which_module][0]}】开启")
+                    raise IgnoredException('未开启此功能...')
+                elif not status and which_module in ['auto_ban', 'img_check']:
+                    raise IgnoredException('未开启此功能...')
         except ActionFailed:
             pass
         except FileNotFoundError:

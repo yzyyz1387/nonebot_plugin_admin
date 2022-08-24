@@ -99,7 +99,6 @@ dirs = [config_path,
         re_img_path,
         stop_words_path,
         wordcloud_bg_path,
-        limit_word_path_custom,
         user_violation_info_path,
         group_message_data_path,
         error_path]
@@ -119,16 +118,6 @@ async def init():
         await mk('file', config_group_admin, 'w', content='{"su": "True"}')
     if not os.path.exists(word_path):
         await mk('file', word_path, 'w', content='123456789\n')
-    if not os.path.exists(limit_level):
-        bot = nonebot.get_bot()
-        logger.info('创建违禁词监控等级配置文件,分群设置,默认easy')
-        g_list = (await bot.get_group_list())
-        level_dict = {}
-        for group in g_list:
-            level_dict.update({str(group['group_id']): 'easy'})
-        with open(limit_level, 'w', encoding='utf-8') as lwp:
-            lwp.write(f"{json.dumps(level_dict)}")
-            lwp.close()
     if not os.path.exists(switcher_path):
         bot = nonebot.get_bot()
         logger.info('创建开关配置文件,分群设置, 图片检测和违禁词检测默认关,其他默认开')
@@ -141,12 +130,9 @@ async def init():
         with open(switcher_path, 'w', encoding='utf-8') as swp:
             swp.write(f"{json.dumps(switcher_dict)}")
             swp.close()
-    if not os.path.exists(limit_word_path_easy):  # 要联网的都丢最后面去
-        await mk('file', limit_word_path_easy, 'w',
+    if not os.path.exists(limit_word_path):  # 要联网的都丢最后面去
+        await mk('file', limit_word_path, 'w',
                  url='https://fastly.jsdelivr.net/gh/yzyyz1387/nwafu/f_words/f_word_easy', dec='简单违禁词词库')
-    if not os.path.exists(limit_word_path):
-        await mk('file', limit_word_path, 'w', url='https://fastly.jsdelivr.net/gh/yzyyz1387/nwafu/f_words/f_word_s',
-                 dec='严格违禁词词库')
     if not os.path.exists(ttf_name):
         await mk('file', ttf_name, 'wb', url='https://fastly.jsdelivr.net/gh/yzyyz1387/blogimages/msyhblod.ttf',
                  dec='资源字体')
@@ -405,8 +391,7 @@ async def check_func_status(func_name: str, gid: str) -> bool:
         else:
             return False
     except KeyError:  # 新加入的群
-        logger.info(
-            f"本群({gid})尚未初始化！将自动初始化：关闭所有开关且设置过滤级别为简单。\n\n请重新发送指令继续之前的操作")
+        logger.info(f"本群({gid})尚未初始化！将自动初始化：关闭所有开关且设置过滤级别为简单。\n\n请重新发送指令继续之前的操作")
         if cb_notice:
             # await nonebot.get_bot().send_group_msg(group_id = gid, message = '本群尚未初始化，将自动初始化：开启所有开关且设置过滤级别为简单。\n\n'
             #                                                              '请重新发送指令继续之前的操作')
@@ -414,11 +399,6 @@ async def check_func_status(func_name: str, gid: str) -> bool:
         funcs_status.update({str(gid): {'admin': True, 'requests': True, 'wordcloud': True,
                                         'auto_ban': True, 'img_check': True, 'word_analyze': True}})
         await upload(switcher_path, funcs_status)
-
-        level = await load(limit_level)
-        level.update({str(gid): 'easy'})
-        await upload(limit_level, level)
-        # raise # 抛出异常阻断后面的逻辑代码？
         return False  # 直接返回 false
 
 
@@ -614,11 +594,11 @@ async def error_log(gid: int, time: str, matcher: Matcher, err: str) -> None:
             logger.error(f"写入错误日志出错：{e}")
 
 
-async def sd(cmd: Type[Matcher], msg: str, at=False) -> None:
+async def sd(cmd: Type[Matcher], msg, at=False) -> None:
     if cb_notice: await cmd.send(msg, at_sender=at)
 
 
-async def log_sd(cmd: Type[Matcher], msg: str, log: str = None, at=False, err=False) -> None:
+async def log_sd(cmd: Type[Matcher], msg, log: str = None, at=False, err=False) -> None:
     (logger.error if err else logger.info)(log if log else msg)
     await sd(cmd, msg, at)
 

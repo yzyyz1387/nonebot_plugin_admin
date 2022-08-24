@@ -22,7 +22,6 @@ from nonebot.permission import SUPERUSER
 from . import (
     approve,
     auto_ban,
-    auto_ban_,
     func_hook,
     group_request_verify,
     img_check,
@@ -466,11 +465,6 @@ __usage__ = '''
 
 违禁词检测：已支持正则表达式，可定义触发违禁词操作(默认为禁言+撤回)
 定义操作方法：用制表符分隔，左边为触发条件，右边为操作定义($禁言、$撤回)
-群内发送：
-  简单违禁词 ：简单级别过滤
-  严格违禁词 ：严格级别过滤(不建议)
-  更新违禁词库 ：手动更新词库
-    违禁词库每周一自动更新
     
 【功能开关】
 群内发送：
