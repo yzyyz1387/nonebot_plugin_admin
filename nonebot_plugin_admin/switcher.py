@@ -5,16 +5,15 @@
 # @Email   :  youzyyz1384@qq.com
 # @File    : switcher.py
 # @Software: PyCharm
-from .utils import load, upload, fi, log_fi
-from .path import *
-from nonebot import logger, on_command
-from nonebot.typing import T_State
-from nonebot.params import State
+from nonebot import on_command
 from nonebot.adapters.onebot.v11 import Bot, GroupMessageEvent, MessageSegment, ActionFailed
 from nonebot.adapters.onebot.v11.permission import GROUP_ADMIN, GROUP_OWNER
 from nonebot.permission import SUPERUSER
-import os
+from nonebot.typing import T_State
 from pyppeteer import launch
+
+from .path import *
+from .utils import load, upload, fi, log_fi
 
 switcher = on_command('开关', priority=1, block=True, permission=SUPERUSER | GROUP_ADMIN | GROUP_OWNER)
 

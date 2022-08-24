@@ -5,19 +5,16 @@
 # @Email   :  youzyyz1384@qq.com
 # @File    : request_manual.py
 # @Software: PyCharm
-from .utils import init, load, upload
-from .path import *
-from nonebot import logger, on_command
-from nonebot.typing import T_State
-from nonebot.adapters.onebot.v11 import (
-    Bot,
-    MessageSegment,
-    MessageEvent,
-    ActionFailed)
-
 import re
 
-request_m = on_command('请求', priority = 1, block = True)
+from nonebot import on_command
+from nonebot.adapters.onebot.v11 import (
+    Bot,
+    MessageEvent,
+    ActionFailed)
+from nonebot.typing import T_State
+
+request_m = on_command('请求', priority=1, block=True)
 
 
 @request_m.handle()
@@ -29,19 +26,19 @@ async def _(bot: Bot, event: MessageEvent, state: T_State):
     elif '同意' in msg:
         try:
             await bot.set_group_add_request(
-                    flag = flag,
-                    sub_type = 'add',
-                    approve = True,
-                    reason = ' ',
-                )
+                flag=flag,
+                sub_type='add',
+                approve=True,
+                reason=' ',
+            )
             await bot.send(event, '已同意')
         except ActionFailed:
             try:
                 await bot.set_group_add_request(
-                    flag = flag,
-                    sub_type = 'invite',
-                    approve = True,
-                    reason = ' ',
+                    flag=flag,
+                    sub_type='invite',
+                    approve=True,
+                    reason=' ',
                 )
                 await bot.send(event, '已同意')
             except ActionFailed:
@@ -49,22 +46,20 @@ async def _(bot: Bot, event: MessageEvent, state: T_State):
     elif '拒绝' in msg:
         try:
             await bot.set_group_add_request(
-                    flag = flag,
-                    sub_type = 'add',
-                    approve = False,
-                    reason = '管理员拒绝',
-                )
+                flag=flag,
+                sub_type='add',
+                approve=False,
+                reason='管理员拒绝',
+            )
             await bot.send(event, '已拒绝')
         except ActionFailed:
             try:
                 await bot.set_group_add_request(
-                    flag = flag,
-                    sub_type = 'invite',
-                    approve = False,
-                    reason = '管理员拒绝',
+                    flag=flag,
+                    sub_type='invite',
+                    approve=False,
+                    reason='管理员拒绝',
                 )
                 await bot.send(event, '已拒绝')
             except ActionFailed:
                 await bot.send(event, '错误：请求不存在')
-
-

@@ -391,7 +391,8 @@ async def check_func_status(func_name: str, gid: str) -> bool:
         else:
             return False
     except KeyError:  # 新加入的群
-        logger.info(f"本群({gid})尚未初始化！将自动初始化：关闭所有开关且设置过滤级别为简单。\n\n请重新发送指令继续之前的操作")
+        logger.info(
+            f"本群({gid})尚未初始化！将自动初始化：关闭所有开关且设置过滤级别为简单。\n\n请重新发送指令继续之前的操作")
         if cb_notice:
             # await nonebot.get_bot().send_group_msg(group_id = gid, message = '本群尚未初始化，将自动初始化：开启所有开关且设置过滤级别为简单。\n\n'
             #                                                              '请重新发送指令继续之前的操作')

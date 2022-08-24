@@ -21,7 +21,7 @@ async def verify(word: str, group_id: str) -> Optional[bool]:
     :param group_id: 群号
     :return: bool
     """
-    with open(config_admin, mode = 'r') as f:
+    with open(config_admin, mode='r') as f:
         answers = json.loads(f.read())
         if group_id in answers:
             answer = answers[group_id]

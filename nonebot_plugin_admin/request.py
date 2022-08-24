@@ -6,26 +6,25 @@
 # @File    : group_request.py
 # @Software: PyCharm
 # import nonebot
+import json
+import re
+
 from nonebot import on_command, on_request, logger
 from nonebot.adapters.onebot.v11 import Bot, GroupMessageEvent, GroupRequestEvent, MessageEvent
 from nonebot.adapters.onebot.v11.permission import GROUP_ADMIN, GROUP_OWNER
 from nonebot.permission import SUPERUSER
 from nonebot.typing import T_State
-from nonebot.params import State
 
 from . import approve
-from .group_request_verify import verify
-import json
-import re
-from .path import *
-from .utils import load, check_func_status
-
 from .config import global_config
+from .group_request_verify import verify
+from .path import *
+from .utils import load
 
 su = global_config.superusers
 
 # 查看所有审批词条
-super_sp = on_command('所有词条', aliases = {'/susp', '/su审批'}, priority = 1, block = True, permission = SUPERUSER)
+super_sp = on_command('所有词条', aliases={'/susp', '/su审批'}, priority=1, block=True, permission=SUPERUSER)
 
 
 @super_sp.handle()
@@ -38,7 +37,7 @@ async def _(bot: Bot, event: MessageEvent):
 
 
 # 按群号添加词条
-super_sp_add = on_command('指定词条+', aliases = {'/susp+', '/su审批+'}, priority = 1, block = True, permission = SUPERUSER)
+super_sp_add = on_command('指定词条+', aliases={'/susp+', '/su审批+'}, priority=1, block=True, permission=SUPERUSER)
 
 
 @super_sp_add.handle()
@@ -62,7 +61,7 @@ async def _(bot: Bot, event: MessageEvent):
 
 
 # 按群号删除词条
-super_sp_de = on_command('指定词条-', aliases = {'/susp-', '/su审批-'}, priority = 1, block = True, permission = SUPERUSER)
+super_sp_de = on_command('指定词条-', aliases={'/susp-', '/su审批-'}, priority=1, block=True, permission=SUPERUSER)
 
 
 @super_sp_de.handle()
@@ -85,8 +84,8 @@ async def _(bot: Bot, event: MessageEvent):
         await super_sp_de.finish('输入有误 /susp- [群号] [词条]')
 
 
-check = on_command('查看词条', aliases = {'/sp', '/审批'}, priority = 1, block = True,
-                   permission = GROUP_ADMIN | GROUP_OWNER | SUPERUSER)
+check = on_command('查看词条', aliases={'/sp', '/审批'}, priority=1, block=True,
+                   permission=GROUP_ADMIN | GROUP_OWNER | SUPERUSER)
 
 
 @check.handle()
@@ -102,8 +101,8 @@ async def _(bot: Bot, event: GroupMessageEvent):
     await check.finish('当前群从未配置过审批词条')
 
 
-config = on_command('词条+', aliases = {'/sp+', '/审批+'}, priority = 1, block = True,
-                    permission = GROUP_ADMIN | GROUP_OWNER | SUPERUSER)
+config = on_command('词条+', aliases={'/sp+', '/审批+'}, priority=1, block=True,
+                    permission=GROUP_ADMIN | GROUP_OWNER | SUPERUSER)
 
 
 @config.handle()
@@ -119,8 +118,8 @@ async def _(bot: Bot, event: GroupMessageEvent, state: T_State):
     await config.finish(f"{msg} 已存在于群{event.group_id}的词条中")
 
 
-config_ = on_command('词条-', aliases = {'/sp-', '/审批-'}, priority = 1, block = True,
-                     permission = GROUP_ADMIN | GROUP_OWNER | SUPERUSER)
+config_ = on_command('词条-', aliases={'/sp-', '/审批-'}, priority=1, block=True,
+                     permission=GROUP_ADMIN | GROUP_OWNER | SUPERUSER)
 
 
 @config_.handle()
@@ -140,7 +139,7 @@ async def _(bot: Bot, event: GroupMessageEvent, state: T_State):
 
 
 # 加群审批
-group_req = on_request(priority = 1, block = True)
+group_req = on_request(priority=1, block=True)
 
 
 @group_req.handle()
@@ -158,35 +157,35 @@ async def gr_(bot: Bot, event: GroupRequestEvent):
         if compared:
             logger.info(f"同意{uid}加入群 {gid},验证消息为 “{word}”")
             await bot.set_group_add_request(
-                flag = flag,
-                sub_type = sub_type,
-                approve = True,
-                reason = ' ',
+                flag=flag,
+                sub_type=sub_type,
+                approve=True,
+                reason=' ',
             )
             admins = (await load(config_group_admin))
             if admins['su'] == 'True':
                 for q in su:
-                    await bot.send_msg(user_id = int(q), message = f"同意{uid}加入群 {gid},验证消息为 “{word}”")
+                    await bot.send_msg(user_id=int(q), message=f"同意{uid}加入群 {gid},验证消息为 “{word}”")
             if gid in admins:
                 for q in admins[gid]:
-                    await bot.send_msg(message_type = 'private', user_id = q, group_id = int(gid),
-                                       message = f"同意{uid}加入群 {gid},验证消息为 “{word}”")
+                    await bot.send_msg(message_type='private', user_id=q, group_id=int(gid),
+                                       message=f"同意{uid}加入群 {gid},验证消息为 “{word}”")
 
         elif not compared:
             logger.info(f"拒绝{uid}加入群 {gid},验证消息为 “{word}”")
             await bot.set_group_add_request(
-                flag = flag,
-                sub_type = sub_type,
-                approve = False,
-                reason = '答案未通过群管验证，可修改答案后再次申请',
+                flag=flag,
+                sub_type=sub_type,
+                approve=False,
+                reason='答案未通过群管验证，可修改答案后再次申请',
             )
             admins = (await load(config_group_admin))
             if admins['su'] == 'True':
                 for q in su:
-                    await bot.send_msg(user_id = int(q), message = f"拒绝{uid}加入群 {gid},验证消息为 “{word}”")
+                    await bot.send_msg(user_id=int(q), message=f"拒绝{uid}加入群 {gid},验证消息为 “{word}”")
             if gid in admins:
                 for q in admins[gid]:
-                    await bot.send_msg(message_type = 'private', user_id = q, group_id = int(gid),
-                                       message = f"拒绝{uid}加入群 {gid},验证消息为 “{word}”")
+                    await bot.send_msg(message_type='private', user_id=q, group_id=int(gid),
+                                       message=f"拒绝{uid}加入群 {gid},验证消息为 “{word}”")
         elif compared is None:
             await group_req.finish()

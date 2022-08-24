@@ -12,18 +12,19 @@ send_time_night = "23 0"                          # 选填 晚上发送时间默
 """
 
 import asyncio
+import json
 import random
+
+import requests
 from nonebot import require, get_bot, get_driver
 from nonebot.log import logger
-import requests
-import json
 
 try:
     scheduler = require('nonebot_plugin_apscheduler').scheduler
 except BaseException:
     scheduler = None
 
-logger.opt(colors = True).info(
+logger.opt(colors=True).info(
     '已检测到软依赖<y>nonebot_plugin_apscheduler</y>, <g>开启定时任务功能</g>'
     if scheduler
     else '未检测到软依赖<y>nonebot_plugin_apscheduler</y>，<r>禁用定时任务功能</r>'
@@ -101,10 +102,10 @@ async def send_morning():
             # await get_bot().send_private_msg(user_id = fire_user_id, message = "🌞早，又是元气满满的一天")  # 当未连接到onebot.v11协议端时会抛出异常
             for gid in send_group_id:
                 if send_mode == 1:
-                    await get_bot().send_group_msg(group_id = gid,
-                                                   message = f"{random.choice(send_sentence_moring)}")
+                    await get_bot().send_group_msg(group_id=gid,
+                                                   message=f"{random.choice(send_sentence_moring)}")
                 if send_mode == 2:
-                    await get_bot().send_group_msg(group_id = gid, message = hitokoto())
+                    await get_bot().send_group_msg(group_id=gid, message=hitokoto())
             logger.info('群聊推送消息')
             sendSuccess = True
         except ValueError as e:
@@ -125,10 +126,10 @@ async def send_night():
             # await get_bot().send_private_msg(user_id = fire_user_id, message = "🌛今天续火花了么，晚安啦")  # 当未连接到onebot.v11协议端时会抛出异常
             for gid in send_group_id:
                 if send_mode == 1:
-                    await get_bot().send_group_msg(group_id = gid,
-                                                   message = f"{random.choice(send_sentence_night)}")
+                    await get_bot().send_group_msg(group_id=gid,
+                                                   message=f"{random.choice(send_sentence_night)}")
                 if send_mode == 2:
-                    await get_bot().send_group_msg(group_id = gid, message = hitokoto())
+                    await get_bot().send_group_msg(group_id=gid, message=hitokoto())
             logger.info('群聊推送消息')
             sendSuccess = True
         except ValueError as e:
@@ -138,5 +139,5 @@ async def send_night():
 
 
 if scheduler:
-    scheduler.add_job(send_morning, 'cron', hour = m_hour, minute = m_minute, id = 'send_morning')  # 早上推送
-    scheduler.add_job(send_night, 'cron', hour = n_hour, minute = n_minute, id = 'send_night')  # 晚上推送
+    scheduler.add_job(send_morning, 'cron', hour=m_hour, minute=m_minute, id='send_morning')  # 早上推送
+    scheduler.add_job(send_night, 'cron', hour=n_hour, minute=n_minute, id='send_night')  # 晚上推送
