@@ -126,7 +126,7 @@ async def init():
         for group in g_list:
             switcher_dict.update({str(group['group_id']): {'admin': True, 'requests': True,
                                                            'wordcloud': True, 'auto_ban': False,
-                                                           'img_check': False, 'word_analyze': True}})
+                                                           'img_check': False, 'word_analyze': True, 'welcome': True}})
         with open(switcher_path, 'w', encoding='utf-8') as swp:
             swp.write(f"{json.dumps(switcher_dict)}")
             swp.close()
@@ -398,7 +398,7 @@ async def check_func_status(func_name: str, gid: str) -> bool:
             #                                                              '请重新发送指令继续之前的操作')
             logger.info('错误发生在 utils.py line 398')
         funcs_status.update({str(gid): {'admin': True, 'requests': True, 'wordcloud': True,
-                                        'auto_ban': True, 'img_check': True, 'word_analyze': True}})
+                                        'auto_ban': True, 'img_check': True, 'word_analyze': True, 'welcome': True}})
         await upload(switcher_path, funcs_status)
         return False  # 直接返回 false
 
