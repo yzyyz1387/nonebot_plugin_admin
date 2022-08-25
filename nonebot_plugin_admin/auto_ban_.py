@@ -25,7 +25,7 @@ del_custom_limit_words = on_command('删除自定义违禁词', aliases={'移除
 
 @del_custom_limit_words.handle()
 async def _(bot: Bot, event: GroupMessageEvent, matcher: Matcher, args: Message = CommandArg()):
-    await del_txt_line(limit_word_path, matcher, event, args, '自定义违禁词')  # FIXME: 不分群
+    await del_txt_line(limit_word_path, matcher, event, args, '自定义违禁词', False)
 
 
 # TODO: 支持配置是否撤回&禁言
@@ -35,7 +35,7 @@ add_custom_limit_words = on_command('添加自定义违禁词', aliases={'增加
 
 @add_custom_limit_words.handle()
 async def _(bot: Bot, event: GroupMessageEvent, matcher: Matcher, args: Message = CommandArg()):
-    await add_txt_line(limit_word_path, matcher, event, args, '自定义违禁词')  # FIXME: 不分群
+    await add_txt_line(limit_word_path, matcher, event, args, '自定义违禁词', False)
 
 
 get_custom_limit_words = on_command('查看自定义违禁词',
@@ -46,4 +46,4 @@ get_custom_limit_words = on_command('查看自定义违禁词',
 @get_custom_limit_words.handle()
 async def _(bot: Bot, event: GroupMessageEvent, matcher: Matcher, args: Message = CommandArg()):
     if cb_notice:
-        await get_txt_line(limit_word_path, matcher, event, args, '自定义违禁词')  # FIXME: 不分群
+        await get_txt_line(limit_word_path, matcher, event, args, '自定义违禁词', False)

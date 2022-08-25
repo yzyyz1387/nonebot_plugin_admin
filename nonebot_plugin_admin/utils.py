@@ -403,7 +403,7 @@ async def check_func_status(func_name: str, gid: str) -> bool:
         return False  # 直接返回 false
 
 
-async def del_txt_line(path: Path, matcher: Matcher, event: GroupMessageEvent, args: Message, dec: str) -> None:
+async def del_txt_line(path: Path, matcher: Matcher, event: GroupMessageEvent, args: Message, dec: str, group: bool = True) -> None:
     """
     分群、按行删除txt内容
     :param path: 文件父级路径（文件以群号命名）
@@ -417,7 +417,7 @@ async def del_txt_line(path: Path, matcher: Matcher, event: GroupMessageEvent, a
     if args:
         msg = str(args).split(' ')
         logger.info(msg)
-        this_path = path / f"{str(gid)}.txt"
+        this_path = (path / f"{str(gid)}.txt") if group else path
         try:
             with open(this_path, mode='r+', encoding='utf-8') as c:
                 is_saved = c.read().split("\n")
@@ -444,7 +444,7 @@ async def del_txt_line(path: Path, matcher: Matcher, event: GroupMessageEvent, a
         await matcher.finish(f"请输入删除内容,多个以空格分隔，例：\n删除{dec} 内容1 内容2")
 
 
-async def add_txt_line(path: Path, matcher: Matcher, event: GroupMessageEvent, args: Message, dec: str) -> None:
+async def add_txt_line(path: Path, matcher: Matcher, event: GroupMessageEvent, args: Message, dec: str, group: bool = True) -> None:
     """
     分群、按行添加txt内容
     :param path: 文件父级路径（文件以群号命名）
@@ -458,7 +458,7 @@ async def add_txt_line(path: Path, matcher: Matcher, event: GroupMessageEvent, a
     if args:
         msg = str(args).split(' ')
         logger.info(msg)
-        this_path = path / f"{str(gid)}.txt"
+        this_path = (path / f"{str(gid)}.txt") if group else path
         try:
             with open(this_path, mode='r+', encoding='utf-8') as c:
                 is_saved = c.read().split('\n')
@@ -488,7 +488,7 @@ async def add_txt_line(path: Path, matcher: Matcher, event: GroupMessageEvent, a
         await matcher.finish(f"请输入添加内容,多个以空格分隔，例：\n添加{dec} 内容1 内容2")
 
 
-async def get_txt_line(path: Path, matcher: Matcher, event: GroupMessageEvent, args: Message, dec: str) -> None:
+async def get_txt_line(path: Path, matcher: Matcher, event: GroupMessageEvent, args: Message, dec: str, group: bool = True) -> None:
     """
     分群、按行获取txt内容
     :param path: 文件父级路径（文件以群号命名）
@@ -499,7 +499,7 @@ async def get_txt_line(path: Path, matcher: Matcher, event: GroupMessageEvent, a
     """
     gid = str(event.group_id)
     try:
-        this_path = path / f"{str(gid)}.txt"
+        this_path = (path / f"{str(gid)}.txt") if group else path
         try:
             with open(this_path, 'r', encoding='utf-8') as c:
                 is_saved = c.read().split('\n')

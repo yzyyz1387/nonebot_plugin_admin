@@ -44,26 +44,30 @@ async def _(bot: Bot, event: GroupMessageEvent, matcher: Matcher):
                     if str(gid) not in lst: continue
                 else:
                     if str(gid) in lst: continue
-        if re.search(rule[0], msg):
-            matcher.stop_propagation()  # block
-            level = (await get_user_violation(gid, event.user_id, 'Porn', event.raw_message))
-            ts: list = time_scop_map[level]
-            logger.info(f"敏感词触发: \"{rule[0]}\"")
-            if delete:
-                try:
-                    await bot.delete_msg(message_id=event.message_id)
-                    logger.info('消息已撤回')
-                except ActionFailed:
-                    logger.info('消息撤回失败')
-            if ban:
-                baning = banSb(gid, ban_list=[event.get_user_id()], scope=ts)
-                async for baned in baning:
-                    if baned:
-                        try:
-                            await baned
-                            await sd(f_word,
-                                     f"你发送了违禁词,现在进行处罚,如有异议请联系管理员\n你的违禁级别为{level}级", True)
-                            logger.info(f"禁言成功，用户: {uid}")
-                        except ActionFailed:
-                            logger.info('禁言失败，权限不足')
-            break
+        try:
+            if not re.search(rule[0], msg): continue
+        except:
+            logger.error(f"违禁词 \"{rule[0]}\" 不是有效的正则表达式 !!!")
+            continue
+        matcher.stop_propagation()  # block
+        level = (await get_user_violation(gid, event.user_id, 'Porn', event.raw_message))
+        ts: list = time_scop_map[level]
+        logger.info(f"敏感词触发: \"{rule[0]}\"")
+        if delete:
+            try:
+                await bot.delete_msg(message_id=event.message_id)
+                logger.info('消息已撤回')
+            except ActionFailed:
+                logger.info('消息撤回失败')
+        if ban:
+            baning = banSb(gid, ban_list=[event.get_user_id()], scope=ts)
+            async for baned in baning:
+                if baned:
+                    try:
+                        await baned
+                        await sd(f_word,
+                                 f"你发送了违禁词,现在进行处罚,如有异议请联系管理员\n你的违禁级别为{level}级", True)
+                        logger.info(f"禁言成功，用户: {uid}")
+                    except ActionFailed:
+                        logger.info('禁言失败，权限不足')
+        break

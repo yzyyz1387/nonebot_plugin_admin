@@ -28,7 +28,7 @@ su = global_config.superusers
 @run_preprocessor
 async def _(matcher: Matcher, bot: Bot, state: T_State, event: Event):
     module = str(matcher.module_name).split('.')
-    if module[1] != 'nonebot_plugin_admin': return
+    if len(module) < 2 or module[-2] != 'nonebot_plugin_admin': return # 位置与文件路径有关
     which_module = module[-1]
     # logger.info(f"{which_module}插件开始hook处理")
     if isinstance(event, GroupMessageEvent):
