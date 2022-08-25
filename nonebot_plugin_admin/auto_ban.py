@@ -47,8 +47,7 @@ async def _(bot: Bot, event: GroupMessageEvent, matcher: Matcher):
         try:
             if not re.search(rule[0], msg): continue
         except:
-            logger.error(f"违禁词 \"{rule[0]}\" 不是有效的正则表达式 !!!")
-            continue
+            if msg.find(rule[0]) == -1: continue
         matcher.stop_propagation()  # block
         level = (await get_user_violation(gid, event.user_id, 'Porn', event.raw_message))
         ts: list = time_scop_map[level]

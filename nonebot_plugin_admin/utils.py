@@ -469,7 +469,7 @@ async def add_txt_line(path: Path, matcher: Matcher, event: GroupMessageEvent, a
                         logger.info(f"{words}已存在")
                         already_add.append(words)
                     else:
-                        await c.write(words + '\n')
+                        c.write(words + '\n')
                         logger.info(f"添加\"{words}\"为{dec}成功")
                         success_add.append(words)
                 if already_add:
