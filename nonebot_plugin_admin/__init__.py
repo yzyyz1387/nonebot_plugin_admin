@@ -15,7 +15,7 @@ import nonebot
 from nonebot.adapters import Message
 from nonebot import on_command, logger, on_notice
 from nonebot.adapters.onebot.v11 import Bot, GroupMessageEvent, NoticeEvent
-from nonebot.adapters.onebot.exception import ActionFailed
+from nonebot.adapters.onebot.v11 import ActionFailed
 from nonebot.adapters.onebot.v11.permission import GROUP_ADMIN, GROUP_OWNER
 from nonebot.matcher import Matcher
 from nonebot.permission import SUPERUSER

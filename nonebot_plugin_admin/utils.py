@@ -136,6 +136,9 @@ async def init():
     if not os.path.exists(ttf_name):
         await mk('file', ttf_name, 'wb', url='https://fastly.jsdelivr.net/gh/yzyyz1387/blogimages/msyhblod.ttf',
                  dec='资源字体')
+    if not os.path.exists(bg_file):
+        await mk("file", bg_file, "wb", url="https://cos.jamyido.tk/bg.jpg",
+                 dec="bg.jpg")
     logger.info('Admin 插件 初始化检测完成')
 
 
@@ -398,7 +401,7 @@ async def check_func_status(func_name: str, gid: str) -> bool:
             #                                                              '请重新发送指令继续之前的操作')
             logger.info('错误发生在 utils.py line 398')
         funcs_status.update({str(gid): {'admin': True, 'requests': True, 'wordcloud': True,
-                                        'auto_ban': True, 'img_check': True, 'word_analyze': True, 'welcome': True}})
+                                        'auto_ban': True, 'img_check': True, 'word_analyze': True}, 'welcome': True})
         await upload(switcher_path, funcs_status)
         return False  # 直接返回 false
 
