@@ -32,15 +32,23 @@ async def _(bot: Bot, event: GroupMessageEvent, matcher: Matcher):
     gid = event.group_id
     logger.info(f"{gid}收到{event.user_id}的消息: \"{msg}\"")
     for rule in rules:
-        if rule[0] and re.search(rule[0], msg):  # TODO: 分群配置
+        if not rule[0]: continue
+        delete, ban = True, True  # 默认禁言&撤回
+        if len(rule) > 1:
+            delete, ban = rule[1].find('$撤回') != -1, rule[1].find('$禁言') != -1
+            rf = re.search(r'\$(仅限|排除)(([0-9]{6,},?)+)', rule[1])
+            if rf:
+                chk = rf.groups()
+                lst = chk[1].split(',')
+                if chk[0] == '仅限':
+                    if str(gid) not in lst: continue
+                else:
+                    if str(gid) in lst: continue
+        if re.search(rule[0], msg):
             matcher.stop_propagation()  # block
             level = (await get_user_violation(gid, event.user_id, 'Porn', event.raw_message))
             ts: list = time_scop_map[level]
             logger.info(f"敏感词触发: \"{rule[0]}\"")
-            delete, ban = True, True  # 默认禁言&撤回
-            if len(rule) > 1:
-                delete = rule[1].find('$撤回') != -1
-                ban = rule[1].find('$禁言') != -1
             if delete:
                 try:
                     await bot.delete_msg(message_id=event.message_id)
