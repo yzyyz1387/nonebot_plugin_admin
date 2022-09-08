@@ -410,7 +410,8 @@ async def check_func_status(func_name: str, gid: str) -> bool:
         return False  # 直接返回 false
 
 
-async def del_txt_line(path: Path, matcher: Matcher, event: GroupMessageEvent, args: Message, dec: str, group: bool = True) -> None:
+async def del_txt_line(path: Path, matcher: Matcher, event: GroupMessageEvent, args: Message, dec: str,
+                       group: bool = True) -> None:
     """
     分群、按行删除txt内容
     :param path: 文件父级路径（文件以群号命名）
@@ -451,7 +452,8 @@ async def del_txt_line(path: Path, matcher: Matcher, event: GroupMessageEvent, a
         await matcher.finish(f"请输入删除内容,多个以空格分隔，例：\n删除{dec} 内容1 内容2")
 
 
-async def add_txt_line(path: Path, matcher: Matcher, event: GroupMessageEvent, args: Message, dec: str, group: bool = True) -> None:
+async def add_txt_line(path: Path, matcher: Matcher, event: GroupMessageEvent, args: Message, dec: str,
+                       group: bool = True) -> None:
     """
     分群、按行添加txt内容
     :param path: 文件父级路径（文件以群号命名）
@@ -495,7 +497,8 @@ async def add_txt_line(path: Path, matcher: Matcher, event: GroupMessageEvent, a
         await matcher.finish(f"请输入添加内容,多个以空格分隔，例：\n添加{dec} 内容1 内容2")
 
 
-async def get_txt_line(path: Path, matcher: Matcher, event: GroupMessageEvent, args: Message, dec: str, group: bool = True) -> None:
+async def get_txt_line(path: Path, matcher: Matcher, event: GroupMessageEvent, args: Message, dec: str,
+                       group: bool = True) -> None:
     """
     分群、按行获取txt内容
     :param path: 文件父级路径（文件以群号命名）
@@ -602,19 +605,22 @@ async def error_log(gid: int, time: str, matcher: Matcher, err: str) -> None:
             logger.error(f"写入错误日志出错：{e}")
 
 
-async def sd(cmd: Type[Matcher], msg, at=False) -> None:
-    if cb_notice: await cmd.send(msg, at_sender=at)
+async def sd(cmd: Matcher, msg, at=False) -> None:
+    if cb_notice:
+        await cmd.send(msg, at_sender=at)
 
 
-async def log_sd(cmd: Type[Matcher], msg, log: str = None, at=False, err=False) -> None:
+async def log_sd(cmd: Matcher, msg, log: str = None, at=False, err=False) -> None:
     (logger.error if err else logger.info)(log if log else msg)
     await sd(cmd, msg, at)
 
 
-async def fi(cmd: Type[Matcher], msg) -> None:
-    await cmd.finish(msg if cb_notice else None)
+async def fi(cmd: Matcher, msg) -> None:
+    # await cmd.finish(msg if cb_notice else None)
+    # FIXME: finish会raise一个FinishedException,如果恰巧在功能中捕捉了一个广泛的Exception,那么就会导致功能无法正常运行
+    await cmd.send(msg if cb_notice else None)
 
 
-async def log_fi(cmd: Type[Matcher], msg, log: str = None, err=False) -> None:
+async def log_fi(cmd: Matcher, msg, log: str = None, err=False) -> None:
     (logger.error if err else logger.info)(log if log else msg)
     await fi(cmd, msg)

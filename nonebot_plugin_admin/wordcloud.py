@@ -81,9 +81,9 @@ async def _(bot: Bot, event: GroupMessageEvent):
                 img_colors = ImageColorGenerator(background_image, default_color=(255, 255, 255))
                 wc.recolor(color_func=img_colors)
                 wc.to_file(img)
-                await cloud.finish(MessageSegment.image(img))
+                await cloud.send(MessageSegment.image(img))
             except Exception as err:
-                await cloud.finish(f"出现错误{type(err)}:{err}")
+                await cloud.send(f"出现错误{type(err)}:{err}")
         else:
             await cloud.finish("当前群未被记录，请先在群内发送，【记录本群】")
     except ModuleNotFoundError:

@@ -8,6 +8,8 @@
 from nonebot import logger, on_message
 from nonebot.adapters.onebot.v11 import Bot, GroupMessageEvent, MessageEvent, MessageSegment
 from nonebot.adapters.onebot.exception import ActionFailed
+from nonebot.internal.matcher import Matcher
+
 from .utils import banSb, image_moderation_async, check_func_status, get_user_violation, sd, fi
 from .path import *
 
@@ -15,7 +17,7 @@ find_pic = on_message(priority=2, block=False)
 
 
 @find_pic.handle()
-async def check_pic(bot: Bot, event: GroupMessageEvent):
+async def check_pic(bot: Bot, matcher: Matcher, event: GroupMessageEvent):
     uid = [event.get_user_id()]
     gid = event.group_id
     eid = event.message_id
@@ -33,7 +35,7 @@ async def check_pic(bot: Bot, event: GroupMessageEvent):
                         if result['Label'] == 'Porn':
                             level = (await get_user_violation(gid, event.user_id, 'Porn', event.raw_message))
                             ts: list = time_scop_map[level]
-                            await sd(find_pic, f"你的违规等级为{level}，色色不规范，群主两行泪，请群友小心驾驶")
+                            await sd(matcher, f"你的违规等级为{level}，色色不规范，群主两行泪，请群友小心驾驶")
                             await send_pics_ban(bot, event, ts)
                         else:
                             level = (
@@ -46,7 +48,7 @@ async def check_pic(bot: Bot, event: GroupMessageEvent):
                             # FIXME 上面的发送出来有点烦，下面：90分以上除了色图在此处理
                     elif result['Score'] <= 90 and result['Label'] == 'Porn':
                         # 地低于90分的色色内容
-                        await fi(find_pic, '色色不规范，群主两行泪，请群友小心驾驶')
+                        await fi(matcher, '色色不规范，群主两行泪，请群友小心驾驶')
                     else:
                         # 低于90的其他内容
                         pass

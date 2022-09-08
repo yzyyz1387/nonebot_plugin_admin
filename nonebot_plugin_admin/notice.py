@@ -9,6 +9,7 @@
 from nonebot import on_command
 from nonebot.adapters.onebot.v11 import Bot, GroupMessageEvent, MessageEvent
 from nonebot.adapters.onebot.v11.permission import GROUP_ADMIN, GROUP_OWNER
+from nonebot.internal.matcher import Matcher
 from nonebot.permission import SUPERUSER
 from nonebot.typing import T_State
 
@@ -47,7 +48,7 @@ g_admin = on_command('分管+', aliases={'/gad+', '分群管理+'}, priority=1, 
 
 
 @g_admin.handle()
-async def _(bot: Bot, event: GroupMessageEvent, state: T_State):
+async def _(bot: Bot, matcher: Matcher, event: GroupMessageEvent, state: T_State):
     msg = str(event.get_message())
     sb = At(event.json())
     gid = str(event.group_id)
@@ -65,7 +66,7 @@ async def _(bot: Bot, event: GroupMessageEvent, state: T_State):
             if g_admin_handle:
                 await g_admin.send(f"{qq}已成为本群分群管理：将接收加群处理结果")
             else:
-                await g_admin.send(g_admin, f"用户{qq}已存在")
+                await g_admin.send(f"用户{qq}已存在")
 
 
 # 开启superuser接收处理结果
@@ -84,13 +85,13 @@ g_admin_ = on_command('分管-', aliases={'/gad-', '分群管理-'}, priority=1,
 
 
 @g_admin_.handle()
-async def _(bot: Bot, event: GroupMessageEvent, state: T_State):
+async def _(bot: Bot, matcher: Matcher, event: GroupMessageEvent, state: T_State):
     msg = str(event.get_message())
     sb = At(event.json())
     gid = str(event.group_id)
     status = await check_func_status('requests', str(gid))
     if not status:
-        await fi(gad, '请先发送【开关加群审批】开启加群处理')
+        await fi(matcher, '请先发送【开关加群审批】开启加群处理')
     if sb and 'all' not in sb:
         for qq in sb:
             g_admin_del_handle = await approve.g_admin_del(gid, int(qq))

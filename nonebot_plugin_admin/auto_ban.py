@@ -30,7 +30,8 @@ async def _(bot: Bot, event: GroupMessageEvent, matcher: Matcher):
              open(limit_word_path, 'r', encoding='utf-8').read().split('\n')]
     msg = re.sub(r'\s', '', str(event.get_message()))
     gid = event.group_id
-    logger.info(f"{gid}收到{event.user_id}的消息: \"{msg}\"")
+    uid = event.user_id
+    logger.info(f"{gid}收到{uid}的消息: \"{msg}\"")
     for rule in rules:
         if not rule[0]: continue
         delete, ban = True, True  # 默认禁言&撤回
@@ -53,7 +54,7 @@ async def _(bot: Bot, event: GroupMessageEvent, matcher: Matcher):
             if msg.find(rule[0]) == -1:
                 continue
         matcher.stop_propagation()  # block
-        level = (await get_user_violation(gid, event.user_id, 'Porn', event.raw_message))
+        level = (await get_user_violation(gid, uid, 'Porn', event.raw_message))
         ts: list = time_scop_map[level]
         logger.info(f"敏感词触发: \"{rule[0]}\"")
         if delete:
@@ -68,7 +69,7 @@ async def _(bot: Bot, event: GroupMessageEvent, matcher: Matcher):
                 if baned:
                     try:
                         await baned
-                        await sd(f_word,
+                        await sd(matcher,
                                  f"你发送了违禁词,现在进行处罚,如有异议请联系管理员\n你的违禁级别为{level}级", True)
                         logger.info(f"禁言成功，用户: {uid}")
                     except ActionFailed:

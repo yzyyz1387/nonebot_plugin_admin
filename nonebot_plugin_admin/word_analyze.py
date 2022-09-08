@@ -162,12 +162,12 @@ async def _(bot: Bot, event: GroupMessageEvent):
                         f"https://fastly.jsdelivr.net/gh/yzyyz1387/blogimages/nonebot/wordcloud/bg{i}.png")).content
                     with open(wordcloud_bg_path / f"{i}.png", 'wb') as f:
                         f.write(img_content)
-                await update_mask.finish('更新完成（好耶）')
+                await update_mask.send('更新完成（好耶）')
             elif num_in_cloud == already_have:
-                await update_mask.finish('蚌！已经是最新了耶')
+                await update_mask.send('蚌！已经是最新了耶')
     except Exception as e:
         logger.info(e)
-        await update_mask.finish(f"QAQ,更新mask失败:\n{e}")
+        await update_mask.send(f"QAQ,更新mask失败:\n{e}")
 
 
 # FIXME: 这一块重复代码有点多了
