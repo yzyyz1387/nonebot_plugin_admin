@@ -41,13 +41,17 @@ async def _(bot: Bot, event: GroupMessageEvent, matcher: Matcher):
                 chk = rf.groups()
                 lst = chk[1].split(',')
                 if chk[0] == '仅限':
-                    if str(gid) not in lst: continue
+                    if str(gid) not in lst:
+                        continue
                 else:
-                    if str(gid) in lst: continue
+                    if str(gid) in lst:
+                        continue
         try:
-            if not re.search(rule[0], msg): continue
+            if not re.search(rule[0], msg):
+                continue
         except:
-            if msg.find(rule[0]) == -1: continue
+            if msg.find(rule[0]) == -1:
+                continue
         matcher.stop_propagation()  # block
         level = (await get_user_violation(gid, event.user_id, 'Porn', event.raw_message))
         ts: list = time_scop_map[level]
