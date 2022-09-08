@@ -8,6 +8,7 @@
 from nonebot import on_command
 from nonebot.adapters.onebot.v11 import Bot, GroupMessageEvent, MessageSegment, ActionFailed
 from nonebot.adapters.onebot.v11.permission import GROUP_ADMIN, GROUP_OWNER
+from nonebot.exception import FinishedException
 from nonebot.internal.matcher import Matcher
 from nonebot.permission import SUPERUSER
 from nonebot.typing import T_State
@@ -63,6 +64,8 @@ async def _(bot: Bot, matcher: Matcher, event: GroupMessageEvent):
                          [f"{admin_funcs[func][0]}：{'开启' if funcs_status[gid][func] else '关闭'}" for func in
                           admin_funcs]),
                      '可能被风控，已使用文字发送', err=True)
+    except FinishedException:
+        pass
     except Exception as e:
         await log_fi(matcher,
                      '当前群组开关状态：\n' + '\n'.join(

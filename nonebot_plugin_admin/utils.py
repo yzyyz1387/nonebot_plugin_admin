@@ -616,9 +616,7 @@ async def log_sd(cmd: Matcher, msg, log: str = None, at=False, err=False) -> Non
 
 
 async def fi(cmd: Matcher, msg) -> None:
-    # await cmd.finish(msg if cb_notice else None)
-    # FIXME: finish会raise一个FinishedException,如果恰巧在功能中捕捉了一个广泛的Exception,那么就会导致功能无法正常运行
-    await cmd.send(msg if cb_notice else None)
+    await cmd.finish(msg if cb_notice else None)
 
 
 async def log_fi(cmd: Matcher, msg, log: str = None, err=False) -> None:

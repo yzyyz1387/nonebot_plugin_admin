@@ -271,7 +271,10 @@ async def _(bot: Bot, matcher: Matcher, event: GroupMessageEvent):
                 await log_fi(matcher, '设置管理员操作成功')
             except ActionFailed:
                 await fi(matcher, '权限不足')
-        await fi(matcher, '指令不正确 或 不能含有@全体成员')
+        else:
+            await fi(matcher, '指令不正确 或 不能含有@全体成员')
+    else:
+        await fi(matcher, '没有@人捏')
 
 
 unset_g_admin = on_command('管理员-', permission=SUPERUSER | GROUP_OWNER, priority=1, block=True)
@@ -320,9 +323,6 @@ async def _(bot: Bot, matcher: Matcher, event: GroupMessageEvent):  # by: @tom-s
     sb = At(event.json())
     rp = Reply(event.json())
     gid = event.group_id
-    if not gid:  # FIXME: 有必要加吗？
-        await fi(matcher, '请在群内使用！')
-
     recall_msg_id = []
     if rp:
         recall_msg_id.append(rp['message_id'])
@@ -355,14 +355,16 @@ async def _(bot: Bot, matcher: Matcher, event: GroupMessageEvent):  # by: @tom-s
                  '指令格式：\n/撤回 @user n\n回复指定消息时撤回该条消息；使用艾特时撤回被艾特的人在本群 n*19 历史消息内的所有消息。\n不输入 n 则默认 n = 5')
 
     # 实际进行撤回的部分
-    try:
-        for msg_id in recall_msg_id:
-            await asyncio.sleep(randint(0, 2))  # 睡眠随机时间，避免黑号
-            await bot.delete_msg(message_id=msg_id)
-        await log_fi(matcher, f"操作成功，一共撤回了 {len(recall_msg_id)} 条消息")
-    except ActionFailed as e:
-        await log_fi(matcher, '撤回失败', f"撤回失败 {e}")
-
+    if recall_msg_id:
+        try:
+            for msg_id in recall_msg_id:
+                await asyncio.sleep(randint(0, 2))  # 睡眠随机时间，避免黑号
+                await bot.delete_msg(message_id=msg_id)
+            await log_fi(matcher, f"操作成功，一共撤回了 {len(recall_msg_id)} 条消息")
+        except ActionFailed as e:
+            await log_fi(matcher, '撤回失败', f"撤回失败 {e}")
+    else:
+        pass
 
 """
 ! 消息防撤回模块，默认不开启，有需要的自行开启，想对部分群生效也需自行实现(可以并入本插件的开关系统内，也可控制 go-cqhttp 的事件过滤器)

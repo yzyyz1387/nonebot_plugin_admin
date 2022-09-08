@@ -92,22 +92,23 @@ async def _(bot: Bot, matcher: Matcher, event: GroupMessageEvent, state: T_State
     status = await check_func_status('requests', str(gid))
     if not status:
         await fi(matcher, '请先发送【开关加群审批】开启加群处理')
-    if sb and 'all' not in sb:
-        for qq in sb:
-            g_admin_del_handle = await approve.g_admin_del(gid, int(qq))
-            if g_admin_del_handle:
-                await g_admin_.send(f"{qq}删除成功")
-            elif not g_admin_del_handle:
-                await g_admin_.send(f"{qq}还不是分群管理")
-            elif g_admin_del_handle is None:
-                await g_admin_.send(f"群{gid}未添加过分群管理\n使用/gadmin+ [用户（可@ 可qq）]来添加分群管理")
     else:
-        sb = str(state['_prefix']['command_arg']).split(' ')
-        for qq in sb:
-            g_admin_del_handle = await approve.g_admin_del(gid, int(qq))
-            if g_admin_del_handle:
-                await g_admin_.send(f"{qq}删除成功")
-            elif not g_admin_del_handle:
-                await g_admin_.send(f"{qq}还不是分群管理")
-            elif g_admin_del_handle is None:
-                await g_admin_.send(f"群{gid}未添加过分群管理\n使用/gadmin+ [用户（可@ 可qq）]来添加分群管理")
+        if sb and 'all' not in sb:
+            for qq in sb:
+                g_admin_del_handle = await approve.g_admin_del(gid, int(qq))
+                if g_admin_del_handle:
+                    await g_admin_.send(f"{qq}删除成功")
+                elif not g_admin_del_handle:
+                    await g_admin_.send(f"{qq}还不是分群管理")
+                elif g_admin_del_handle is None:
+                    await g_admin_.send(f"群{gid}未添加过分群管理\n使用/gadmin+ [用户（可@ 可qq）]来添加分群管理")
+        else:
+            sb = str(state['_prefix']['command_arg']).split(' ')
+            for qq in sb:
+                g_admin_del_handle = await approve.g_admin_del(gid, int(qq))
+                if g_admin_del_handle:
+                    await g_admin_.send(f"{qq}删除成功")
+                elif not g_admin_del_handle:
+                    await g_admin_.send(f"{qq}还不是分群管理")
+                elif g_admin_del_handle is None:
+                    await g_admin_.send(f"群{gid}未添加过分群管理\n使用/gadmin+ [用户（可@ 可qq）]来添加分群管理")
