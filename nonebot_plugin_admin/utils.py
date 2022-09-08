@@ -131,8 +131,15 @@ async def init():
             swp.write(f"{json.dumps(switcher_dict)}")
             swp.close()
     if not os.path.exists(limit_word_path):  # 要联网的都丢最后面去
-        await mk('file', limit_word_path, 'w',
-                 url='https://fastly.jsdelivr.net/gh/yzyyz1387/nwafu/f_words/f_word_easy', dec='简单违禁词词库')
+        if os.path.exists(config_path / '违禁词_简单.txt'):
+            with open(config_path / '违禁词_简单.txt', 'r', encoding='utf-8') as f:
+                content = f.read()
+            with open(limit_word_path, 'w', encoding='utf-8') as f:
+                f.write(content)
+            os.remove(config_path / '违禁词_简单.txt')
+        else:
+            await mk('file', limit_word_path, 'w',
+                     url='https://fastly.jsdelivr.net/gh/yzyyz1387/nwafu/f_words/f_word_easy', dec='简单违禁词词库')
     if not os.path.exists(ttf_name):
         await mk('file', ttf_name, 'wb', url='https://fastly.jsdelivr.net/gh/yzyyz1387/blogimages/msyhblod.ttf',
                  dec='资源字体')
