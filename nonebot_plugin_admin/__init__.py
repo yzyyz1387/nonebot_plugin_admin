@@ -33,6 +33,7 @@ from . import (
     wordcloud,
     switcher,
     utils,
+    web
 )
 from .utils import At, Reply, MsgText, banSb, check_func_status, change_s_title, log_sd, fi, log_fi
 from .group_request_verify import verify
