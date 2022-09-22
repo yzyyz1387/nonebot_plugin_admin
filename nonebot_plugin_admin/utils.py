@@ -539,7 +539,7 @@ async def change_s_title(bot: Bot, matcher: Matcher, gid: int, uid: int, s_title
             special_title=s_title,
             duration=-1,
         )
-        log_fi(matcher, f"头衔操作成功:{s_title}")
+        await log_fi(matcher, f"头衔操作成功:{s_title}")
     except ActionFailed:
         logger.info('权限不足')
 
