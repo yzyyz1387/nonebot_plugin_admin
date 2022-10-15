@@ -11,7 +11,7 @@
 <img src="https://img.shields.io/github/stars/yzyyz1387/nonebot_plugin_admin.svg?style=social">  
 # 简易群管 （考研缓更）  
    **pypi没更 github最新**   
-   **[dev分支](https://github.com/yzyyz1387/nonebot_plugin_admin/tree/dev)**  
+   **[main分支](https://github.com/yzyyz1387/nonebot_plugin_admin/tree/main)**  
   _✨ NoneBot2 (有点不)简易群管✨ _    
 
  
