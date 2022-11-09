@@ -188,9 +188,12 @@ async def _(bot: Bot, event: GroupMessageEvent, matcher: Matcher, args: Message 
     today = datetime.date.today().strftime('%Y-%m-%d')
     dic_ = await load(group_message_data_path / f"{gid}" / f"{today}.json")
     top = sorted(dic_.items(), key=lambda x: x[1], reverse=True)
+    top = (await member_in_group(bot, gid, top))
+
     if len(top) == 0:
         await who_speak_most_today.finish('没有任何人说话')
-    await who_speak_most_today.finish(f"太强了！今日榜首：\n{top[0][0]}，发了{top[0][1]}条消息")
+    nickname = await bot.get_group_member_info(group_id=gid, user_id=top[0][0])
+    await who_speak_most_today.finish(f"太强了！今日榜首：\n{nickname}，发了{top[0][1]}条消息")
 
 
 speak_top = on_command('今日发言排行', aliases={'今日排行榜', '今日发言排行榜', '今日排行'}, block=True, priority=1)
@@ -202,6 +205,7 @@ async def _(bot: Bot, event: GroupMessageEvent, matcher: Matcher, args: Message 
     today = datetime.date.today().strftime('%Y-%m-%d')
     dic_ = await load(group_message_data_path / f"{gid}" / f"{today}.json")
     top = sorted(dic_.items(), key=lambda x: x[1], reverse=True)
+    top = (await member_in_group(bot, gid, top))
     if len(top) == 0:
         await speak_top.finish('没有任何人说话')
     top_list = []
@@ -223,6 +227,7 @@ async def _(bot: Bot, event: GroupMessageEvent, matcher: Matcher, args: Message 
     if os.path.exists(group_message_data_path / f"{gid}" / f"{yesterday}.json"):
         dic_ = await load(group_message_data_path / f"{gid}" / f"{yesterday}.json")
         top = sorted(dic_.items(), key=lambda x: x[1], reverse=True)
+        top = (await member_in_group(bot, gid, top))
         if len(top) == 0:
             await speak_top_yesterday.finish('没有任何人说话')
         top_list = []
@@ -242,6 +247,7 @@ async def _(bot: Bot, event: GroupMessageEvent, matcher: Matcher, args: Message 
     gid = event.group_id
     dic_ = await load(group_message_data_path / f"{gid}" / 'history.json')
     top = sorted(dic_.items(), key=lambda x: x[1], reverse=True)
+    top = (await member_in_group(bot, gid, top))
     if len(top) == 0:
         await who_speak_most.finish('没有任何人说话')
     top_list = []
@@ -286,3 +292,15 @@ async def _(bot: Bot, event: GroupMessageEvent, matcher: Matcher, args: Message 
                 await get_speak_num_today.send(f"今天{nickname}发了{dic_[qq]}条消息")
             else:
                 await get_speak_num_today.send(f"今天{nickname}没有发消息")
+
+
+async def member_in_group(bot: Bot, gid: int, top: list):
+    """成员不在本群则不仅从排行（不在本圈查询信息时会报错）"""
+    member_dict = (await bot.get_group_member_list(group_id=gid))
+    member_list = []
+    for i in member_dict:
+        member_list.append(i['user_id'])
+    for j in top:
+        if int(j[0]) not in member_list:
+            top.remove(j)
+    return top
