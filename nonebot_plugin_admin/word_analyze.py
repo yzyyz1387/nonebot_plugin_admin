@@ -206,7 +206,8 @@ async def _(bot: Bot, event: GroupMessageEvent, matcher: Matcher, args: Message 
         await speak_top.finish('没有任何人说话')
     top_list = []
     for i in range(min(len(top), 10)):
-        top_list.append(f"{i + 1}. {top[i][0]}，发了{top[i][1]}条消息")
+        nickname = (await bot.get_group_member_info(group_id=gid, user_id=int(top[i][0])))['card']
+        top_list.append(f"{i + 1}. {nickname}，发了{top[i][1]}条消息")
     await speak_top.finish('\n'.join(top_list))
 
 
@@ -226,7 +227,8 @@ async def _(bot: Bot, event: GroupMessageEvent, matcher: Matcher, args: Message 
             await speak_top_yesterday.finish('没有任何人说话')
         top_list = []
         for i in range(min(len(top), 10)):
-            top_list.append(f"{i + 1}. {top[i][0]}，发了{top[i][1]}条消息")
+            nickname = (await bot.get_group_member_info(group_id=gid, user_id=int(top[i][0])))['card']
+            top_list.append(f"{i + 1}. {nickname}，发了{top[i][1]}条消息")
         await speak_top_yesterday.finish('\n'.join(top_list))
     else:
         await speak_top_yesterday.finish('昨日没有记录')
@@ -244,7 +246,8 @@ async def _(bot: Bot, event: GroupMessageEvent, matcher: Matcher, args: Message 
         await who_speak_most.finish('没有任何人说话')
     top_list = []
     for i in range(min(len(top), 10)):
-        top_list.append(f"{i + 1}. {top[i][0]}，发了{top[i][1]}条消息")
+        nickname = (await bot.get_group_member_info(group_id=gid, user_id=int(top[i][0])))['card']
+        top_list.append(f"{i + 1}. {nickname}，发了{top[i][1]}条消息")
     await who_speak_most.finish('\n'.join(top_list))
 
 
@@ -258,11 +261,12 @@ async def _(bot: Bot, event: GroupMessageEvent, matcher: Matcher, args: Message 
     at_list = At(event.json())
     if at_list:
         for qq in at_list:
+            nickname = (await bot.get_group_member_info(group_id=gid, user_id=int(qq)))['card']
             qq = str(qq)
             if qq in dic_:
-                await get_speak_num.send(f"有记录以来{qq}在本群发了{dic_[qq]}条消息")
+                await get_speak_num.send(f"有记录以来{nickname}在本群发了{dic_[qq]}条消息")
             else:
-                await get_speak_num.send(f"{qq}没有发消息")
+                await get_speak_num.send(f"{nickname}没有发消息")
 
 
 get_speak_num_today = on_command('今日发言数', aliases={'今日发言数', '今日发言', '今日发言量'}, block=True, priority=1)
@@ -276,8 +280,9 @@ async def _(bot: Bot, event: GroupMessageEvent, matcher: Matcher, args: Message 
     at_list = At(event.json())
     if at_list:
         for qq in at_list:
+            nickname = (await bot.get_group_member_info(group_id=gid, user_id=int(qq)))['card']
             qq = str(qq)
             if qq in dic_:
-                await get_speak_num_today.send(f"今天{qq}发了{dic_[qq]}条消息")
+                await get_speak_num_today.send(f"今天{nickname}发了{dic_[qq]}条消息")
             else:
-                await get_speak_num_today.send(f"今天{qq}没有发消息")
+                await get_speak_num_today.send(f"今天{nickname}没有发消息")
