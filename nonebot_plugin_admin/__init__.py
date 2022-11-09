@@ -8,6 +8,7 @@
 
 import json
 import asyncio
+import os
 from traceback import print_exc
 from random import randint
 from nonebot.params import CommandArg
@@ -33,9 +34,51 @@ from . import (
     wordcloud,
     switcher,
     utils,
-    web
 )
-from .utils import At, Reply, MsgText, banSb, check_func_status, change_s_title, log_sd, fi, log_fi
+
+
+from .path import *
+from .utils import At, Reply, MsgText, banSb, check_func_status, change_s_title, log_sd, fi, log_fi, copyFile
+
+if admin_models_path.exists() and admin_models_init_path.exists():
+    from . import web
+else:
+    db_dirs = []
+    models_path = Path(__file__).parent / 'web' / 'api' / 'models'
+    from pathlib import Path
+    if not admin_models_path.exists():
+        os.mkdir(admin_models_path)
+    if not admin_models_init_path.exists():
+        for file in models_path.iterdir():
+            if file.is_file():
+                db_dirs.append(models_path / file.name)
+        for file in db_dirs:
+            copyFile(file, admin_models_path / file.name)
+        with open(admin_models_init_path, "a+") as f:
+            f.write(f"models_version = 0")
+    for i in range(5):
+        logger.warning("未找到admin_models文件夹，无法使用admin插件的web功能,正在复制模型以解决此问题，请重启程序")
+    pid = os.getpid()
+    if os.name == 'nt':
+        # Windows系统
+        cmd = 'taskkill /pid ' + str(pid) + ' /f'
+        try:
+            os.system(cmd)
+            print(pid, 'killed')
+        except Exception as e:
+            print(e)
+    elif os.name == 'posix':
+        # Linux系统
+        cmd = 'kill ' + str(pid)
+        try:
+            os.system(cmd)
+            print(pid, 'killed')
+        except Exception as e:
+            print(e)
+    else:
+        print('Undefined os.name')
+
+
 from .group_request_verify import verify
 from .config import global_config
 

@@ -86,5 +86,3 @@ async def del_(group_id: int):
         return {"message": "删除成功"}
     else:
         return {"error": "删除失败"}
-
-
