@@ -8,7 +8,7 @@
 import re
 
 from nonebot import logger, on_message
-from nonebot.adapters.onebot.exception import ActionFailed
+from nonebot.adapters.onebot.v11.exception import ActionFailed
 from nonebot.adapters.onebot.v11 import Bot, GroupMessageEvent
 from nonebot.matcher import Matcher
 
