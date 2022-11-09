@@ -199,7 +199,8 @@ async def _(bot: Bot, event: GroupMessageEvent, matcher: Matcher, args: Message 
         await speak_top.finish('没有任何人说话')
     top_list = []
     for i in range(min(len(top), 10)):
-        top_list.append(f"{i + 1}. {top[i][0]}，发了{top[i][1]}条消息")
+        nickname = (await bot.get_group_member_info(group_id=gid, user_id=int(top[i][0])))['card']
+        top_list.append(f"{i + 1}. {nickname}，发了{top[i][1]}条消息")
     await speak_top.finish('\n'.join(top_list))
 
 
@@ -219,7 +220,9 @@ async def _(bot: Bot, event: GroupMessageEvent, matcher: Matcher, args: Message 
             await speak_top_yesterday.finish('没有任何人说话')
         top_list = []
         for i in range(min(len(top), 10)):
-            top_list.append(f"{i + 1}. {top[i][0]}，发了{top[i][1]}条消息")
+            nickname = (await bot.get_group_member_info(group_id=gid, user_id=int(top[i][0])))['card']
+            top_list.append(f"{i + 1}. {nickname}，发了{top[i][1]}条消息")
+
         await speak_top_yesterday.finish('\n'.join(top_list))
     else:
         await speak_top_yesterday.finish('昨日没有记录')
@@ -237,6 +240,7 @@ async def _(bot: Bot, event: GroupMessageEvent, matcher: Matcher, args: Message 
         await who_speak_most.finish('没有任何人说话')
     top_list = []
     for i in range(min(len(top), 10)):
+        nickname = (await bot.get_group_member_info(group_id=gid, user_id=int(top[i][0])))['card']
         top_list.append(f"{i + 1}. {top[i][0]}，发了{top[i][1]}条消息")
     await who_speak_most.finish('\n'.join(top_list))
 
