@@ -56,7 +56,7 @@ async def check_pic(bot: Bot, matcher: Matcher, event: GroupMessageEvent):
                     elif result['Suggestion'] == 'Pass':
                         pass
                 except TypeError:
-                    logger.info("请求图片安全接口失败")
+                    logger.error("请求图片安全接口失败")
                     pass
 
 
