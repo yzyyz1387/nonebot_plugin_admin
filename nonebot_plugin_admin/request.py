@@ -171,7 +171,7 @@ async def gr_(bot: Bot, event: GroupRequestEvent):
                     await bot.send_msg(message_type='private', user_id=q, group_id=int(gid),
                                        message=f"同意{uid}加入群 {gid},验证消息为 “{word}”")
 
-        elif not compared:
+        elif compared is False:
             logger.info(f"拒绝{uid}加入群 {gid},验证消息为 “{word}”")
             await bot.set_group_add_request(
                 flag=flag,
