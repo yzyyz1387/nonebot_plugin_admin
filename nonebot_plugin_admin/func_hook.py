@@ -16,6 +16,7 @@ from nonebot.adapters.onebot.v11 import (
 from nonebot.matcher import Matcher
 from nonebot.message import run_preprocessor, IgnoredException
 from nonebot.typing import T_State
+from pathlib import Path
 
 from .config import plugin_config, global_config
 from .path import *
@@ -23,12 +24,12 @@ from .utils import check_func_status
 
 cb_notice = plugin_config.callback_notice
 su = global_config.superusers
-
+parent_path = str(Path(__file__).parent).split("/")[-1]
 
 @run_preprocessor
 async def _(matcher: Matcher, bot: Bot, state: T_State, event: Event):
     module = str(matcher.module_name).split('.')
-    if len(module) < 2 or module[-2] != 'nonebot_plugin_admin': return  # 位置与文件路径有关
+    if len(module) < 2 or module[-2] != parent_path: return  # 位置与文件路径有关
     which_module = module[-1]
     # logger.info(f"{which_module}插件开始hook处理")
     if isinstance(event, GroupMessageEvent):
@@ -50,7 +51,7 @@ async def _(matcher: Matcher, bot: Bot, state: T_State, event: Event):
     elif isinstance(event, GroupRequestEvent):
         gid = event.group_id
         try:
-            if which_module == 'request':  # FIXME
+            if which_module == 'requests':
                 logger.info(event.flag)
                 if event.sub_type == 'add':
                     status = await check_func_status(which_module, str(gid))
