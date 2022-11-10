@@ -28,31 +28,35 @@ async def check_pic(bot: Bot, matcher: Matcher, event: GroupMessageEvent):
                 image_ = url
                 # result = await pic_ban_cof(url = image_)
                 result = (await image_moderation_async(image_))
-                if not result:
-                    pass
-                elif result['Suggestion'] != 'Pass':
-                    if result['Score'] >= 90:
-                        if result['Label'] == 'Porn':
-                            level = (await get_user_violation(gid, event.user_id, 'Porn', event.raw_message))
-                            ts: list = time_scop_map[level]
-                            await sd(matcher, f"你的违规等级为{level}，色色不规范，群主两行泪，请群友小心驾驶")
-                            await send_pics_ban(bot, event, ts)
-                        else:
-                            level = (
-                                await get_user_violation(gid, event.user_id, 'Porn', event.raw_message, add_=False))
-                            ts: list = time_scop_map[level]
-                            logger.info(
-                                f"{uid} 发送的内容涉及 {result['Label']}, 分值为{result['Score']}, 他的违规等级为{level}级")
-                            # await sd(find_pic, f"你发送的内容涉及{result['Label']}\n你的违规等级为{level}级，网络并非法外之地，请谨言慎行！", True)
-                            # await send_pics_ban(bot, event, scope = ts)
-                            # FIXME 上面的发送出来有点烦，下面：90分以上除了色图在此处理
-                    elif result['Score'] <= 90 and result['Label'] == 'Porn':
-                        # 地低于90分的色色内容
-                        await fi(matcher, '色色不规范，群主两行泪，请群友小心驾驶')
-                    else:
-                        # 低于90的其他内容
+                try:
+                    if not result:
                         pass
-                elif result['Suggestion'] == 'Pass':
+                    elif result['Suggestion'] != 'Pass':
+                        if result['Score'] >= 90:
+                            if result['Label'] == 'Porn':
+                                level = (await get_user_violation(gid, event.user_id, 'Porn', event.raw_message))
+                                ts: list = time_scop_map[level]
+                                await sd(matcher, f"你的违规等级为{level}，色色不规范，群主两行泪，请群友小心驾驶")
+                                await send_pics_ban(bot, event, ts)
+                            else:
+                                level = (
+                                    await get_user_violation(gid, event.user_id, 'Porn', event.raw_message, add_=False))
+                                ts: list = time_scop_map[level]
+                                logger.info(
+                                    f"{uid} 发送的内容涉及 {result['Label']}, 分值为{result['Score']}, 他的违规等级为{level}级")
+                                # await sd(find_pic, f"你发送的内容涉及{result['Label']}\n你的违规等级为{level}级，网络并非法外之地，请谨言慎行！", True)
+                                # await send_pics_ban(bot, event, scope = ts)
+                                # FIXME 上面的发送出来有点烦，下面：90分以上除了色图在此处理
+                        elif result['Score'] <= 90 and result['Label'] == 'Porn':
+                            # 地低于90分的色色内容
+                            await fi(matcher, '色色不规范，群主两行泪，请群友小心驾驶')
+                        else:
+                            # 低于90的其他内容
+                            pass
+                    elif result['Suggestion'] == 'Pass':
+                        pass
+                except TypeError:
+                    logger.info("请求图片安全接口失败")
                     pass
 
 
