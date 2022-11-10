@@ -76,7 +76,9 @@ send_time_night = "23 0"    # 选填 晚上发送时间默认为22:00
 
 ✨Pay tribute to A60 [https://github.com/djkcyl/ABot-Graia](https://github.com/djkcyl/ABot-Graia)
 
-
+## 注意
+**由于API的加入，首次使用本插件时，会终止机器人程序，需要再启动一次**  
+**控制台会有对应提示** 
 
 ## 指令💻
 
