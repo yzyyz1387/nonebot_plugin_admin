@@ -28,7 +28,7 @@ from . import (
     group_request_verify,
     img_check,
     notice,
-    request,
+    requests,
     request_manual,
     word_analyze,
     wordcloud,
