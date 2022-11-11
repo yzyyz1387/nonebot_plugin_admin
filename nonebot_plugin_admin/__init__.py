@@ -447,6 +447,28 @@ async def _(bot: Bot, event: NoticeEvent):
     await bot.send_group_msg(group_id=group_id, message=recall_notice + recalled_message['message'])
 
 
+set_essence = on_command("加精", aliases={'加精', 'set_essence'}, priority=5, block=True)
+
+
+@set_essence.handle()
+async def _(bot: Bot, event: GroupMessageEvent):
+    rp = Reply(event.json())
+    if rp:
+        msg_id = rp['message_id']
+        await bot.call_api(api='set_essence_msg', message_id=msg_id)
+
+
+del_essence = on_command("取消精华", aliases={'取消加精', 'del_essence'}, priority=5, block=True)
+
+
+@del_essence.handle()
+async def _(bot: Bot, event: GroupMessageEvent):
+    rp = Reply(event.json())
+    if rp:
+        msg_id = rp['message_id']
+        await bot.call_api(api='delete_essence_msg', message_id=msg_id)
+
+
 __usage__ = """
 【群管】：
 权限：permission = SUPERUSER | GROUP_ADMIN | GROUP_OWNER
