@@ -24,12 +24,12 @@ from .utils import check_func_status
 
 cb_notice = plugin_config.callback_notice
 su = global_config.superusers
-parent_path = str(Path(__file__).parent).split("/")[-1]
+admin_path = Path(__file__).parts[-2]
 
 @run_preprocessor
 async def _(matcher: Matcher, bot: Bot, state: T_State, event: Event):
     module = str(matcher.module_name).split('.')
-    if len(module) < 2 or module[-2] != parent_path: return  # 位置与文件路径有关
+    if len(module) < 2 or module[-2] != admin_path: return  # 位置与文件路径有关
     which_module = module[-1]
     # logger.info(f"{which_module}插件开始hook处理")
     if isinstance(event, GroupMessageEvent):

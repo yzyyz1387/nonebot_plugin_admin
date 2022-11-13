@@ -218,6 +218,8 @@ async def _(bot: Bot, event: GroupMessageEvent, matcher: Matcher, args: Message 
     yesterday = (datetime.date.today() - datetime.timedelta(days=1)).strftime('%Y-%m-%d')
     if os.path.exists(group_message_data_path / f"{gid}" / f"{yesterday}.json"):
         dic_ = await load(group_message_data_path / f"{gid}" / f"{yesterday}.json")
+        if not dic_:
+            await who_speak_most.finish('没有任何人说话')
         top = sorted(dic_.items(), key=lambda x: x[1], reverse=True)
         top = (await member_in_group(bot, gid, top))
 
