@@ -53,7 +53,7 @@ async def check_pic(bot: Bot, matcher: Matcher, event: GroupMessageEvent):
                         else:
                             # 低于90的其他内容
                             pass
-                    elif result['Suggestion'] == 'Pass':
+                    else:
                         pass
                 except TypeError:
                     logger.error("请求图片安全接口失败")
