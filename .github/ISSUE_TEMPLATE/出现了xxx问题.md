@@ -22,8 +22,8 @@ assignees: ''
  - Python 版本 
  - Nonebot2 版本号
  - 在那里下载的本插件
-  - pypi (商店安装 或者 pip 安装（本质一样）)
-  - github ( 说明分支 )
+   - pypi (商店安装 或者 pip 安装（本质一样）)
+   - github ( 说明分支 )
 
 
 **其他内容**
