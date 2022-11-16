@@ -56,6 +56,8 @@ tenkeys="xxxxxx"
 # 是否开启禁言等操作的成功提示【不开启的话踢人/禁言等成功没有QQ消息提示】
 callback_notice=true # 如果不想开启设置成 false 或者不添加此配置项【默认关闭】
 ```
+✨Pay tribute to A60 [https://github.com/djkcyl/ABot-Graia](https://github.com/djkcyl/ABot-Graia)
+
 **早晚安配置**
 
 额外依赖pip install nonebot_plugin_apscheduler
@@ -74,10 +76,9 @@ send_time_night = "23 0"    # 选填 晚上发送时间默认为22:00
 更多配置项请查看 [config.py](./nonebot_plugin_admin/config.py)
 
 
-✨Pay tribute to A60 [https://github.com/djkcyl/ABot-Graia](https://github.com/djkcyl/ABot-Graia)
 
 ## 注意
-**由于API的加入，首次使用本插件时，会终止机器人程序，需要再启动一次**  
+**[dev分支](https://github.com/yzyyz1387/nonebot_plugin_admin/tree/dev)由于API的加入，首次使用本插件时，会终止机器人程序，需要再启动一次**  
 **控制台会有对应提示** 
 
 ## 指令💻
