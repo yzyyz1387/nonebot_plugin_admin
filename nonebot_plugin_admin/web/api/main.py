@@ -50,12 +50,26 @@ app.add_middleware(
 #     for file in dirs:
 #         copyFile(file, bot_models_dir / file.name)
 
-register_tortoise(app,
-                  db_url="sqlite://admin.db",
-                  modules={"models": ["admin_db_models.group_models", "admin_db_models.user_models"]},
-                  generate_schemas=True,
-                  add_exception_handlers=True
-                  )
+register_tortoise(
+                app,
+                # modules={"models": ["admin_db_models.group_models", "admin_db_models.user_models"]},
+                # generate_schemas=True,
+                # add_exception_handlers=True,
+                config={
+                  'connections': {
+                      'default': "sqlite://admin.db",
+                  },
+                  'apps': {
+                      'models': {
+                          "models": ["admin_db_models.group_models", "admin_db_models.user_models"],
+                          'default_connection': 'default',
+                      }
+                  },
+                  "use_tz": False,
+                  "timezone": "Asia/Shanghai"
+
+                }
+            )
 
 app.include_router(group.router)
 app.include_router(switcher.router)
@@ -65,8 +79,6 @@ app.include_router(msg.router)
 @app.get("/")
 async def root():
     return {"message": "this server is for nonebot_plugin_admin"}
-
-
 
 # import uvicorn
 #
