@@ -55,7 +55,7 @@ async def _(bot: Bot, event: GroupMessageEvent):
         await word_start.finish(f"停用失败：{gid}不存在")
 
 
-word = on_message(priority=10, block=False)
+word = on_message(priority=1, block=False)
 
 
 @word.handle()
