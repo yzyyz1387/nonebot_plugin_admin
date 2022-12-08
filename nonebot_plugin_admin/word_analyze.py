@@ -184,7 +184,9 @@ async def _(bot: Bot, event: GroupMessageEvent, matcher: Matcher, args: Message 
     top = (await member_in_group(bot, gid, top))
     if len(top) == 0:
         await who_speak_most_today.finish('没有任何人说话')
-    nickname = await bot.get_group_member_info(group_id=gid, user_id=top[0][0])
+    nickname = (await bot.get_group_member_info(group_id=gid, user_id=top[0][0]))['card']
+    if nickname == '':
+        nickname = (await bot.get_group_member_info(group_id=gid, user_id=int(top[0][0])))['nickname']
     await who_speak_most_today.finish(f"太强了！今日榜首：\n{nickname}，发了{top[0][1]}条消息")
 
 
