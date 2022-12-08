@@ -192,7 +192,9 @@ async def _(bot: Bot, event: GroupMessageEvent, matcher: Matcher, args: Message 
 
     if len(top) == 0:
         await who_speak_most_today.finish('没有任何人说话')
-    nickname = await bot.get_group_member_info(group_id=gid, user_id=top[0][0])
+    nickname = (await bot.get_group_member_info(group_id=gid, user_id=top[0][0]))['card']
+    if nickname == '':
+        nickname = (await bot.get_group_member_info(group_id=gid, user_id=int(top[0][0])))['nickname']
     await who_speak_most_today.finish(f"太强了！今日榜首：\n{nickname}，发了{top[0][1]}条消息")
 
 
@@ -211,6 +213,8 @@ async def _(bot: Bot, event: GroupMessageEvent, matcher: Matcher, args: Message 
     top_list = []
     for i in range(min(len(top), 10)):
         nickname = (await bot.get_group_member_info(group_id=gid, user_id=int(top[i][0])))['card']
+        if nickname == '':
+            nickname = (await bot.get_group_member_info(group_id=gid, user_id=int(top[i][0])))['nickname']
         top_list.append(f"{i + 1}. {nickname}，发了{top[i][1]}条消息")
     await speak_top.finish('\n'.join(top_list))
 
@@ -233,6 +237,8 @@ async def _(bot: Bot, event: GroupMessageEvent, matcher: Matcher, args: Message 
         top_list = []
         for i in range(min(len(top), 10)):
             nickname = (await bot.get_group_member_info(group_id=gid, user_id=int(top[i][0])))['card']
+            if nickname == '':
+                nickname = (await bot.get_group_member_info(group_id=gid, user_id=int(top[i][0])))['nickname']
             top_list.append(f"{i + 1}. {nickname}，发了{top[i][1]}条消息")
         await speak_top_yesterday.finish('\n'.join(top_list))
     else:
@@ -253,6 +259,8 @@ async def _(bot: Bot, event: GroupMessageEvent, matcher: Matcher, args: Message 
     top_list = []
     for i in range(min(len(top), 10)):
         nickname = (await bot.get_group_member_info(group_id=gid, user_id=int(top[i][0])))['card']
+        if nickname == '':
+            nickname = (await bot.get_group_member_info(group_id=gid, user_id=int(top[i][0])))['nickname']
         top_list.append(f"{i + 1}. {nickname}，发了{top[i][1]}条消息")
     await who_speak_most.finish('\n'.join(top_list))
 
@@ -268,6 +276,8 @@ async def _(bot: Bot, event: GroupMessageEvent, matcher: Matcher, args: Message 
     if at_list:
         for qq in at_list:
             nickname = (await bot.get_group_member_info(group_id=gid, user_id=int(qq)))['card']
+            if nickname == '':
+                nickname = (await bot.get_group_member_info(group_id=gid, user_id=int(qq)))['nickname']
             qq = str(qq)
             if qq in dic_:
                 await get_speak_num.send(f"有记录以来{nickname}在本群发了{dic_[qq]}条消息")
@@ -287,6 +297,8 @@ async def _(bot: Bot, event: GroupMessageEvent, matcher: Matcher, args: Message 
     if at_list:
         for qq in at_list:
             nickname = (await bot.get_group_member_info(group_id=gid, user_id=int(qq)))['card']
+            if nickname == '':
+                nickname = (await bot.get_group_member_info(group_id=gid, user_id=int(qq)))['nickname']
             qq = str(qq)
             if qq in dic_:
                 await get_speak_num_today.send(f"今天{nickname}发了{dic_[qq]}条消息")
