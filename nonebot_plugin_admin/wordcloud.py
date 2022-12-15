@@ -16,7 +16,6 @@ import os
 from .path import *
 import numpy as np
 import random
-import os
 from imageio import imread
 
 cloud = on_command('群词云', priority=1)
