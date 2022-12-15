@@ -393,10 +393,7 @@ async def check_func_status(func_name: str, gid: str) -> bool:
     if funcs_status is None:
         raise FileNotFoundError(switcher_path)
     try:
-        if funcs_status[gid][func_name]:
-            return True
-        else:
-            return False
+        return bool(funcs_status[gid][func_name])
     except KeyError:  # 新加入的群
         logger.info(
             f"本群({gid})尚未初始化！将自动初始化：关闭所有开关且设置过滤级别为简单。\n\n请重新发送指令继续之前的操作")
