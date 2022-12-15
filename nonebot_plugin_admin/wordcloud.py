@@ -63,7 +63,7 @@ async def _(bot: Bot, event: GroupMessageEvent):
             text = path_temp.read_text(encoding='utf-8')
             txt = jieba.lcut(text)
             this_stop_ = stop_words_path / f"{gid}.txt"
-            if os.path.exists(this_stop_):
+            if this_stop_.exists():
                 stop_ = set(this_stop_.read_text(encoding='utf-8').split('\n') + (await participle_simple_handle()))
             else:
                 stop_ = set(await participle_simple_handle())
