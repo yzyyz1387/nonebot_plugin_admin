@@ -34,8 +34,7 @@ from . import (
     utils,
 )
 from .config import global_config
-from .group_request_verify import verify
-from .utils import At, Reply, MsgText, banSb, check_func_status, change_s_title, log_sd, fi, log_fi
+from .utils import At, Reply, MsgText, banSb, change_s_title, log_sd, fi, log_fi
 
 su = global_config.superusers
 
