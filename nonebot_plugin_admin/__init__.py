@@ -6,19 +6,18 @@
 # @File    : __init__.py.py
 # @Software: PyCharm
 
-import json
 import asyncio
-from traceback import print_exc
+import json
 from random import randint
-from nonebot.params import CommandArg
-import nonebot
-from nonebot.adapters import Message
+from traceback import print_exc
+
 from nonebot import on_command, logger, on_notice
 from nonebot.adapters.onebot.v11 import Bot, GroupMessageEvent, NoticeEvent
 from nonebot.adapters.onebot.v11.exception import ActionFailed
 from nonebot.adapters.onebot.v11.permission import GROUP_ADMIN, GROUP_OWNER
 from nonebot.matcher import Matcher
 from nonebot.permission import SUPERUSER
+
 from . import (
     approve,
     auto_ban,
@@ -34,9 +33,9 @@ from . import (
     switcher,
     utils,
 )
-from .utils import At, Reply, MsgText, banSb, check_func_status, change_s_title, log_sd, fi, log_fi
-from .group_request_verify import verify
 from .config import global_config
+from .group_request_verify import verify
+from .utils import At, Reply, MsgText, banSb, check_func_status, change_s_title, log_sd, fi, log_fi
 
 su = global_config.superusers
 
@@ -95,8 +94,7 @@ ban_all = on_command('/all', aliases={'/全员'}, permission=SUPERUSER | GROUP_A
 @ban_all.handle()
 async def _(bot: Bot, matcher: Matcher, event: GroupMessageEvent):
     """
-    （测试时没用..） 
-    # note: 如果在 .env.* 文件内设置了 COMMAND_START ，且不包含 "" (即所有指令都有前缀，假设 '/' 是其中一个前缀)，则应该发 //all 触发 
+    # note: 如果在 .env.* 文件内设置了 COMMAND_START ，且不包含 "" (即所有指令都有前缀，假设 '/' 是其中一个前缀)，则应该发 //all 触发
     /all 全员禁言
     /all  解 关闭全员禁言
     """
@@ -175,7 +173,6 @@ async def _(bot: Bot, matcher: Matcher, event: GroupMessageEvent):
     """
     /删头衔 @user 删除头衔
     """
-    msg = MsgText(event.json())
     s_title = ''
     sb = At(event.json())
     gid = event.group_id
@@ -201,7 +198,6 @@ async def _(bot: Bot, matcher: Matcher, event: GroupMessageEvent):
     """
     /踢 @user 踢出某人
     """
-    msg = str(event.get_message())
     sb = At(event.json())
     gid = event.group_id
     if sb:
@@ -227,7 +223,6 @@ async def _(bot: Bot, matcher: Matcher, event: GroupMessageEvent):
     """
     黑 @user 踢出并拉黑某人
     """
-    msg = str(event.get_message())
     sb = At(event.json())
     gid = event.group_id
     if sb:
@@ -366,6 +361,7 @@ async def _(bot: Bot, matcher: Matcher, event: GroupMessageEvent):  # by: @tom-s
     else:
         pass
 
+
 """
 ! 消息防撤回模块，默认不开启，有需要的自行开启，想对部分群生效也需自行实现(可以并入本插件的开关系统内，也可控制 go-cqhttp 的事件过滤器)
 
@@ -425,7 +421,6 @@ async def _(bot: Bot, event: GroupMessageEvent):
         await bot.call_api(api='delete_essence_msg', message_id=msg_id)
 
 
-
 __usage__ = """
 【群管】：
 权限：permission = SUPERUSER | GROUP_ADMIN | GROUP_OWNER
@@ -454,12 +449,12 @@ __usage__ = """
     回复某条消息 + 加精
   取消精华
     回复某条消息 + 取消精华
-    
-    
+
+
 【管理员】permission = SUPERUSER | GROUP_OWNER
   管理员+ @xxx 设置某人为管理员
   管理员- @xxx 取消某人管理员
-  
+
 【加群自动审批】：
 群内发送 permission = GROUP_ADMIN | GROUP_OWNER | SUPERUSER
   查看词条 ： 查看本群审批词条   或/审批
@@ -481,14 +476,14 @@ __usage__ = """
 群内或私聊 permission = SUPERUSER
   所有分管 ：查看所有分群管理员
   群管接收 ：打开或关闭超管消息接收（关闭则审批结果不会发送给superusers）
-  
+
 【群词云统计】
 该功能所用库 wordcloud 未写入依赖，请自行安装
 群内发送：
   记录本群 ： 开始统计聊天记录 permission = GROUP_ADMIN | GROUP_OWNER | SUPERUSER
   停止记录本群 ：停止统计聊天记录
   群词云 ： 发送词云图片
-  
+
 【被动识别】
 涩图检测：将禁言随机时间
 
