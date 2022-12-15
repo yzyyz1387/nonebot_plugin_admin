@@ -12,7 +12,7 @@ import json
 import os
 import random
 import re
-from typing import Union, Optional, Type
+from typing import Union, Optional
 
 import httpx
 import nonebot
@@ -330,7 +330,7 @@ def image_moderation(img):
         req = models.ImageModerationRequest()
         params = (
             {'BizType': 'group_recall', 'FileUrl': img}
-            if type(img) == str
+            if type(img) is str
             else {'BizType': 'group_recall', 'FileContent': bytes_to_base64(img)}
         )
         req.from_json_string(json.dumps(params))
@@ -363,8 +363,7 @@ async def load(path) -> Optional[dict]:
     """
     try:
         with open(path, mode='r', encoding='utf-8') as f:
-            contents_ = f.read()
-            contents = json.loads(contents_)
+            contents = json.load(f)
             f.close()
             return contents
     except FileNotFoundError:
@@ -416,6 +415,7 @@ async def del_txt_line(path: Path, matcher: Matcher, event: GroupMessageEvent, a
     :param event: 事件
     :param args: 文本
     :param dec: 描述
+    :param group: 是否为群聊
     """
     gid = str(event.group_id)
     logger.info(args)
@@ -458,6 +458,7 @@ async def add_txt_line(path: Path, matcher: Matcher, event: GroupMessageEvent, a
     :param event: 事件
     :param args: 文本
     :param dec: 描述
+    :param group: 是否为群聊
     """
     gid = str(event.group_id)
     logger.info(args)
@@ -503,6 +504,7 @@ async def get_txt_line(path: Path, matcher: Matcher, event: GroupMessageEvent, a
     :param event: 事件
     :param args: 文本
     :param dec: 描述
+    :param group: 是否为群聊
     """
     gid = str(event.group_id)
     try:
@@ -536,7 +538,7 @@ async def change_s_title(bot: Bot, matcher: Matcher, gid: int, uid: int, s_title
             special_title=s_title,
             duration=-1,
         )
-        log_fi(matcher, f"头衔操作成功:{s_title}")
+        await log_fi(matcher, f"头衔操作成功:{s_title}")
     except ActionFailed:
         logger.info('权限不足')
 

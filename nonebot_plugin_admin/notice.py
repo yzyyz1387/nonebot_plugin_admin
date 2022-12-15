@@ -49,7 +49,6 @@ g_admin = on_command('分管+', aliases={'/gad+', '分群管理+'}, priority=1, 
 
 @g_admin.handle()
 async def _(bot: Bot, matcher: Matcher, event: GroupMessageEvent, state: T_State):
-    msg = str(event.get_message())
     sb = At(event.json())
     gid = str(event.group_id)
     if sb and 'all' not in sb:
@@ -86,7 +85,6 @@ g_admin_ = on_command('分管-', aliases={'/gad-', '分群管理-'}, priority=1,
 
 @g_admin_.handle()
 async def _(bot: Bot, matcher: Matcher, event: GroupMessageEvent, state: T_State):
-    msg = str(event.get_message())
     sb = At(event.json())
     gid = str(event.group_id)
     status = await check_func_status('requests', str(gid))

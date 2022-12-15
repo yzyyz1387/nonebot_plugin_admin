@@ -6,12 +6,12 @@
 # @File    : img_check.py
 # @Software: PyCharm
 from nonebot import logger, on_message
-from nonebot.adapters.onebot.v11 import Bot, GroupMessageEvent, MessageEvent, MessageSegment
+from nonebot.adapters.onebot.v11 import Bot, GroupMessageEvent, MessageEvent
 from nonebot.adapters.onebot.v11.exception import ActionFailed
 from nonebot.internal.matcher import Matcher
 
-from .utils import banSb, image_moderation_async, check_func_status, get_user_violation, sd, fi
 from .path import *
+from .utils import banSb, image_moderation_async, get_user_violation, sd, fi
 
 find_pic = on_message(priority=2, block=False)
 

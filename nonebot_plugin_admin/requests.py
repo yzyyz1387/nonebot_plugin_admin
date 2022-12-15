@@ -114,8 +114,8 @@ async def _(bot: Bot, event: GroupMessageEvent, state: T_State):
     sp_write = await approve.write(str(event.group_id), msg)
     gid = str(event.group_id)
     if sp_write:
-        await config.finish(f"群{event.group_id}添加词条：{msg}")
-    await config.finish(f"{msg} 已存在于群{event.group_id}的词条中")
+        await config.finish(f"群{gid}添加词条：{msg}")
+    await config.finish(f"{msg} 已存在于群{gid}的词条中")
 
 
 config_ = on_command('词条-', aliases={'/sp-', '/审批-'}, priority=1, block=True,
@@ -128,10 +128,10 @@ async def _(bot: Bot, event: GroupMessageEvent, state: T_State):
     /sp- 删除本群某词条
     """
     msg = str(state['_prefix']['command_arg'])
-    sp_delete = await approve.delete(str(event.group_id), msg)
     gid = str(event.group_id)
+    sp_delete = await approve.delete(gid, msg)
     if sp_delete:
-        await config_.finish(f"群{event.group_id}删除入群审批词条：{msg}")
+        await config_.finish(f"群{gid}删除入群审批词条：{msg}")
     elif not sp_delete:
         await config_.finish("当前群不存在此词条")
     elif sp_delete is None:

@@ -16,7 +16,6 @@ from nonebot.adapters.onebot.v11 import (
 from nonebot.matcher import Matcher
 from nonebot.message import run_preprocessor, IgnoredException
 from nonebot.typing import T_State
-from pathlib import Path
 
 from .config import plugin_config, global_config
 from .path import *

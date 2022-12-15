@@ -19,8 +19,7 @@ async def g_admin():
     :return : 分群管理json对象
     """
     with open(config_group_admin, mode='r') as f:
-        admins_ = f.read()
-        admins = json.loads(admins_)
+        admins = json.load(f)
     return admins
 
 
