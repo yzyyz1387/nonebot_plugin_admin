@@ -215,7 +215,7 @@ async def _(bot: Bot, matcher: Matcher, event: GroupMessageEvent):
                         user_id=int(qq),
                         reject_add_request=False
                     )
-                await log_fi(matcher, '踢人操作成功')
+                await log_fi(matcher, '踢人操作执行完毕')
             except ActionFailed:
                 await fi(matcher, '权限不足')
         await fi(matcher, '不能含有@全体成员')
@@ -246,7 +246,7 @@ async def _(bot: Bot, matcher: Matcher, event: GroupMessageEvent):
                         user_id=int(qq),
                         reject_add_request=True
                     )
-                await log_fi(matcher, '踢人并拉黑操作成功')
+                await log_fi(matcher, '踢人并拉黑操作执行完毕')
             except ActionFailed:
                 await fi(matcher, '权限不足')
         await fi(matcher, '不能含有@全体成员')
