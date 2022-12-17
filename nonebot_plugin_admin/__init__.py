@@ -204,6 +204,9 @@ async def _(bot: Bot, matcher: Matcher, event: GroupMessageEvent):
         if 'all' not in sb:
             try:
                 for qq in sb:
+                    if qq == event.user_id:
+                        await sd(matcher, '你在玩一种很新的东西，不能踢自己!')
+                        continue
                     if qq in su or (str(qq) in su):
                         await sd(matcher, '超级用户不能被踢')
                         continue
@@ -232,6 +235,9 @@ async def _(bot: Bot, matcher: Matcher, event: GroupMessageEvent):
         if 'all' not in sb:
             try:
                 for qq in sb:
+                    if qq == event.user_id:
+                        await sd(matcher, '你在玩一种很新的东西，不能踢自己!')
+                        continue
                     if qq in su or (str(qq) in su):
                         await sd(matcher, '超级用户不能被踢')
                         continue
@@ -307,7 +313,7 @@ async def _(bot: Bot, matcher: Matcher, event: GroupMessageEvent):
         await fi(matcher, '指令不正确 或 不能含有@全体成员')
 
 
-msg_recall = on_command('撤回', priority=1, aliases={'删除', 'recall'}, block=True,
+msg_recall = on_command('撤回', priority=1, aliases={'recall'}, block=True,
                         permission=SUPERUSER | GROUP_ADMIN | GROUP_OWNER)
 
 
