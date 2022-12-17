@@ -26,5 +26,6 @@ setuptools.setup(
     platforms="any",
     install_requires=["fuzzyfinder", 'nonebot-adapter-onebot>=2.0.0-beta.1', 'nonebot2>=2.0.0-beta'
                                                                                                 '.4', "jieba",
-                      "httpx", "tencentcloud-sdk-python>=3.0.580", "jinja2", "pyppeteer", "imageio", "numpy"]
+                      "httpx", "tencentcloud-sdk-python>=3.0.580", "jinja2", "pyppeteer", "imageio", "numpy",
+                      "nonebot_plugin_apscheduler"]
 )
