@@ -4,7 +4,7 @@ from pydantic import BaseModel, Extra
 from . import utils
 
 
-class Config(BaseModel, extra = Extra.ignore):
+class Config(BaseModel, extra=Extra.ignore):
     tenid: str = 'xxxxxx'  # 腾讯云图片安全，开通地址： https://console.cloud.tencent.com/cms
     tenkeys: str = 'xxxxxx'  # 文档： https://cloud.tencent.com/document/product/1125
     callback_notice: bool = True  # 是否在操作完成后在 QQ 返回提示

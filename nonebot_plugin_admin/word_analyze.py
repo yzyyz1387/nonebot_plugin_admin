@@ -43,7 +43,7 @@ word_stop = on_command('停止记录本群', block=True, priority=1, permission=
 @word_stop.handle()
 async def _(bot: Bot, event: GroupMessageEvent):
     gid = str(event.group_id)
-    txt = open(word_path, 'r', encoding='utf-8').read()
+    txt = word_path.read_text(encoding='utf-8')
     if gid in txt:
         with open(word_path, 'w', encoding='utf-8') as c:
             c.write(txt.replace(gid, ''))
@@ -73,8 +73,6 @@ async def _(bot: Bot, event: GroupMessageEvent, matcher: Matcher):
     message_path_group = group_message_data_path / f"{gid}"
     # datetime获取今日日期
     today = datetime.datetime.now().strftime('%Y-%m-%d')
-    this_time = datetime.datetime.now().strftime('%Y-%m-%d-%H:%M:%S')
-    # try:
     if not os.path.exists(message_path_group):
         os.mkdir(message_path_group)
     if not os.path.exists(message_path_group / f"{today}.json"):  # 日消息条数记录 {uid：消息数}
@@ -95,15 +93,11 @@ async def _(bot: Bot, event: GroupMessageEvent, matcher: Matcher):
         else:
             dic_[uid] += 1
         await upload(message_path_group / 'history.json', dic_)
-    txt = open(word_path, 'r', encoding='utf-8').read().split('\n')
+    txt = word_path.read_text(encoding='utf-8').split('\n')
     if gid in txt:
         msg = await replace_tmr(msg)
         with open(path_temp, 'a+', encoding='utf-8') as c:
             c.write(msg + '\n')
-    # except Exception as e:
-    #     logger.error('word_analyze.py 消息记录发生错误：' + str(e))
-    #     await error_log(event.group_id, this_time, matcher, str(e))
-
 
 stop_words_add = on_command('添加停用词', aliases={'增加停用词', '新增停用词'}, block=True, priority=1,
                             permission=GROUP_ADMIN | GROUP_OWNER | SUPERUSER)

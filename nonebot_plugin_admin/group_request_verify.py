@@ -22,7 +22,7 @@ async def verify(word: str, group_id: str) -> Optional[bool]:
     :return: bool
     """
     with open(config_admin, mode='r') as f:
-        answers = json.loads(f.read())
+        answers = json.load(f)
         if group_id in answers:
             answer = answers[group_id]
             suggestions = fuzzyfinder(word, answer)
