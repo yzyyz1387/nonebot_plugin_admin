@@ -22,6 +22,7 @@ from . import (
     approve,
     auto_ban,
     auto_ban_,
+    broadcast,
     func_hook,
     group_request_verify,
     img_check,
