@@ -11,6 +11,8 @@ from nonebot.adapters.onebot.v11.permission import GROUP_ADMIN, GROUP_OWNER
 from nonebot.exception import FinishedException
 from nonebot.internal.matcher import Matcher
 from nonebot.permission import SUPERUSER
+from nonebot.params import CommandArg
+from nonebot.adapters import Message
 from nonebot.typing import T_State
 from pyppeteer import launch
 
@@ -21,20 +23,41 @@ switcher = on_command('开关', priority=1, block=True, permission=SUPERUSER | G
 
 
 @switcher.handle()
-async def _(bot: Bot, matcher: Matcher, event: GroupMessageEvent, state: T_State):
+async def _(bot: Bot, matcher: Matcher, event: GroupMessageEvent, state: T_State, args: Message = CommandArg()):
     gid = str(event.group_id)
-    user_input_func_name = str(state['_prefix']['command_arg'])
-    for func in admin_funcs:
-        if user_input_func_name in admin_funcs[func]:
-            funcs_status = json_load(switcher_path)
-            if funcs_status[gid][func]:
-                funcs_status[gid][func] = False
-                json_upload(switcher_path, funcs_status)
-                await fi(matcher, '已关闭' + user_input_func_name)
+    user_input_func_name = str(args)
+    try:
+        for func in admin_funcs:
+            if user_input_func_name in admin_funcs[func]:
+                funcs_status = json_load(switcher_path)
+                if funcs_status[gid][func]:
+                    funcs_status[gid][func] = False
+                    json_upload(switcher_path, funcs_status)
+                    await fi(matcher, '已关闭' + user_input_func_name)
+                else:
+                    funcs_status[gid][func] = True
+                    json_upload(switcher_path, funcs_status)
+                    await fi(matcher, '已开启' + user_input_func_name)
+    except KeyError:
+        g_list = (await bot.get_group_list())
+        switcher_dict = json_load(switcher_path)
+        for group in g_list:
+            if not switcher_dict.get(str(group['group_id'])):
+                switcher_dict[str(group['group_id'])] = {}
+                for func in admin_funcs:
+                    if func in ['img_check', 'word_check', 'group_msg']:
+                        switcher_dict[str(group['group_id'])][func] = False
+                    else:
+                        switcher_dict[str(group['group_id'])][func] = True
             else:
-                funcs_status[gid][func] = True
-                json_upload(switcher_path, funcs_status)
-                await fi(matcher, '已开启' + user_input_func_name)
+                this_group_switcher = switcher_dict[str(group['group_id'])]
+                for func in admin_funcs:
+                    if not this_group_switcher.get(func):
+                        if func in ['img_check', 'word_check', 'group_msg']:
+                            this_group_switcher[func] = False
+                        else:
+                            this_group_switcher[func] = True
+        json_upload(switcher_path, switcher_dict)
 
 
 switcher_html = on_command('开关状态', priority=1, block=True, permission=SUPERUSER | GROUP_ADMIN | GROUP_OWNER)
