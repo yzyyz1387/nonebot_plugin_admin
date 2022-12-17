@@ -35,7 +35,7 @@ from . import (
     utils,
 )
 from .config import global_config
-from .utils import At, Reply, MsgText, banSb, change_s_title, log_sd, fi, log_fi
+from .utils import At, Reply, MsgText, banSb, change_s_title, log_sd, fi, log_fi, sd
 
 su = global_config.superusers
 
@@ -205,7 +205,8 @@ async def _(bot: Bot, matcher: Matcher, event: GroupMessageEvent):
             try:
                 for qq in sb:
                     if qq in su or (str(qq) in su):
-                        await fi(matcher, '超级用户不能被踢')
+                        await sd(matcher, '超级用户不能被踢')
+                        continue
                     await bot.set_group_kick(
                         group_id=gid,
                         user_id=int(qq),
@@ -232,7 +233,8 @@ async def _(bot: Bot, matcher: Matcher, event: GroupMessageEvent):
             try:
                 for qq in sb:
                     if qq in su or (str(qq) in su):
-                        await fi(matcher, '超级用户不能被踢')
+                        await sd(matcher, '超级用户不能被踢')
+                        continue
                     await bot.set_group_kick(
                         group_id=gid,
                         user_id=int(qq),
