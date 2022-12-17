@@ -132,7 +132,6 @@ async def init():
             switcher_dict.update({str(group['group_id']): switchers})
         with open(switcher_path, 'w', encoding='utf-8') as swp:
             swp.write(f"{json.dumps(switcher_dict)}")
-            swp.close()
     if not os.path.exists(limit_word_path):  # 要联网的都丢最后面去
         if os.path.exists(config_path / '违禁词_简单.txt'):
             with open(config_path / '违禁词_简单.txt', 'r', encoding='utf-8') as f:
@@ -367,7 +366,6 @@ def json_load(path) -> Optional[dict]:
     try:
         with open(path, mode='r', encoding='utf-8') as f:
             contents = json.load(f)
-            f.close()
             return contents
     except FileNotFoundError:
         return None
@@ -381,7 +379,6 @@ def json_upload(path, dict_content) -> None:
     """
     with open(path, mode='w', encoding='utf-8') as c:
         c.write(json.dumps(dict_content, ensure_ascii=False, indent=2))
-        c.close()
 
 
 async def check_func_status(func_name: str, gid: str) -> bool:
@@ -429,7 +426,6 @@ async def del_txt_line(path: Path, matcher: Matcher, event: GroupMessageEvent, a
         try:
             with open(this_path, mode='r+', encoding='utf-8') as c:
                 is_saved = c.read().split("\n")
-                c.close()
             with open(this_path, mode='w', encoding='utf-8') as c:
                 success_del = []
                 already_del = []
@@ -589,7 +585,6 @@ async def get_user_violation(gid: int, uid: int, label: str, content: str, add_:
 async def vio_level_init(path_user, uid, this_time, label, content) -> None:
     with open(path_user, mode='w', encoding='utf-8') as c:
         c.write(json.dumps({uid: {'level': 0, 'info': {this_time: [label, content]}}}, ensure_ascii=False))
-        c.close()
 
 
 async def error_log(gid: int, time: str, matcher: Matcher, err: str) -> None:
