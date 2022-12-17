@@ -66,7 +66,6 @@ async def _(bot: Bot, event: MessageEvent, state: T_State, matcher: Matcher, arg
     """
     添加广播排除群
     """
-    uid = str(event.user_id)
     if args:
         if "+" in args:
             await add_avoid_group(event, args, matcher)
