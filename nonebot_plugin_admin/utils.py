@@ -124,9 +124,12 @@ async def init():
         g_list = (await bot.get_group_list())
         switcher_dict = {}
         for group in g_list:
-            switcher_dict.update({str(group['group_id']): {'admin': True, 'requests': True,
-                                                           'wordcloud': True, 'auto_ban': False,
-                                                           'img_check': False, 'word_analyze': True}})
+            switchers = {}
+            for fn_name in admin_funcs:
+                switchers.update({fn_name: True})
+                if fn_name in ['img_check', 'word_check', 'group_msg']:
+                    switchers.update({fn_name: False})
+            switcher_dict.update({str(group['group_id']): switchers})
         with open(switcher_path, 'w', encoding='utf-8') as swp:
             swp.write(f"{json.dumps(switcher_dict)}")
             swp.close()
@@ -356,7 +359,7 @@ def bytes_to_base64(data):
     return base64.b64encode(data).decode('utf-8')
 
 
-async def load(path) -> Optional[dict]:
+def json_load(path) -> Optional[dict]:
     """
     加载json文件
     :return: Optional[dict]
@@ -370,7 +373,7 @@ async def load(path) -> Optional[dict]:
         return None
 
 
-async def upload(path, dict_content) -> None:
+def json_upload(path, dict_content) -> None:
     """
     更新json文件
     :param path: 路径
@@ -388,7 +391,7 @@ async def check_func_status(func_name: str, gid: str) -> bool:
     :param gid: 群号
     :return: bool
     """
-    funcs_status = (await load(switcher_path))
+    funcs_status = json_load(switcher_path)
     if funcs_status is None:
         raise FileNotFoundError(switcher_path)
     try:
@@ -402,7 +405,7 @@ async def check_func_status(func_name: str, gid: str) -> bool:
             logger.info('错误发生在 utils.py line 398')
         funcs_status.update({str(gid): {'admin': True, 'requests': True, 'wordcloud': True,
                                         'auto_ban': True, 'img_check': True, 'word_analyze': True}})
-        await upload(switcher_path, funcs_status)
+        json_upload(switcher_path, funcs_status)
         return False  # 直接返回 false
 
 
@@ -564,12 +567,12 @@ async def get_user_violation(gid: int, uid: int, label: str, content: str, add_:
         await vio_level_init(path_user, uid, this_time, label, content)
         return 0
     try:
-        info = (await load(path_user))
+        info = json_load(path_user)
         level = info[uid]['level']
         if add_:
             info[uid]['level'] += 1
         info[uid]['info'][this_time] = [label, content]
-        await upload(path_user, info)
+        json_upload(path_user, info)
         if level >= 7:
             return 7
         else:
@@ -594,12 +597,12 @@ async def error_log(gid: int, time: str, matcher: Matcher, err: str) -> None:
     if not os.path.exists(error_path):
         await mk('dir', error_path, mode=None)
     if not os.path.exists(error_path / f"{str(gid)}.json"):
-        await upload(error_path / f"{str(gid)}.json", {str(gid): {time: [module, err]}})
+        json_upload(error_path / f"{str(gid)}.json", {str(gid): {time: [module, err]}})
     else:
         try:
-            info = (await load(error_path / f"{str(gid)}.json"))
+            info = json_load(error_path / f"{str(gid)}.json")
             info[str(gid)][time] = [module, err]
-            await upload(error_path / f"{str(gid)}.json", info)
+            json_upload(error_path / f"{str(gid)}.json", info)
         except Exception as e:
             logger.error(f"写入错误日志出错：{e}")
 

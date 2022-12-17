@@ -15,7 +15,7 @@ from nonebot.typing import T_State
 from pyppeteer import launch
 
 from .path import *
-from .utils import load, upload, fi, log_fi
+from .utils import json_load, json_upload, fi, log_fi
 
 switcher = on_command('开关', priority=1, block=True, permission=SUPERUSER | GROUP_ADMIN | GROUP_OWNER)
 
@@ -26,14 +26,14 @@ async def _(bot: Bot, matcher: Matcher, event: GroupMessageEvent, state: T_State
     user_input_func_name = str(state['_prefix']['command_arg'])
     for func in admin_funcs:
         if user_input_func_name in admin_funcs[func]:
-            funcs_status = (await load(switcher_path))
+            funcs_status = json_load(switcher_path)
             if funcs_status[gid][func]:
                 funcs_status[gid][func] = False
-                await upload(switcher_path, funcs_status)
+                json_upload(switcher_path, funcs_status)
                 await fi(matcher, '已关闭' + user_input_func_name)
             else:
                 funcs_status[gid][func] = True
-                await upload(switcher_path, funcs_status)
+                json_upload(switcher_path, funcs_status)
                 await fi(matcher, '已开启' + user_input_func_name)
 
 
@@ -43,7 +43,7 @@ switcher_html = on_command('开关状态', priority=1, block=True, permission=SU
 @switcher_html.handle()
 async def _(bot: Bot, matcher: Matcher, event: GroupMessageEvent):
     gid = str(event.group_id)
-    funcs_status = (await load(switcher_path))
+    funcs_status = json_load(switcher_path)
     try:
         from os.path import dirname
         from jinja2 import Environment, FileSystemLoader

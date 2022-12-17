@@ -24,6 +24,7 @@ wordcloud_bg_path = config_path / 'wordcloud_bg'
 user_violation_info_path = config_path / '群内用户违规信息'
 group_message_data_path = config_path / '群消息数据'
 error_path = config_path / 'admin插件错误数据'
+broadcast_avoid_path = config_path / '广播排除群聊.json'
 
 admin_funcs = {
     'admin': ['管理', '踢', '禁', '改', '基础群管'],
@@ -31,7 +32,9 @@ admin_funcs = {
     'wordcloud': ['群词云', '词云', 'wordcloud'],
     'auto_ban': ['违禁词', '违禁词检测'],
     'img_check': ['图片检测', '图片鉴黄', '涩图检测', '色图检测'],
-    'word_analyze': ['消息记录', '群消息记录', '发言记录']
+    'word_analyze': ['消息记录', '群消息记录', '发言记录'],
+    'group_msg': ['早安晚安', '早安', '晚安'],
+    'broadcast': ['广播消息', '群广播'],
 }
 
 funcs_name_cn = ['基础群管', '加群审批', '群词云', '违禁词检测', '图片检测']
