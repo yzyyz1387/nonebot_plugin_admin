@@ -5,14 +5,13 @@
 # @Email   :  youzyyz1384@qq.com
 # @File    : broadcast.py
 # @Software: PyCharm
-from nonebot import get_driver
-from nonebot.typing import T_State
-from nonebot.matcher import Matcher
-from nonebot.adapters import Message
 from nonebot import logger, on_command
-from nonebot.permission import SUPERUSER
+from nonebot.adapters import Message
+from nonebot.adapters.onebot.v11 import Bot, MessageEvent
+from nonebot.matcher import Matcher
 from nonebot.params import CommandArg, ArgStr, Arg
-from nonebot.adapters.onebot.v11 import Bot, Event, GroupMessageEvent, MessageEvent
+from nonebot.permission import SUPERUSER
+from nonebot.typing import T_State
 
 from .config import global_config
 from .path import broadcast_avoid_path
