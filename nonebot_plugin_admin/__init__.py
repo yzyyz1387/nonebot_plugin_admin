@@ -204,6 +204,8 @@ async def _(bot: Bot, matcher: Matcher, event: GroupMessageEvent):
         if 'all' not in sb:
             try:
                 for qq in sb:
+                    if qq in su or (str(qq) in su):
+                        await fi(matcher, '超级用户不能被踢')
                     await bot.set_group_kick(
                         group_id=gid,
                         user_id=int(qq),
@@ -229,6 +231,8 @@ async def _(bot: Bot, matcher: Matcher, event: GroupMessageEvent):
         if 'all' not in sb:
             try:
                 for qq in sb:
+                    if qq in su or (str(qq) in su):
+                        await fi(matcher, '超级用户不能被踢')
                     await bot.set_group_kick(
                         group_id=gid,
                         user_id=int(qq),
