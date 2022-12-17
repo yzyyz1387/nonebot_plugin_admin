@@ -27,37 +27,10 @@ async def _(bot: Bot, matcher: Matcher, event: GroupMessageEvent, state: T_State
     gid = str(event.group_id)
     user_input_func_name = str(args)
     try:
-        for func in admin_funcs:
-            if user_input_func_name in admin_funcs[func]:
-                funcs_status = json_load(switcher_path)
-                if funcs_status[gid][func]:
-                    funcs_status[gid][func] = False
-                    json_upload(switcher_path, funcs_status)
-                    await fi(matcher, '已关闭' + user_input_func_name)
-                else:
-                    funcs_status[gid][func] = True
-                    json_upload(switcher_path, funcs_status)
-                    await fi(matcher, '已开启' + user_input_func_name)
+        await switcher_handle(gid, matcher, user_input_func_name)
     except KeyError:
-        g_list = (await bot.get_group_list())
-        switcher_dict = json_load(switcher_path)
-        for group in g_list:
-            if not switcher_dict.get(str(group['group_id'])):
-                switcher_dict[str(group['group_id'])] = {}
-                for func in admin_funcs:
-                    if func in ['img_check', 'word_check', 'group_msg']:
-                        switcher_dict[str(group['group_id'])][func] = False
-                    else:
-                        switcher_dict[str(group['group_id'])][func] = True
-            else:
-                this_group_switcher = switcher_dict[str(group['group_id'])]
-                for func in admin_funcs:
-                    if not this_group_switcher.get(func):
-                        if func in ['img_check', 'word_check', 'group_msg']:
-                            this_group_switcher[func] = False
-                        else:
-                            this_group_switcher[func] = True
-        json_upload(switcher_path, switcher_dict)
+        await switcher_integrity_check(bot)
+        await switcher_handle(gid, matcher, user_input_func_name)
 
 
 switcher_html = on_command('开关状态', priority=1, block=True, permission=SUPERUSER | GROUP_ADMIN | GROUP_OWNER)
@@ -118,5 +91,41 @@ async def save_image(url, img_path):
         width: 图片宽度
         height: 图片高度
     """
-    await page.screenshot({'path': img_path, 'clip': {'x': 0, 'y': 0, 'width': 320, 'height': 500}})
+    await page.screenshot({'path': img_path, 'clip': {'x': 0, 'y': 0, 'width': 320, 'height': 800}})
     await browser.close()
+
+
+async def switcher_integrity_check(bot: Bot):
+    g_list = (await bot.get_group_list())
+    switcher_dict = json_load(switcher_path)
+    for group in g_list:
+        if not switcher_dict.get(str(group['group_id'])):
+            switcher_dict[str(group['group_id'])] = {}
+            for func in admin_funcs:
+                if func in ['img_check', 'word_check', 'group_msg']:
+                    switcher_dict[str(group['group_id'])][func] = False
+                else:
+                    switcher_dict[str(group['group_id'])][func] = True
+        else:
+            this_group_switcher = switcher_dict[str(group['group_id'])]
+            for func in admin_funcs:
+                if not this_group_switcher.get(func):
+                    if func in ['img_check', 'word_check', 'group_msg']:
+                        this_group_switcher[func] = False
+                    else:
+                        this_group_switcher[func] = True
+    json_upload(switcher_path, switcher_dict)
+
+
+async def switcher_handle(gid, matcher, user_input_func_name):
+    for func in admin_funcs:
+        if user_input_func_name in admin_funcs[func]:
+            funcs_status = json_load(switcher_path)
+            if funcs_status[gid][func]:
+                funcs_status[gid][func] = False
+                json_upload(switcher_path, funcs_status)
+                await fi(matcher, '已关闭' + user_input_func_name)
+            else:
+                funcs_status[gid][func] = True
+                json_upload(switcher_path, funcs_status)
+                await fi(matcher, '已开启' + user_input_func_name)
