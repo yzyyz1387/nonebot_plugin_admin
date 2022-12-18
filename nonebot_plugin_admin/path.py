@@ -34,8 +34,8 @@ admin_funcs = {
     'img_check': ['图片检测', '图片鉴黄', '涩图检测', '色图检测'],
     'word_analyze': ['消息记录', '群消息记录', '发言记录'],
     'group_msg': ['早安晚安', '早安', '晚安'],
-    'broadcast': ['广播消息', '群广播'],
-    'particular_e_notice': ['事件通知', '变动通知'],
+    'broadcast': ['广播消息', '群广播', '广播'],
+    'particular_e_notice': ['事件通知', '变动通知', '事件提醒'],
     'group_recall': ['防撤回', '防止撤回']
 }
 # TODO 后续在这里对功能加 {‘default': True} 以便于初始化时自动设置开关状态
