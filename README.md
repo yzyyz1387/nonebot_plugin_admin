@@ -10,8 +10,11 @@
 **↓**  
 <img src="https://img.shields.io/github/stars/yzyyz1387/nonebot_plugin_admin.svg?style=social">  
 # 简易群管 （考研缓更）  
-   **pypi没更 github最新**    
-   **[dev分支](https://github.com/yzyyz1387/nonebot_plugin_admin/tree/dev)**  
+
+
+   **pypi没更 github最新**   
+   **[main分支](https://github.com/yzyyz1387/nonebot_plugin_admin/tree/main)**  
+
   _✨ NoneBot2 (有点不)简易群管✨ _    
 
  
@@ -75,10 +78,11 @@ send_time_night = "23 0"    # 选填 晚上发送时间默认为22:00
 
 更多配置项请查看 [config.py](./nonebot_plugin_admin/config.py)
 
-
+✨Pay tribute to A60 [https://github.com/djkcyl/ABot-Graia](https://github.com/djkcyl/ABot-Graia)
 
 ## 注意
 **[dev分支](https://github.com/yzyyz1387/nonebot_plugin_admin/tree/dev)由于API的加入，首次使用本插件时，会终止机器人程序，需要再启动一次**  
+
 **控制台会有对应提示** 
 
 ## 指令💻
@@ -123,7 +127,7 @@ send_time_night = "23 0"    # 选填 晚上发送时间默认为22:00
     回复某条消息 + 加精
   取消精华
     回复某条消息 + 取消精华
-    
+
 【头衔】
   改头衔
     自助领取：头衔 xxx 

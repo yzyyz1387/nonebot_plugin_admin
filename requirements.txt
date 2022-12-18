@@ -10,3 +10,7 @@ pyppeteer
 imageio
 numpy
 nonebot_plugin_apscheduler
+fastapi
+tortoise-orm
+pydantic
+requests

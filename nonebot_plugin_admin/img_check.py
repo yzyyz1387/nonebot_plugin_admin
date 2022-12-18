@@ -7,6 +7,7 @@
 # @Software: PyCharm
 from nonebot import logger, on_message
 from nonebot.adapters.onebot.v11 import Bot, GroupMessageEvent, MessageEvent
+
 from nonebot.adapters.onebot.v11.exception import ActionFailed
 from nonebot.internal.matcher import Matcher
 
@@ -58,7 +59,6 @@ async def check_pic(bot: Bot, matcher: Matcher, event: GroupMessageEvent):
                 except TypeError:
                     logger.error("请求图片安全接口失败")
                     pass
-
 
 async def send_pics_ban(bot: Bot, event: GroupMessageEvent, scope: list = None):
     """

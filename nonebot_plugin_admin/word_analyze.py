@@ -73,6 +73,15 @@ async def _(bot: Bot, event: GroupMessageEvent, matcher: Matcher):
     message_path_group = group_message_data_path / f"{gid}"
     # datetime获取今日日期
     today = datetime.datetime.now().strftime('%Y-%m-%d')
+    this_time = datetime.datetime.now().strftime('%Y-%m-%d-%H:%M:%S')
+    # try:
+    async with httpx.AsyncClient() as client:
+        resp = await client.post(f"{localhost}/msg", params={'group_id': int(gid), 'user': int(uid), 'msg': msg},follow_redirects=True)
+        logger.info(resp.text)
+        if resp.status_code == 200:
+            logger.info(f"数据库记录成功")
+        else:
+            logger.info(f"数据库记录失败")
     if not os.path.exists(message_path_group):
         os.mkdir(message_path_group)
     if not os.path.exists(message_path_group / f"{today}.json"):  # 日消息条数记录 {uid：消息数}
@@ -227,7 +236,6 @@ async def _(bot: Bot, event: GroupMessageEvent, matcher: Matcher, args: Message 
             if nickname == '':
                 nickname = (await bot.get_group_member_info(group_id=gid, user_id=int(top[i][0])))['nickname']
             top_list.append(f"{i + 1}. {nickname}，发了{top[i][1]}条消息")
-
         await speak_top_yesterday.finish('\n'.join(top_list))
     else:
         await speak_top_yesterday.finish('昨日没有记录')

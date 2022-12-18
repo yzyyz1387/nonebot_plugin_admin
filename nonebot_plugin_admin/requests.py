@@ -21,6 +21,7 @@ from .group_request_verify import verify
 from .path import *
 from .utils import json_load
 
+
 su = global_config.superusers
 
 # 查看所有审批词条
@@ -163,6 +164,7 @@ async def gr_(bot: Bot, event: GroupRequestEvent):
                 reason=' ',
             )
             admins = json_load(config_group_admin)
+
             if admins['su'] == 'True':
                 for q in su:
                     await bot.send_msg(user_id=int(q), message=f"同意{uid}加入群 {gid},验证消息为 “{word}”")

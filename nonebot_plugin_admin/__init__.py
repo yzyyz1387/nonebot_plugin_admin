@@ -6,7 +6,12 @@
 # @File    : __init__.py.py
 # @Software: PyCharm
 
+import json
+import os
+
 import nonebot
+from nonebot import logger, on_notice
+from nonebot.adapters.onebot.v11 import Bot, NoticeEvent
 
 from . import (
     admin,
@@ -27,12 +32,55 @@ from . import (
     switcher,
     utils,
 )
-from .config import global_config
 from .path import *
 from .switcher import switcher_integrity_check
-from .utils import At, Reply, MsgText, banSb, change_s_title, log_sd, fi, log_fi, sd, init
+from .utils import At, Reply, MsgText, banSb, change_s_title, log_sd, sd, fi, log_fi, copyFile, mk, \
+    dirs, init
+
+if admin_models_path.exists() and admin_models_init_path.exists():
+    from . import web
+else:
+    db_dirs = []
+    models_path = Path(__file__).parent / 'web' / 'api' / 'models'
+    from pathlib import Path
+
+    if not admin_models_path.exists():
+        os.mkdir(admin_models_path)
+    if not admin_models_init_path.exists():
+        for file in models_path.iterdir():
+            if file.is_file():
+                db_dirs.append(models_path / file.name)
+        for file in db_dirs:
+            copyFile(file, admin_models_path / file.name)
+        with open(admin_models_init_path, "a+") as f:
+            f.write(f"models_version = 0")
+    for i in range(5):
+        logger.warning("未找到admin_models文件夹，无法使用admin插件的web功能,正在复制模型以解决此问题，请重启程序")
+    pid = os.getpid()
+    if os.name == 'nt':
+        # Windows系统
+        cmd = 'taskkill /pid ' + str(pid) + ' /f'
+        try:
+            os.system(cmd)
+            print(pid, 'killed')
+        except Exception as e:
+            print(e)
+    elif os.name == 'posix':
+        # Linux系统
+        cmd = 'kill ' + str(pid)
+        try:
+            os.system(cmd)
+            print(pid, 'killed')
+        except Exception as e:
+            print(e)
+    else:
+        print('Undefined os.name')
+
+from .group_request_verify import verify
+from .config import global_config
 
 su = global_config.superusers
+
 driver = nonebot.get_driver()
 
 
@@ -43,12 +91,7 @@ async def _():
     await switcher_integrity_check(bot)
 
 
-"""
-! 消息防撤回模块，默认不开启，有需要的自行开启，想对部分群生效也需自行实现(可以并入本插件的开关系统内，也可控制 go-cqhttp 的事件过滤器)
 
-如果在 go-cqhttp 开启了事件过滤器，请确保允许 post_type = notice 通行
-【至少也得允许 notice_type = group_recall 通行】
-"""
 
 __usage__ = """
 【群管】：
@@ -70,15 +113,10 @@ __usage__ = """
   踢出：
     踢 @某人
   踢出并拉黑：
-   黑 @某人
+  黑 @某人
   撤回:
-   撤回 (回复某条消息即可撤回对应消息)
-   撤回 @user [(可选，默认n = 5)历史消息倍数n] (实际检查的历史数为 n*19)
-  设置精华
-    回复某条消息 + 加精
-  取消精华
-    回复某条消息 + 取消精华
-
+  撤回 (回复某条消息即可撤回对应消息)
+  撤回 @user [(可选，默认n = 5)历史消息倍数n] (实际检查的历史数为 n*19)
 
 【管理员】permission = SUPERUSER | GROUP_OWNER
   管理员+ @xxx 设置某人为管理员
