@@ -8,8 +8,6 @@
 import asyncio
 from datetime import datetime
 
-import httpx
-from nonebot import logger
 from nonebot.adapters.onebot.v11 import (
     Bot, Event, PokeNotifyEvent,
     HonorNotifyEvent,
@@ -22,7 +20,6 @@ from nonebot.adapters.onebot.v11 import (
 )
 from nonebot.matcher import Matcher
 from nonebot.plugin import on_notice
-from nonebot.rule import Rule
 from nonebot.typing import T_State
 
 from .utils import fi
@@ -89,7 +86,7 @@ async def _(bot: Bot, event: HonorNotifyEvent, state: T_State, matcher: Matcher)
     u_name = u_info["card"] if u_info["card"] else u_info["nickname"]
     if honor_type == "talkative":
         if uid == bot.self_id:
-            reply = f"💦 新龙王诞生，原来是我自己~"
+            reply = "💦 新龙王诞生，原来是我自己~"
         else:
             reply = f"💦 恭喜 {u_name} 荣获龙王标识~"
     for key, value in honor_map.items():
@@ -129,7 +126,7 @@ async def _(bot: Bot, event: GroupIncreaseNoticeEvent, state: T_State, matcher: 
     new_be = (await bot.get_group_member_info(group_id=event.group_id, user_id=event.user_id))['nickname']
     wel_words = "欢迎/n加入"
     # TODO 为以后自定义欢迎词做准备
-    reply = f"✨ 成员变动\n"+MessageSegment.image(avatar) + MessageSegment.at(event.user_id) + f"\n {wel_words.replace('/n', f' {new_be} ')}\n "
+    reply = "✨ 成员变动\n"+MessageSegment.image(avatar) + MessageSegment.at(event.user_id) + f"\n {wel_words.replace('/n', f' {new_be} ')}\n "
     await fi(matcher, reply)
 
 

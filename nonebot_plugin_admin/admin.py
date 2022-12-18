@@ -348,7 +348,7 @@ async def _(bot: Bot, matcher: Matcher, event: GroupMessageEvent):  # by: @tom-s
             counts = 5
 
         try:
-            for i in range(counts):  # 获取 n 次
+            for _ in range(counts):  # 获取 n 次
                 await asyncio.sleep(randint(0, 5))  # 睡眠随机时间，避免黑号
                 res = await bot.call_api('get_group_msg_history', group_id=gid, message_seq=seq)  # 获取历史消息
                 flag = True
