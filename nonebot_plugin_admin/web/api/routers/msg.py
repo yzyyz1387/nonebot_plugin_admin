@@ -5,6 +5,7 @@
 # @Email   :  youzyyz1384@qq.com
 # @File    : msg.py
 # @Software: PyCharm
+from typing import Optional
 from fastapi import APIRouter
 from fastapi import FastAPI, Request
 from fastapi.responses import RedirectResponse
