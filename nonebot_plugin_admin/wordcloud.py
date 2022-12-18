@@ -5,19 +5,16 @@
 # @Email   :  youzyyz1384@qq.com
 # @File    : wordcloud.py
 # @Software: PyCharm
-import httpx
-from nonebot import on_command, logger, on_message
-from nonebot.adapters.onebot.v11 import Bot, GroupMessageEvent, MessageSegment
-from nonebot.adapters.onebot.v11.permission import GROUP_ADMIN, GROUP_OWNER
-from nonebot.permission import SUPERUSER
-from .utils import replace_tmr, participle_simple_handle, check_func_status
-from pathlib import Path
 import os
-from .path import *
-import numpy as np
 import random
-import os
+
+import httpx
 from imageio import imread
+from nonebot import on_command, logger
+from nonebot.adapters.onebot.v11 import Bot, GroupMessageEvent, MessageSegment
+
+from .path import *
+from .utils import participle_simple_handle
 
 cloud = on_command('群词云', priority=1)
 
@@ -63,11 +60,11 @@ async def _(bot: Bot, event: GroupMessageEvent):
             wordcloud_bg = random.choice(os.listdir(wordcloud_bg_path))
         background_image = imread(wordcloud_bg_path / wordcloud_bg)
         if gid + '.txt' in dir_list:
-            text = open(path_temp, encoding='utf-8').read()
+            text = path_temp.read_text(encoding='utf-8')
             txt = jieba.lcut(text)
             this_stop_ = stop_words_path / f"{gid}.txt"
-            if os.path.exists(this_stop_):
-                stop_ = set(open(this_stop_, encoding='utf-8').read().split('\n') + (await participle_simple_handle()))
+            if this_stop_.exists():
+                stop_ = set(this_stop_.read_text(encoding='utf-8').split('\n') + (await participle_simple_handle()))
             else:
                 stop_ = set(await participle_simple_handle())
             string = ' '.join(txt)

@@ -26,8 +26,10 @@ wordcloud_bg_path = config_path / 'wordcloud_bg'
 user_violation_info_path = config_path / '群内用户违规信息'
 group_message_data_path = config_path / '群消息数据'
 error_path = config_path / 'admin插件错误数据'
+broadcast_avoid_path = config_path / '广播排除群聊.json'
 admin_models_path = Path() / 'admin_db_models'
 admin_models_init_path = admin_models_path / '__init__.py'
+
 
 
 admin_funcs = {
@@ -36,9 +38,13 @@ admin_funcs = {
     'wordcloud': ['群词云', '词云', 'wordcloud'],
     'auto_ban': ['违禁词', '违禁词检测'],
     'img_check': ['图片检测', '图片鉴黄', '涩图检测', '色图检测'],
-    'word_analyze': ['消息记录', '群消息记录', '发言记录']
+    'word_analyze': ['消息记录', '群消息记录', '发言记录'],
+    'group_msg': ['早安晚安', '早安', '晚安'],
+    'broadcast': ['广播消息', '群广播', '广播'],
+    'particular_e_notice': ['事件通知', '变动通知', '事件提醒'],
+    'group_recall': ['防撤回', '防止撤回']
 }
-
+# TODO 后续在这里对功能加 {‘default': True} 以便于初始化时自动设置开关状态
 funcs_name_cn = ['基础群管', '加群审批', '群词云', '违禁词检测', '图片检测']
 
 # 交给Copilot
@@ -52,6 +58,9 @@ time_scop_map = {
     5: [24 * 60 * 60, 7 * 24 * 60 * 60],
     6: [7 * 24 * 60 * 60, 14 * 24 * 60 * 60],
     7: [14 * 24 * 60 * 60, 2591999]
+
 }
 
+
 localhost = "http://" + str(get_driver().config.host) + ":" + str(get_driver().config.port)
+

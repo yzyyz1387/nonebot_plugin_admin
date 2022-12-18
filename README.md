@@ -10,8 +10,11 @@
 **↓**  
 <img src="https://img.shields.io/github/stars/yzyyz1387/nonebot_plugin_admin.svg?style=social">  
 # 简易群管 （考研缓更）  
+
+
    **pypi没更 github最新**   
    **[main分支](https://github.com/yzyyz1387/nonebot_plugin_admin/tree/main)**  
+
   _✨ NoneBot2 (有点不)简易群管✨ _    
 
  
@@ -56,6 +59,8 @@ tenkeys="xxxxxx"
 # 是否开启禁言等操作的成功提示【不开启的话踢人/禁言等成功没有QQ消息提示】
 callback_notice=true # 如果不想开启设置成 false 或者不添加此配置项【默认关闭】
 ```
+✨Pay tribute to A60 [https://github.com/djkcyl/ABot-Graia](https://github.com/djkcyl/ABot-Graia)
+
 **早晚安配置**
 
 额外依赖pip install nonebot_plugin_apscheduler
@@ -73,11 +78,11 @@ send_time_night = "23 0"    # 选填 晚上发送时间默认为22:00
 
 更多配置项请查看 [config.py](./nonebot_plugin_admin/config.py)
 
-
 ✨Pay tribute to A60 [https://github.com/djkcyl/ABot-Graia](https://github.com/djkcyl/ABot-Graia)
 
 ## 注意
-**由于API的加入，首次使用本插件时，会终止机器人程序，需要再启动一次**  
+**[dev分支](https://github.com/yzyyz1387/nonebot_plugin_admin/tree/dev)由于API的加入，首次使用本插件时，会终止机器人程序，需要再启动一次**  
+
 **控制台会有对应提示** 
 
 ## 指令💻
@@ -122,7 +127,7 @@ send_time_night = "23 0"    # 选填 晚上发送时间默认为22:00
     回复某条消息 + 加精
   取消精华
     回复某条消息 + 取消精华
-   
+
 【头衔】
   改头衔
     自助领取：头衔 xxx 
@@ -213,8 +218,32 @@ send_time_night = "23 0"    # 选填 晚上发送时间默认为22:00
     ['词云', '群词云', 'wordcloud'] #群词云
     ['违禁词', '违禁词检测'] #违禁词检测
     ['图片检测', '图片鉴黄', '涩图检测', '色图检测'] #图片检测
+    ['消息记录', '群消息记录', '发言记录'],
+    ['早安晚安', '早安', '晚安'],
+    ['广播消息', '群广播', '广播'],
+    ['事件通知', '变动通知', '事件提醒'],
+     ['防撤回', '防止撤回']
 图片检测和违禁词检测默认关,其他默认开
 
+【广播】permission = SUPERUSER
+本功能默认关闭
+   "发送【广播】/【广播+[消息]】可广播消息" 
+   "发送【群列表】可查看能广播到的所有群" 
+   "发送【排除列表】可查看已排除的群" 
+   "发送【广播排除+】可添加群到广播排除列表" 
+   "发送【广播排除-】可从广播排除列表删除群"
+   "发送【广播帮助】可查看广播帮助"
+   发送【开关广播】来开启/关闭（意义不大）
+   
+【特殊事件提醒】
+包括管理员变动，加群退群等...
+待完善
+  发送【开关事件通知】来开启/关闭功能 permission=SUPERUSER | GROUP_ADMIN | GROUP_OWNER
+
+
+【防撤回】
+默认关闭
+ 发送【开关防撤回】开启或关闭功能 permission=SUPERUSER | GROUP_ADMIN | GROUP_OWNER
 ```
 
 

@@ -19,7 +19,8 @@ from . import approve
 from .config import global_config
 from .group_request_verify import verify
 from .path import *
-from .utils import load
+from .utils import json_load
+
 
 su = global_config.superusers
 
@@ -29,7 +30,7 @@ super_sp = on_command('所有词条', aliases={'/susp', '/su审批'}, priority=1
 
 @super_sp.handle()
 async def _(bot: Bot, event: MessageEvent):
-    answers = (await load(config_admin))
+    answers = json_load(config_admin)
     rely = ''
     for i in answers:
         rely += i + ' : ' + str(answers[i]) + '\n'
@@ -93,7 +94,7 @@ async def _(bot: Bot, event: GroupMessageEvent):
     """
     /sp 查看本群词条
     """
-    a_config = (await load(config_admin))
+    a_config = json_load(config_admin)
     gid = str(event.group_id)
     if gid in a_config:
         this_config = a_config[gid]
@@ -114,8 +115,8 @@ async def _(bot: Bot, event: GroupMessageEvent, state: T_State):
     sp_write = await approve.write(str(event.group_id), msg)
     gid = str(event.group_id)
     if sp_write:
-        await config.finish(f"群{event.group_id}添加词条：{msg}")
-    await config.finish(f"{msg} 已存在于群{event.group_id}的词条中")
+        await config.finish(f"群{gid}添加词条：{msg}")
+    await config.finish(f"{msg} 已存在于群{gid}的词条中")
 
 
 config_ = on_command('词条-', aliases={'/sp-', '/审批-'}, priority=1, block=True,
@@ -128,10 +129,10 @@ async def _(bot: Bot, event: GroupMessageEvent, state: T_State):
     /sp- 删除本群某词条
     """
     msg = str(state['_prefix']['command_arg'])
-    sp_delete = await approve.delete(str(event.group_id), msg)
     gid = str(event.group_id)
+    sp_delete = await approve.delete(gid, msg)
     if sp_delete:
-        await config_.finish(f"群{event.group_id}删除入群审批词条：{msg}")
+        await config_.finish(f"群{gid}删除入群审批词条：{msg}")
     elif not sp_delete:
         await config_.finish("当前群不存在此词条")
     elif sp_delete is None:
@@ -162,7 +163,8 @@ async def gr_(bot: Bot, event: GroupRequestEvent):
                 approve=True,
                 reason=' ',
             )
-            admins = (await load(config_group_admin))
+            admins = json_load(config_group_admin)
+
             if admins['su'] == 'True':
                 for q in su:
                     await bot.send_msg(user_id=int(q), message=f"同意{uid}加入群 {gid},验证消息为 “{word}”")
@@ -179,7 +181,7 @@ async def gr_(bot: Bot, event: GroupRequestEvent):
                 approve=False,
                 reason='答案未通过群管验证，可修改答案后再次申请',
             )
-            admins = (await load(config_group_admin))
+            admins = json_load(config_group_admin)
             if admins['su'] == 'True':
                 for q in su:
                     await bot.send_msg(user_id=int(q), message=f"拒绝{uid}加入群 {gid},验证消息为 “{word}”")

@@ -5,6 +5,7 @@
 # @Email   :  youzyyz1384@qq.com
 # @File    : group.py
 # @Software: PyCharm
+from typing import Optional
 from pathlib import Path
 from nonebot import logger
 from fastapi import APIRouter

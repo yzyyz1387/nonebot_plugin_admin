@@ -11,7 +11,7 @@ from typing import Optional
 from nonebot import logger
 
 from .path import *
-from .utils import load
+from .utils import json_load
 
 
 async def g_admin():
@@ -19,8 +19,7 @@ async def g_admin():
     :return : 分群管理json对象
     """
     with open(config_group_admin, mode='r') as f:
-        admins_ = f.read()
-        admins = json.loads(admins_)
+        admins = json.load(f)
     return admins
 
 
@@ -103,7 +102,7 @@ async def write(gid: str, answer: str) -> Optional[bool]:
     :param answer: 词条
     :return: bool
     """
-    contents = await load(config_admin)
+    contents = json_load(config_admin)
     if gid in contents:
         data = contents[gid]
         if answer in data:
@@ -132,7 +131,7 @@ async def delete(gid: str, answer: str) -> Optional[bool]:
     :param answer: 词条
     :return: bool
     """
-    contents = await load(config_admin)
+    contents = json_load(config_admin)
     if gid in contents:
         if answer in contents[gid]:
             data = contents[gid]

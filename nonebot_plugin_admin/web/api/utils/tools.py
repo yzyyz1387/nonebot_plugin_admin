@@ -13,6 +13,5 @@ async def creatClass(prefix, group_id, extend_class):
 
 
 def copyFile(origin, target):
-    with open(origin, "rb") as f:
-        with open(target, "wb") as f2:
+    with open(origin, "rb") as f, open(target, "wb") as f2:
             f2.write(f.read())

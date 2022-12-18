@@ -18,7 +18,7 @@ from nonebot.params import CommandArg
 from nonebot.permission import SUPERUSER
 
 from .path import *
-from .utils import replace_tmr, del_txt_line, add_txt_line, get_txt_line, upload, load, At, MsgText
+from .utils import replace_tmr, del_txt_line, add_txt_line, get_txt_line, json_upload, json_load, At, MsgText
 
 word_start = on_command('记录本群', block=True, priority=1, permission=GROUP_ADMIN | GROUP_OWNER | SUPERUSER)
 
@@ -43,7 +43,7 @@ word_stop = on_command('停止记录本群', block=True, priority=1, permission=
 @word_stop.handle()
 async def _(bot: Bot, event: GroupMessageEvent):
     gid = str(event.group_id)
-    txt = open(word_path, 'r', encoding='utf-8').read()
+    txt = word_path.read_text(encoding='utf-8')
     if gid in txt:
         with open(word_path, 'w', encoding='utf-8') as c:
             c.write(txt.replace(gid, ''))
@@ -85,32 +85,28 @@ async def _(bot: Bot, event: GroupMessageEvent, matcher: Matcher):
     if not os.path.exists(message_path_group):
         os.mkdir(message_path_group)
     if not os.path.exists(message_path_group / f"{today}.json"):  # 日消息条数记录 {uid：消息数}
-        await upload(message_path_group / f"{today}.json", {uid: 1})
+        json_upload(message_path_group / f"{today}.json", {uid: 1})
     else:
-        dic_ = await load(message_path_group / f"{today}.json")
+        dic_ = json_load(message_path_group / f"{today}.json")
         if uid not in dic_:
             dic_[uid] = 1
         else:
             dic_[uid] += 1
-        await upload(message_path_group / f"{today}.json", dic_)
+        json_upload(message_path_group / f"{today}.json", dic_)
     if not os.path.exists(message_path_group / 'history.json'):  # 历史发言条数记录 {uid：消息数}
-        await upload(message_path_group / 'history.json', {uid: 1})
+        json_upload(message_path_group / 'history.json', {uid: 1})
     else:
-        dic_ = await load(message_path_group / 'history.json')
+        dic_ = json_load(message_path_group / 'history.json')
         if uid not in dic_:
             dic_[uid] = 1
         else:
             dic_[uid] += 1
-        await upload(message_path_group / 'history.json', dic_)
-    txt = open(word_path, 'r', encoding='utf-8').read().split('\n')
+        json_upload(message_path_group / 'history.json', dic_)
+    txt = word_path.read_text(encoding='utf-8').split('\n')
     if gid in txt:
         msg = await replace_tmr(msg)
         with open(path_temp, 'a+', encoding='utf-8') as c:
             c.write(msg + '\n')
-    # except Exception as e:
-    #     logger.error('word_analyze.py 消息记录发生错误：' + str(e))
-    #     await error_log(event.group_id, this_time, matcher, str(e))
-
 
 stop_words_add = on_command('添加停用词', aliases={'增加停用词', '新增停用词'}, block=True, priority=1,
                             permission=GROUP_ADMIN | GROUP_OWNER | SUPERUSER)
@@ -186,10 +182,9 @@ who_speak_most_today = on_command('今日榜首', aliases={'今天谁话多', '�
 async def _(bot: Bot, event: GroupMessageEvent, matcher: Matcher, args: Message = CommandArg()):
     gid = event.group_id
     today = datetime.date.today().strftime('%Y-%m-%d')
-    dic_ = await load(group_message_data_path / f"{gid}" / f"{today}.json")
+    dic_ = json_load(group_message_data_path / f"{gid}" / f"{today}.json")
     top = sorted(dic_.items(), key=lambda x: x[1], reverse=True)
     top = (await member_in_group(bot, gid, top))
-
     if len(top) == 0:
         await who_speak_most_today.finish('没有任何人说话')
     nickname = (await bot.get_group_member_info(group_id=gid, user_id=top[0][0]))['card']
@@ -205,7 +200,7 @@ speak_top = on_command('今日发言排行', aliases={'今日排行榜', '今日
 async def _(bot: Bot, event: GroupMessageEvent, matcher: Matcher, args: Message = CommandArg()):
     gid = event.group_id
     today = datetime.date.today().strftime('%Y-%m-%d')
-    dic_ = await load(group_message_data_path / f"{gid}" / f"{today}.json")
+    dic_ = json_load(group_message_data_path / f"{gid}" / f"{today}.json")
     top = sorted(dic_.items(), key=lambda x: x[1], reverse=True)
     top = (await member_in_group(bot, gid, top))
     if len(top) == 0:
@@ -229,9 +224,10 @@ async def _(bot: Bot, event: GroupMessageEvent, matcher: Matcher, args: Message 
     today = datetime.date.today().strftime('%Y-%m-%d')
     yesterday = (datetime.date.today() - datetime.timedelta(days=1)).strftime('%Y-%m-%d')
     if os.path.exists(group_message_data_path / f"{gid}" / f"{yesterday}.json"):
-        dic_ = await load(group_message_data_path / f"{gid}" / f"{yesterday}.json")
+        dic_ = json_load(group_message_data_path / f"{gid}" / f"{yesterday}.json")
         top = sorted(dic_.items(), key=lambda x: x[1], reverse=True)
         top = (await member_in_group(bot, gid, top))
+
         if len(top) == 0:
             await speak_top_yesterday.finish('没有任何人说话')
         top_list = []
@@ -251,7 +247,9 @@ who_speak_most = on_command('排行', aliases={'谁话多', '谁屁话最多', '
 @who_speak_most.handle()
 async def _(bot: Bot, event: GroupMessageEvent, matcher: Matcher, args: Message = CommandArg()):
     gid = event.group_id
-    dic_ = await load(group_message_data_path / f"{gid}" / 'history.json')
+    dic_ = json_load(group_message_data_path / f"{gid}" / 'history.json')
+    if not dic_:
+        await who_speak_most.finish('没有任何人说话')
     top = sorted(dic_.items(), key=lambda x: x[1], reverse=True)
     top = (await member_in_group(bot, gid, top))
     if len(top) == 0:
@@ -271,7 +269,7 @@ get_speak_num = on_command('发言数', aliases={'发言数', '发言', '发言�
 @get_speak_num.handle()
 async def _(bot: Bot, event: GroupMessageEvent, matcher: Matcher, args: Message = CommandArg()):
     gid = event.group_id
-    dic_ = await load(group_message_data_path / f"{gid}" / 'history.json')
+    dic_ = json_load(group_message_data_path / f"{gid}" / 'history.json')
     at_list = At(event.json())
     if at_list:
         for qq in at_list:
@@ -292,7 +290,7 @@ get_speak_num_today = on_command('今日发言数', aliases={'今日发言数', 
 async def _(bot: Bot, event: GroupMessageEvent, matcher: Matcher, args: Message = CommandArg()):
     gid = event.group_id
     today = datetime.date.today().strftime('%Y-%m-%d')
-    dic_ = await load(group_message_data_path / f"{gid}" / f"{today}.json")
+    dic_ = json_load(group_message_data_path / f"{gid}" / f"{today}.json")
     at_list = At(event.json())
     if at_list:
         for qq in at_list:
@@ -307,7 +305,7 @@ async def _(bot: Bot, event: GroupMessageEvent, matcher: Matcher, args: Message 
 
 
 async def member_in_group(bot: Bot, gid: int, top: list):
-    """成员不在本群则不仅从排行（不在本圈查询信息时会报错）"""
+    """成员不在本群则不仅从排行（不在本群查询信息时会报错）"""
     member_dict = (await bot.get_group_member_list(group_id=gid))
     member_list = []
     for i in member_dict:

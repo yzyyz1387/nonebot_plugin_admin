@@ -10,7 +10,7 @@ send_sentence_night = ["句子1", "句子2", "..."]   # 如果是模式1 此项�
 send_time_moring = "8 0"                          # 选填 早上发送时间默认为7:00
 send_time_night = "23 0"                          # 选填 晚上发送时间默认为22:00              
 """
-
+# FIXME 此功能为用户PR，目前先用配置形式，后续修改为动态配置
 import asyncio
 import json
 import random
@@ -108,8 +108,8 @@ async def send_morning():
                     await get_bot().send_group_msg(group_id=gid, message=hitokoto())
             logger.info('群聊推送消息')
             sendSuccess = True
-        except ValueError as e:
-            logger.error("ValueError:{}", e)
+        except ValueError as E:
+            logger.error("ValueError:{}", E)
             logger.error('群聊推送消息插件获取bot失败，1s后重试')
             await asyncio.sleep(1)  # 重试前时延，防止阻塞
 
@@ -132,8 +132,8 @@ async def send_night():
                     await get_bot().send_group_msg(group_id=gid, message=hitokoto())
             logger.info('群聊推送消息')
             sendSuccess = True
-        except ValueError as e:
-            logger.error("ValueError:{}", e)
+        except ValueError as E:
+            logger.error("ValueError:{}", E)
             logger.error('群聊推送消息插件获取bot失败，1s后重试')
             await asyncio.sleep(1)  # 重试前时延，防止阻塞
 

@@ -27,7 +27,7 @@ async def _(bot: Bot, event: GroupMessageEvent, matcher: Matcher):
     :return:
     """
     rules = [re.sub(r'\t+', '\t', rule).split('\t') for rule in
-             open(limit_word_path, 'r', encoding='utf-8').read().split('\n')]
+             limit_word_path.read_text(encoding='utf-8').split('\n')]
     msg = re.sub(r'\s', '', str(event.get_message()))
     gid = event.group_id
     uid = event.user_id
