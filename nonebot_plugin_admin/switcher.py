@@ -6,13 +6,13 @@
 # @File    : switcher.py
 # @Software: PyCharm
 from nonebot import on_command
+from nonebot.adapters import Message
 from nonebot.adapters.onebot.v11 import Bot, GroupMessageEvent, MessageSegment, ActionFailed
 from nonebot.adapters.onebot.v11.permission import GROUP_ADMIN, GROUP_OWNER
 from nonebot.exception import FinishedException
 from nonebot.internal.matcher import Matcher
-from nonebot.permission import SUPERUSER
 from nonebot.params import CommandArg
-from nonebot.adapters import Message
+from nonebot.permission import SUPERUSER
 from nonebot.typing import T_State
 from pyppeteer import launch
 
@@ -99,18 +99,19 @@ async def switcher_integrity_check(bot: Bot):
     g_list = (await bot.get_group_list())
     switcher_dict = json_load(switcher_path)
     for group in g_list:
-        if not switcher_dict.get(str(group['group_id'])):
-            switcher_dict[str(group['group_id'])] = {}
+        gid = str(group['group_id'])
+        if not switcher_dict.get(gid):
+            switcher_dict[gid] = {}
             for func in admin_funcs:
-                if func in ['img_check', 'word_check', 'group_msg']:
-                    switcher_dict[str(group['group_id'])][func] = False
+                if func in ['img_check', 'auto_ban', 'group_msg', 'particular_e_notice', 'group_recall']:
+                    switcher_dict[gid][func] = False
                 else:
-                    switcher_dict[str(group['group_id'])][func] = True
+                    switcher_dict[gid][func] = True
         else:
-            this_group_switcher = switcher_dict[str(group['group_id'])]
+            this_group_switcher = switcher_dict[gid]
             for func in admin_funcs:
-                if not this_group_switcher.get(func):
-                    if func in ['img_check', 'word_check', 'group_msg']:
+                if this_group_switcher.get(func) is None:
+                    if func in ['img_check', 'auto_ban', 'group_msg', 'particular_e_notice', 'group_recall']:
                         this_group_switcher[func] = False
                     else:
                         this_group_switcher[func] = True

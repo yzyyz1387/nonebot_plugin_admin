@@ -5,21 +5,24 @@
 # @Email   :  youzyyz1384@qq.com
 # @File    : func_hook.py
 # @Software: PyCharm
+import nonebot
 from nonebot import logger
 from nonebot.adapters.onebot.v11 import (
     Bot,
     ActionFailed,
     GroupMessageEvent,
     GroupRequestEvent,
-    Event,
+    Event, HonorNotifyEvent, GroupUploadNoticeEvent, GroupDecreaseNoticeEvent, GroupIncreaseNoticeEvent,
+    GroupAdminNoticeEvent, LuckyKingNotifyEvent,
 )
 from nonebot.matcher import Matcher
 from nonebot.message import run_preprocessor, IgnoredException
 from nonebot.typing import T_State
 
+from .switcher import switcher_integrity_check
 from .config import plugin_config, global_config
 from .path import *
-from .utils import check_func_status
+from .utils import json_load
 
 cb_notice = plugin_config.callback_notice
 su = global_config.superusers
@@ -32,17 +35,25 @@ async def _(matcher: Matcher, bot: Bot, state: T_State, event: Event):
     if len(module) < 2 or module[-2] != admin_path: return  # 位置与文件路径有关
     which_module = module[-1]
     # logger.info(f"{which_module}插件开始hook处理")
-    if isinstance(event, GroupMessageEvent):
+    if isinstance(event, (
+            GroupMessageEvent,
+            HonorNotifyEvent,
+            GroupUploadNoticeEvent,
+            GroupDecreaseNoticeEvent,
+            GroupIncreaseNoticeEvent,
+            GroupAdminNoticeEvent,
+            LuckyKingNotifyEvent)
+                  ):
         gid = event.group_id
         try:
             if which_module in admin_funcs:
                 status = await check_func_status(which_module, str(gid))
-                if not status and which_module not in ['auto_ban', 'img_check']:  # 违禁词检测和图片检测日志太多了，不用logger记录或者发消息记录
+                if not status and which_module not in ['auto_ban', 'img_check', 'particular_e_notice', 'word_analyze']:  # 违禁词检测和图片检测日志太多了，不用logger记录或者发消息记录
                     if cb_notice:
                         await bot.send_group_msg(group_id=gid,
                                                  message=f"功能处于关闭状态，发送【开关{admin_funcs[which_module][0]}】开启")
                     raise IgnoredException('未开启此功能...')
-                elif not status and which_module in ['auto_ban', 'img_check']:
+                elif not status and which_module in ['auto_ban', 'img_check', 'particular_e_notice', 'word_analyze']:
                     raise IgnoredException('未开启此功能...')
         except ActionFailed:
             pass
@@ -72,3 +83,27 @@ async def _(matcher: Matcher, bot: Bot, state: T_State, event: Event):
             pass
         except FileNotFoundError:
             pass
+
+
+async def check_func_status(func_name: str, gid: str) -> bool:
+    """
+    检查某个群的某个功能是否开启
+    :param func_name: 功能名
+    :param gid: 群号
+    :return: bool
+    """
+    funcs_status = json_load(switcher_path)
+    if funcs_status is None:
+        raise FileNotFoundError(switcher_path)
+    try:
+        return bool(funcs_status[gid][func_name])
+    except KeyError:  # 新加入的群
+        logger.info(
+            f"本群({gid})尚未初始化！将自动初始化：关闭所有开关且设置过滤级别为简单。\n\n请重新发送指令继续之前的操作")
+        if cb_notice:
+            # await nonebot.get_bot().send_group_msg(group_id = gid, message = '本群尚未初始化，将自动初始化：开启所有开关且设置过滤级别为简单。\n\n'
+            #                                                              '请重新发送指令继续之前的操作')
+            logger.info('错误发生在 utils.py line 398')
+        bot = nonebot.get_bot()
+        await switcher_integrity_check(bot)
+        return False  # 直接返回 false

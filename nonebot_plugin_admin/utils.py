@@ -35,6 +35,7 @@ su = global_config.superusers
 cb_notice = plugin_config.callback_notice
 
 
+
 def At(data: str) -> Union[list[str], list[int], list]:
     """
     检测at了谁，返回[qq, qq, qq,...]
@@ -110,39 +111,39 @@ async def init():
     :return:
     """
     for d in dirs:
-        if not os.path.exists(d):
+        if not d.exists():
             await mk('dir', d, mode=None)
-    if not os.path.exists(config_admin):
+    if not config_admin.exists():
         await mk('file', config_admin, 'w', content='{"1008611": ["This_is_an_example"]}')
-    if not os.path.exists(config_group_admin):
+    if not config_group_admin.exists():
         await mk('file', config_group_admin, 'w', content='{"su": "True"}')
-    if not os.path.exists(word_path):
+    if not word_path.exists():
         await mk('file', word_path, 'w', content='123456789\n')
-    if not os.path.exists(switcher_path):
+    if not switcher_path.exists():
         bot = nonebot.get_bot()
-        logger.info('创建开关配置文件,分群设置, 图片检测和违禁词检测默认关,其他默认开')
+        logger.info('创建开关配置文件,分群设置, 图片检测和违禁词检测,防撤回，广播，早晚安默认关,其他默认开')
         g_list = (await bot.get_group_list())
         switcher_dict = {}
         for group in g_list:
             switchers = {}
             for fn_name in admin_funcs:
                 switchers.update({fn_name: True})
-                if fn_name in ['img_check', 'word_check', 'group_msg']:
+                if fn_name in ['img_check', 'auto_ban', 'group_msg', 'particular_e_notice', 'group_recall']:
                     switchers.update({fn_name: False})
             switcher_dict.update({str(group['group_id']): switchers})
         with open(switcher_path, 'w', encoding='utf-8') as swp:
             swp.write(f"{json.dumps(switcher_dict)}")
-    if not os.path.exists(limit_word_path):  # 要联网的都丢最后面去
-        if os.path.exists(config_path / '违禁词_简单.txt'):
+    if not limit_word_path.exists():  # 要联网的都丢最后面去
+        if (config_path / '违禁词_简单.txt').exists():
             with open(config_path / '违禁词_简单.txt', 'r', encoding='utf-8') as f:
                 content = f.read()
             with open(limit_word_path, 'w', encoding='utf-8') as f:
                 f.write(content)
-            os.remove(config_path / '违禁词_简单.txt')
+            (config_path / '违禁词_简单.txt').unlink()
         else:
             await mk('file', limit_word_path, 'w',
                      url='https://fastly.jsdelivr.net/gh/yzyyz1387/nwafu/f_words/f_word_easy', dec='简单违禁词词库')
-    if not os.path.exists(ttf_name):
+    if not ttf_name.exists():
         await mk('file', ttf_name, 'wb', url='https://fastly.jsdelivr.net/gh/yzyyz1387/blogimages/msyhblod.ttf',
                  dec='资源字体')
     logger.info('Admin 插件 初始化检测完成')
@@ -381,31 +382,6 @@ def json_upload(path, dict_content) -> None:
         c.write(json.dumps(dict_content, ensure_ascii=False, indent=2))
 
 
-async def check_func_status(func_name: str, gid: str) -> bool:
-    """
-    检查某个群的某个功能是否开启
-    :param func_name: 功能名
-    :param gid: 群号
-    :return: bool
-    """
-    funcs_status = json_load(switcher_path)
-    if funcs_status is None:
-        raise FileNotFoundError(switcher_path)
-    try:
-        return bool(funcs_status[gid][func_name])
-    except KeyError:  # 新加入的群
-        logger.info(
-            f"本群({gid})尚未初始化！将自动初始化：关闭所有开关且设置过滤级别为简单。\n\n请重新发送指令继续之前的操作")
-        if cb_notice:
-            # await nonebot.get_bot().send_group_msg(group_id = gid, message = '本群尚未初始化，将自动初始化：开启所有开关且设置过滤级别为简单。\n\n'
-            #                                                              '请重新发送指令继续之前的操作')
-            logger.info('错误发生在 utils.py line 398')
-        funcs_status.update({str(gid): {'admin': True, 'requests': True, 'wordcloud': True,
-                                        'auto_ban': True, 'img_check': True, 'word_analyze': True}})
-        json_upload(switcher_path, funcs_status)
-        return False  # 直接返回 false
-
-
 async def del_txt_line(path: Path, matcher: Matcher, event: GroupMessageEvent, args: Message, dec: str,
                        group: bool = True) -> None:
     """
@@ -619,3 +595,4 @@ async def fi(cmd: Matcher, msg) -> None:
 async def log_fi(cmd: Matcher, msg, log: str = None, err=False) -> None:
     (logger.error if err else logger.info)(log if log else msg)
     await fi(cmd, msg)
+

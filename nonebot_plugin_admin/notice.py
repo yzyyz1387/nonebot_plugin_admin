@@ -14,7 +14,8 @@ from nonebot.permission import SUPERUSER
 from nonebot.typing import T_State
 
 from . import approve
-from .utils import At, check_func_status, fi
+from .utils import At, fi
+from .func_hook import check_func_status
 
 # 查看当前群分管
 gad = on_command('分管', aliases={'/gad', '/分群管理'}, priority=1, block=True,
