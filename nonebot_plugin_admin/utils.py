@@ -127,7 +127,7 @@ async def init():
             switchers = {}
             for fn_name in admin_funcs:
                 switchers.update({fn_name: True})
-                if fn_name in ['img_check', 'word_check', 'group_msg']:
+                if fn_name in ['img_check', 'auto_ban', 'group_msg']:
                     switchers.update({fn_name: False})
             switcher_dict.update({str(group['group_id']): switchers})
         with open(switcher_path, 'w', encoding='utf-8') as swp:
