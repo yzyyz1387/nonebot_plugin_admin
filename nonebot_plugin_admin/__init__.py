@@ -27,6 +27,7 @@ from . import (
     group_request_verify,
     img_check,
     notice,
+    particular_e_notice,
     requests,
     request_manual,
     word_analyze,
