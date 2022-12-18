@@ -102,7 +102,7 @@ async def switcher_integrity_check(bot: Bot):
         if not switcher_dict.get(str(group['group_id'])):
             switcher_dict[str(group['group_id'])] = {}
             for func in admin_funcs:
-                if func in ['img_check', 'word_check', 'group_msg']:
+                if func in ['img_check', 'auto_ban', 'group_msg']:
                     switcher_dict[str(group['group_id'])][func] = False
                 else:
                     switcher_dict[str(group['group_id'])][func] = True
@@ -110,7 +110,7 @@ async def switcher_integrity_check(bot: Bot):
             this_group_switcher = switcher_dict[str(group['group_id'])]
             for func in admin_funcs:
                 if not this_group_switcher.get(func):
-                    if func in ['img_check', 'word_check', 'group_msg']:
+                    if func in ['img_check', 'auto_ban', 'group_msg']:
                         this_group_switcher[func] = False
                     else:
                         this_group_switcher[func] = True
