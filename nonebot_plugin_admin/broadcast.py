@@ -17,7 +17,7 @@ from nonebot.typing import T_State
 
 from .config import global_config
 from .path import broadcast_avoid_path
-from .utils import json_load, json_upload, sd, fi, log_fi, log_sd
+from .utils import json_load, json_upload, sd, fi
 
 try:
     su = global_config.superusers
