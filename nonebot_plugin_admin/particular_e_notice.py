@@ -25,9 +25,6 @@ from nonebot.typing import T_State
 
 from .utils import fi
 
-self_bot = get_bot()
-bot_id = self_bot.self_id
-
 
 # 获取戳一戳状态
 async def _is_poke(bot: Bot, event: Event, state: T_State) -> bool:
@@ -81,7 +78,19 @@ async def _(bot: Bot, event: Event, state: T_State):
 
 @honor.handle()
 async def _(bot: Bot, event: HonorNotifyEvent, state: T_State, matcher: Matcher):
-    reply = honor_judgement(event.honor_type, event)
+    honor_type = event.honor_type
+    uid = event.user_id
+    reply = ""
+    honor_map = {"performer": ["🔥", "群聊之火"], "emotion": ["🤣", "快乐源泉"]}
+    # 龙王
+    if honor_type == "talkative":
+        if uid == bot.self_id:
+            reply = f"💦 新龙王诞生，原来是我自己~"
+        else:
+            reply = f"💦 恭喜{MessageSegment.at(uid)}荣获龙王标识~"
+    for key, value in honor_map.items():
+        if honor_type == key:
+            reply = f"{value[0]} 恭喜{MessageSegment.at(uid)}荣获【{value[1]}】标识~"
     await fi(matcher, reply)
 
 
@@ -129,7 +138,7 @@ async def _(bot: Bot, event: GroupAdminNoticeEvent, state: T_State, matcher: Mat
     u_name = user['card'] if user.get('card') else user['nickname']
     cong_words = "恭喜/n成为管理"
     re_words = "Ops! /n不再具有绿帽子"
-    if uid == bot_id:
+    if uid == bot.self_id:
         if sub_type == "set":
             reply = f"🚔 管理员变动\n{cong_words.replace('/n', '我')}"
         if sub_type == "unset":
@@ -146,18 +155,3 @@ async def _(bot: Bot, event: GroupAdminNoticeEvent, state: T_State, matcher: Mat
 async def _(bot: Bot, event: LuckyKingNotifyEvent, state: T_State, matcher: Matcher):
     # TODO 也许做点本记录（运气王）
     ...
-
-
-def honor_judgement(honor_type, user_id):
-    reply = ""
-    honor_map = {"performer": ["🔥", "群聊之火"], "emotion": ["🤣", "快乐源泉"]}
-    # 龙王
-    if honor_type == "talkative":
-        if user_id == bot_id:
-            reply = f"💦 新龙王诞生，原来是我自己~"
-        else:
-            reply = f"💦 恭喜{MessageSegment.at(user_id)}荣获龙王标识~"
-    for key, value in honor_map.items():
-        if honor_type == key:
-            reply = f"{value[0]} 恭喜{MessageSegment.at(user_id)}荣获【{value[1]}】标识~"
-    return reply
