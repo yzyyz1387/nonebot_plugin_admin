@@ -7,7 +7,7 @@
 # @Software: PyCharm
 from nonebot import logger, on_command
 from nonebot.adapters import Message
-from nonebot.adapters.onebot.v11 import Bot, MessageEvent
+from nonebot.adapters.onebot.v11 import Bot, MessageEvent, GroupMessageEvent, ActionFailed
 from nonebot.matcher import Matcher
 from nonebot.params import CommandArg, ArgStr, Arg
 from nonebot.permission import SUPERUSER
@@ -32,7 +32,8 @@ else:
             broadcast_config.update({str(su_): []})
             json_upload(broadcast_avoid_path, broadcast_config)
 
-on_broadcast = on_command('广播', aliases={'告诉所有人', '告诉大家'}, priority=1, block=True, permission=SUPERUSER)
+on_broadcast = on_command('广播', aliases={'告诉所有人', '告诉大家', '告诉全世界'}, priority=1, block=True,
+                          permission=SUPERUSER)
 
 
 @on_broadcast.handle()
@@ -42,7 +43,7 @@ async def _(bot: Bot, event: MessageEvent, state: T_State, matcher: Matcher, arg
         await broadcast(str(event.user_id), args, bot, matcher)
 
 
-@on_broadcast.got('b_args', prompt='请输入要广播的内容')
+@on_broadcast.got('b_args', prompt='请输入要广播的内容，发送【取消】取消')
 async def _(
         bot: Bot,
         event: MessageEvent,
@@ -66,9 +67,9 @@ async def _(bot: Bot, event: MessageEvent, state: T_State, matcher: Matcher, arg
     添加广播排除群
     """
     if args:
-        if "+" in args:
-            await add_avoid_group(event, args, matcher)
-        elif "-" in args:
+        if "+" in str(args):
+            await add_avoid_group(event, args, matcher, state)
+        elif "-" in str(args):
             await del_avoid_group(event, args, matcher)
     else:
         await add_broadcast_avoid.finish("请输入要添加的群号,用空格分隔，查看所有群号请发送【群列表】")
@@ -84,12 +85,16 @@ async def _(bot: Bot, event: MessageEvent, state: T_State):
     """
     groups = await bot.get_group_list()
     r = ""
+    g_list = []
     for g in groups:
+        g_list.append(str(g["group_id"]))
         r += f"{g['group_name']}: {g['group_id']} \n"
+    state['g_list'] = g_list
     await all_group_list.send(r)
 
 
-@all_group_list.got("gid", prompt="你现在可以直接告诉我群号，我可以帮你添加到广播排除列表,发送【取消】取消")
+@all_group_list.got("gid",
+                    prompt="你现在可以直接告诉我群号，我可以帮你添加到广播排除列表\n多个用【空格】分隔\n只保留本群其他全部排除请回复【0】\n发送【取消】取消")
 async def _(
         bot: Bot,
         event: MessageEvent,
@@ -99,24 +104,43 @@ async def _(
     """
     添加群号到广播排除列表
     """
+    g_list = state['g_list']
     for i in ["取消", "算了", "退出"]:
         if i in gid:
             await matcher.finish("已取消添加")
-    await add_avoid_group(event, gid, matcher)
+    if gid == "0":
+        if isinstance(event, GroupMessageEvent):
+            g_list.remove(str(event.group_id))
+            g_avoid = " ".join(g_list)
+            await add_avoid_group(event, g_avoid, matcher, state)
+        else:
+            await matcher.finish("当前不在群聊中")
+    else:
+        await add_avoid_group(event, gid, matcher, state)
 
 
-async def add_avoid_group(event: MessageEvent, args, matcher: Matcher):
+async def add_avoid_group(event: MessageEvent, args, matcher: Matcher, state: T_State):
     uid = str(event.user_id)
     groups = str(args).split(" ")
+    r = ""
     try:
         history_group = broadcast_config[uid]
     except KeyError:
         history_group = []
     for g in groups:
-        history_group.append(str(g))
+        if g in state['g_list']:
+            if g in history_group:
+                r += f"{g} 已存在,跳过\n"
+                continue
+            else:
+                r += f"{g} 添加到广播排除列表成功\n"
+                history_group.append(str(g))
+        else:
+            r += f"我不在群 {g} 捏,跳过\n"
+            continue
     broadcast_config.update({uid: history_group})
     json_upload(broadcast_avoid_path, broadcast_config)
-    await matcher.send(f"已添加{groups}到广播排除列表, 发送【排除列表】可查看已排除的群")
+    await matcher.send(f"{r}\n 发送【排除列表】可查看已排除的群")
 
 
 avoided_group_list = on_command('排除列表', priority=1, block=True, permission=SUPERUSER)
@@ -148,9 +172,12 @@ async def del_avoid_group(event: MessageEvent, args, matcher: Matcher):
         for g in groups:
             if g in history_group:
                 history_group.remove(g)
+            else:
+                groups.remove(g)
         broadcast_config.update({uid: history_group})
         json_upload(broadcast_avoid_path, broadcast_config)
-        await matcher.send(f"已从广播排除列表中删除{groups}")
+        r = '\n'.join(groups)
+        await matcher.send(f"已从广播排除列表中删除{r}")
     except KeyError:
         await matcher.finish("广播排除列表为空")
 
@@ -166,9 +193,27 @@ async def broadcast(uid: str, args: Message, bot: Bot, matcher: Matcher):
                     logger.debug(f"正在向群{g}广播{args}")
                     await bot.send_group_msg(group_id=g, message="广播：")
                     await bot.send_group_msg(group_id=g, message=args)
-                except Exception as e:
+                except ActionFailed as e:
                     logger.error(f"广播时发生错误{e}")
             else:
                 logger.debug(f"群{g}已在广播排除列表中")
         await matcher.finish("广播完成")
+
+
+broad_cast_help = on_command('广播帮助', priority=1, block=True)
+
+
+@broad_cast_help.handle()
+async def _(bot: Bot, event: MessageEvent, state: T_State):
+    """
+    广播帮助
+    """
+    r = "【广播帮助】\n" \
+        "发送【广播】/【广播+[消息】可广播消息\n" \
+        "发送【群列表】可查看能广播到的所有群\n" \
+        "发送【排除列表】可查看已排除的群\n" \
+        "发送【广播排除+】可添加群到广播排除列表\n" \
+        "发送【广播排除-】可从广播排除列表删除群\n" \
+        "发送【广播帮助】可查看广播帮助"
+    await broad_cast_help.send(r)
 # FIXME 适用于 su 在复习考研时发癫向所有群广播消息 暂时未写入README

@@ -25,6 +25,7 @@ cb_notice = plugin_config.callback_notice
 su = global_config.superusers
 admin_path = Path(__file__).parts[-2]
 
+
 @run_preprocessor
 async def _(matcher: Matcher, bot: Bot, state: T_State, event: Event):
     module = str(matcher.module_name).split('.')
