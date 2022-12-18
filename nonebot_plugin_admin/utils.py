@@ -597,6 +597,5 @@ async def log_fi(cmd: Matcher, msg, log: str = None, err=False) -> None:
     await fi(cmd, msg)
 
 def copyFile(origin, target):
-    with open(origin, "rb") as f:
-        with open(target, "wb") as f2:
+    with open(origin, "rb") as f, open(target, "wb") as f2:
             f2.write(f.read())
