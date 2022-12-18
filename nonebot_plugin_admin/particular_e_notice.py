@@ -5,9 +5,11 @@
 # @Email   :  youzyyz1384@qq.com
 # @File    : particular_e_notice.py
 # @Software: PyCharm
+import asyncio
 from datetime import datetime
 
-from nonebot import get_bot
+import httpx
+from nonebot import logger
 from nonebot.adapters.onebot.v11 import (
     Bot, Event, PokeNotifyEvent,
     HonorNotifyEvent,
@@ -61,13 +63,13 @@ async def _is_red_packet(bot: Bot, event: Event, state: T_State) -> bool:
     return isinstance(event, LuckyKingNotifyEvent)
 
 
-poke = on_notice(Rule(_is_poke), priority=50, block=True)
-honor = on_notice(Rule(_is_honor), priority=50, block=True)
-upload_files = on_notice(Rule(_is_checker), priority=50, block=True)
-user_decrease = on_notice(Rule(_is_user_decrease), priority=50, block=True)
-user_increase = on_notice(Rule(_is_user_increase), priority=50, block=True)
-admin_change = on_notice(Rule(_is_admin_change), priority=50, block=True)
-red_packet = on_notice(Rule(_is_red_packet), priority=50, block=True)
+poke = on_notice(_is_poke, priority=50, block=True)
+honor = on_notice(_is_honor, priority=50, block=True)
+upload_files = on_notice(_is_checker, priority=50, block=True)
+user_decrease = on_notice(_is_user_decrease, priority=50, block=True)
+user_increase = on_notice(_is_user_increase, priority=50, block=True)
+admin_change = on_notice(_is_admin_change, priority=50, block=True)
+red_packet = on_notice(_is_red_packet, priority=50, block=True)
 
 
 @poke.handle()
@@ -83,14 +85,16 @@ async def _(bot: Bot, event: HonorNotifyEvent, state: T_State, matcher: Matcher)
     reply = ""
     honor_map = {"performer": ["🔥", "群聊之火"], "emotion": ["🤣", "快乐源泉"]}
     # 龙王
+    u_info = await bot.get_group_member_info(user_id=event.user_id)
+    u_name = u_info["card"] if u_info["card"] else u_info["nickname"]
     if honor_type == "talkative":
         if uid == bot.self_id:
             reply = f"💦 新龙王诞生，原来是我自己~"
         else:
-            reply = f"💦 恭喜{MessageSegment.at(uid)}荣获龙王标识~"
+            reply = f"💦 恭喜 {u_name} 荣获龙王标识~"
     for key, value in honor_map.items():
         if honor_type == key:
-            reply = f"{value[0]} 恭喜{MessageSegment.at(uid)}荣获【{value[1]}】标识~"
+            reply = f"{value[0]} 恭喜{u_name}荣获【{value[1]}】标识~"
     await fi(matcher, reply)
 
 
@@ -103,29 +107,29 @@ async def _(bot: Bot, event: GroupUploadNoticeEvent, state: T_State, matcher: Ma
 @user_decrease.handle()
 async def _(bot: Bot, event: GroupDecreaseNoticeEvent, state: T_State, matcher: Matcher):
     op = await bot.get_group_member_info(group_id=event.group_id, user_id=event.operator_id)
-    casualty = await bot.get_group_member_info(group_id=event.group_id, user_id=event.user_id)
-    casualty_name = casualty["card"] if casualty["card"] else casualty["nickname"]
+    casualty_name = (await bot.get_stranger_info(user_id=event.user_id)).get("nickname")
     op_name = op['card'] if op.get('card') else op['nickname']
     e_time = datetime.fromtimestamp(event.time).strftime("%Y-%m-%d %H:%M:%S")
-    avatar = f"https://q4.qlogo.cn/headimg_dl?dst_uin={event.user_id}&spec=640"
+    avatar = get_avatar(event.user_id)
     farewell_words = "感谢/o给/n送上的飞机，谢谢/o"
-    farewell_self_words = "/n永远离开了我们/n"
+    farewell_self_words = "/n离群出走/n"
     # TODO 为以后自定义欢送词做准备
     if event.operator_id != event.user_id:
-        reply = f"🛫成员离开\n {farewell_words.replace('/o', f' {op_name} ').replace('/n', f' {casualty_name} ')}" \
-                f" \n {e_time}\n {MessageSegment.image(avatar)}"
+        reply = f"🛫 成员变动\n {farewell_words.replace('/o', f' {op_name} ').replace('/n', f' {casualty_name} ')}"
+        reply += MessageSegment.image(avatar) + f" \n {e_time}\n"
     else:
-        reply = f"🛫成员离开\n {farewell_self_words.replace('/n', f' {casualty_name} ')}"
+        reply = f"🛫 成员变动\n {farewell_self_words.replace('/n', f' {casualty_name} ')}"
     await fi(matcher, reply)
 
 
 @user_increase.handle()
 async def _(bot: Bot, event: GroupIncreaseNoticeEvent, state: T_State, matcher: Matcher):
-    avatar = f"https://q4.qlogo.cn/headimg_dl?dst_uin={event.user_id}&spec=640"
+    await asyncio.sleep(1)
+    avatar = get_avatar(event.user_id)
     new_be = (await bot.get_group_member_info(group_id=event.group_id, user_id=event.user_id))['nickname']
-    wel_words = "欢迎/n加入我们"
+    wel_words = "欢迎/n加入"
     # TODO 为以后自定义欢迎词做准备
-    reply = f"✨ 成员加入\n {wel_words.replace('/n', new_be)}\n {MessageSegment.image(avatar)}"
+    reply = f"✨ 成员变动\n"+MessageSegment.image(avatar) + MessageSegment.at(event.user_id) + f"\n {wel_words.replace('/n', f' {new_be} ')}\n "
     await fi(matcher, reply)
 
 
@@ -137,7 +141,7 @@ async def _(bot: Bot, event: GroupAdminNoticeEvent, state: T_State, matcher: Mat
     user = await bot.get_group_member_info(group_id=event.group_id, user_id=uid)
     u_name = user['card'] if user.get('card') else user['nickname']
     cong_words = "恭喜/n成为管理"
-    re_words = "Ops! /n不再具有绿帽子"
+    re_words = "Ops! /n不再是本群管理"
     if uid == bot.self_id:
         if sub_type == "set":
             reply = f"🚔 管理员变动\n{cong_words.replace('/n', '我')}"
@@ -155,3 +159,7 @@ async def _(bot: Bot, event: GroupAdminNoticeEvent, state: T_State, matcher: Mat
 async def _(bot: Bot, event: LuckyKingNotifyEvent, state: T_State, matcher: Matcher):
     # TODO 也许做点本记录（运气王）
     ...
+
+
+def get_avatar(uid):
+    return f"https://q4.qlogo.cn/headimg_dl?dst_uin={uid}&spec=640"
