@@ -22,6 +22,7 @@ from . import (
     approve,
     auto_ban,
     auto_ban_,
+    broadcast,
     func_hook,
     group_request_verify,
     img_check,
@@ -34,7 +35,7 @@ from . import (
     utils,
 )
 from .config import global_config
-from .utils import At, Reply, MsgText, banSb, change_s_title, log_sd, fi, log_fi
+from .utils import At, Reply, MsgText, banSb, change_s_title, log_sd, fi, log_fi, sd
 
 su = global_config.superusers
 
@@ -203,12 +204,18 @@ async def _(bot: Bot, matcher: Matcher, event: GroupMessageEvent):
         if 'all' not in sb:
             try:
                 for qq in sb:
+                    if qq == event.user_id:
+                        await sd(matcher, '你在玩一种很新的东西，不能踢自己!')
+                        continue
+                    if qq in su or (str(qq) in su):
+                        await sd(matcher, '超级用户不能被踢')
+                        continue
                     await bot.set_group_kick(
                         group_id=gid,
                         user_id=int(qq),
                         reject_add_request=False
                     )
-                await log_fi(matcher, '踢人操作成功')
+                await log_fi(matcher, '踢人操作执行完毕')
             except ActionFailed:
                 await fi(matcher, '权限不足')
         await fi(matcher, '不能含有@全体成员')
@@ -228,12 +235,18 @@ async def _(bot: Bot, matcher: Matcher, event: GroupMessageEvent):
         if 'all' not in sb:
             try:
                 for qq in sb:
+                    if qq == event.user_id:
+                        await sd(matcher, '你在玩一种很新的东西，不能踢自己!')
+                        continue
+                    if qq in su or (str(qq) in su):
+                        await sd(matcher, '超级用户不能被踢')
+                        continue
                     await bot.set_group_kick(
                         group_id=gid,
                         user_id=int(qq),
                         reject_add_request=True
                     )
-                await log_fi(matcher, '踢人并拉黑操作成功')
+                await log_fi(matcher, '踢人并拉黑操作执行完毕')
             except ActionFailed:
                 await fi(matcher, '权限不足')
         await fi(matcher, '不能含有@全体成员')
@@ -300,7 +313,7 @@ async def _(bot: Bot, matcher: Matcher, event: GroupMessageEvent):
         await fi(matcher, '指令不正确 或 不能含有@全体成员')
 
 
-msg_recall = on_command('撤回', priority=1, aliases={'删除', 'recall'}, block=True,
+msg_recall = on_command('撤回', priority=1, aliases={'recall'}, block=True,
                         permission=SUPERUSER | GROUP_ADMIN | GROUP_OWNER)
 
 
