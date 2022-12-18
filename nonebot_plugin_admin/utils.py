@@ -33,6 +33,7 @@ TencentID = plugin_config.tenid
 TencentKeys = plugin_config.tenkeys
 su = global_config.superusers
 cb_notice = plugin_config.callback_notice
+driver = nonebot.get_driver()
 
 
 def At(data: str) -> Union[list[str], list[int], list]:
@@ -110,15 +111,15 @@ async def init():
     :return:
     """
     for d in dirs:
-        if not os.path.exists(d):
+        if not d.exists():
             await mk('dir', d, mode=None)
-    if not os.path.exists(config_admin):
+    if not config_admin.exists():
         await mk('file', config_admin, 'w', content='{"1008611": ["This_is_an_example"]}')
-    if not os.path.exists(config_group_admin):
+    if not config_group_admin.exists():
         await mk('file', config_group_admin, 'w', content='{"su": "True"}')
-    if not os.path.exists(word_path):
+    if not word_path.exists():
         await mk('file', word_path, 'w', content='123456789\n')
-    if not os.path.exists(switcher_path):
+    if not switcher_path.exists():
         bot = nonebot.get_bot()
         logger.info('创建开关配置文件,分群设置, 图片检测和违禁词检测默认关,其他默认开')
         g_list = (await bot.get_group_list())
@@ -132,17 +133,17 @@ async def init():
             switcher_dict.update({str(group['group_id']): switchers})
         with open(switcher_path, 'w', encoding='utf-8') as swp:
             swp.write(f"{json.dumps(switcher_dict)}")
-    if not os.path.exists(limit_word_path):  # 要联网的都丢最后面去
-        if os.path.exists(config_path / '违禁词_简单.txt'):
+    if not limit_word_path.exists():  # 要联网的都丢最后面去
+        if (config_path / '违禁词_简单.txt').exists():
             with open(config_path / '违禁词_简单.txt', 'r', encoding='utf-8') as f:
                 content = f.read()
             with open(limit_word_path, 'w', encoding='utf-8') as f:
                 f.write(content)
-            os.remove(config_path / '违禁词_简单.txt')
+            (config_path / '违禁词_简单.txt').unlink()
         else:
             await mk('file', limit_word_path, 'w',
                      url='https://fastly.jsdelivr.net/gh/yzyyz1387/nwafu/f_words/f_word_easy', dec='简单违禁词词库')
-    if not os.path.exists(ttf_name):
+    if not ttf_name.exists():
         await mk('file', ttf_name, 'wb', url='https://fastly.jsdelivr.net/gh/yzyyz1387/blogimages/msyhblod.ttf',
                  dec='资源字体')
     logger.info('Admin 插件 初始化检测完成')
@@ -619,3 +620,8 @@ async def fi(cmd: Matcher, msg) -> None:
 async def log_fi(cmd: Matcher, msg, log: str = None, err=False) -> None:
     (logger.error if err else logger.info)(log if log else msg)
     await fi(cmd, msg)
+
+
+@driver.on_bot_connect
+async def _():
+    await init()
