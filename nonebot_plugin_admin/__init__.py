@@ -20,6 +20,7 @@ from . import (
     auto_ban_,
     broadcast,
     func_hook,
+    group_msg,
     group_request_verify,
     group_recall,
     img_check,
