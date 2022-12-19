@@ -12,8 +12,14 @@ from nonebot.adapters.onebot.v11 import (
     ActionFailed,
     GroupMessageEvent,
     GroupRequestEvent,
-    Event, HonorNotifyEvent, GroupUploadNoticeEvent, GroupDecreaseNoticeEvent, GroupIncreaseNoticeEvent,
-    GroupAdminNoticeEvent, LuckyKingNotifyEvent,
+    Event,
+    HonorNotifyEvent,
+    GroupUploadNoticeEvent,
+    GroupDecreaseNoticeEvent,
+    GroupIncreaseNoticeEvent,
+    GroupAdminNoticeEvent,
+    LuckyKingNotifyEvent,
+    GroupRecallNoticeEvent
 )
 from nonebot.matcher import Matcher
 from nonebot.message import run_preprocessor, IgnoredException
@@ -42,18 +48,28 @@ async def _(matcher: Matcher, bot: Bot, state: T_State, event: Event):
             GroupDecreaseNoticeEvent,
             GroupIncreaseNoticeEvent,
             GroupAdminNoticeEvent,
-            LuckyKingNotifyEvent)
+            LuckyKingNotifyEvent,
+            GroupRecallNoticeEvent
+            )
                   ):
         gid = event.group_id
         try:
             if which_module in admin_funcs:
                 status = await check_func_status(which_module, str(gid))
-                if not status and which_module not in ['auto_ban', 'img_check', 'particular_e_notice', 'word_analyze']:  # 违禁词检测和图片检测日志太多了，不用logger记录或者发消息记录
+                if not status and which_module not in ['auto_ban',
+                                                       'img_check',
+                                                       'particular_e_notice',
+                                                       'word_analyze',
+                                                       'group_recall']:  # 违禁词检测和图片检测日志太多了，不用logger记录或者发消息记录
                     if cb_notice:
                         await bot.send_group_msg(group_id=gid,
                                                  message=f"功能处于关闭状态，发送【开关{admin_funcs[which_module][0]}】开启")
                     raise IgnoredException('未开启此功能...')
-                elif not status and which_module in ['auto_ban', 'img_check', 'particular_e_notice', 'word_analyze']:
+                elif not status and which_module in ['auto_ban',
+                                                     'img_check',
+                                                     'particular_e_notice',
+                                                     'word_analyze',
+                                                     'group_recall']:
                     raise IgnoredException('未开启此功能...')
         except ActionFailed:
             pass
