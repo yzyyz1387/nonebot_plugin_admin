@@ -30,7 +30,6 @@ async def _(bot: Bot, event: GroupMessageEvent):
         txt = c.read().split('\n')
         if gid not in txt:
             c.write(gid + '\n')
-            c.close()
             logger.info(f"开始记录{gid}")
             await word_start.finish('成功')
         logger.info(f"{gid}已存在")
@@ -47,7 +46,6 @@ async def _(bot: Bot, event: GroupMessageEvent):
     if gid in txt:
         with open(word_path, 'w', encoding='utf-8') as c:
             c.write(txt.replace(gid, ''))
-            c.close()
             logger.info(f"停止记录{gid}")
             await word_start.finish('成功，曾经的记录不会被删除')
     else:
