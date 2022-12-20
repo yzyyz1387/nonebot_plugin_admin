@@ -35,7 +35,6 @@ su = global_config.superusers
 cb_notice = plugin_config.callback_notice
 
 
-
 def At(data: str) -> Union[list[str], list[int], list]:
     """
     检测at了谁，返回[qq, qq, qq,...]
@@ -596,6 +595,7 @@ async def log_fi(cmd: Matcher, msg, log: str = None, err=False) -> None:
     (logger.error if err else logger.info)(log if log else msg)
     await fi(cmd, msg)
 
+
 def copyFile(origin, target):
     with open(origin, "rb") as f, open(target, "wb") as f2:
-            f2.write(f.read())
+        f2.write(f.read())

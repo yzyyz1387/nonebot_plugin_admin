@@ -16,7 +16,7 @@ from admin_db_models import models_version as bot_models_version
 from ..utils.tools import copyFile
 
 # FIXME 更改model后这里+1
-models_version = 1
+models_version = 2
 
 
 def pre_init(enforce: bool = False):

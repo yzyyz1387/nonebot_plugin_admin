@@ -126,6 +126,33 @@ class Message(Group):
         return group
 
     @classmethod
+    async def get_this_user(cls, user: int, group_id: int = None, sort: str = "no_sort"):
+        """
+        获取当前用户所有消息记录
+        :param user: 用户id
+        :param group_id: 群号
+        :param sort: 排序方式 [no_sort, default, reverse]
+        :return:
+        """
+        user_msg = await cls.filter(user=user).all()
+        if sort:
+            if sort not in ["no_sort", "default", "reverse"]:
+                raise ValueError("sort参数错误")
+        if group_id:
+            if sort == "no_sort":
+                user_msg = await cls.filter(user=user, group_id=group_id).all()
+            elif sort == "default":
+                user_msg = await cls.filter(user=user, group_id=group_id).all().order_by("update_time")
+            elif sort == "reverse":
+                user_msg = await cls.filter(user=user, group_id=group_id).all().order_by("-update_time")
+        else:
+            if sort == "default":
+                user_msg = await cls.filter(user=user).all().order_by("update_time")
+            elif sort == "reverse":
+                user_msg = await cls.filter(user=user).all().order_by("-update_time")
+        return user_msg
+
+    @classmethod
     async def add_msg(cls, group_id: int, msg: str, user: int, msg_type: str):
         """添加消息"""
         try:

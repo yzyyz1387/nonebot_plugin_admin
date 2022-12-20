@@ -28,16 +28,16 @@ async def msg_(request: Request, group_id: int = None):
 
 
 @router.get("/user")
-async def user_msg(request: Request, user: int,  group_id: int = None):
+async def user_msg(request: Request, user: int, sort: str = "no_sort", group_id: int = None):
     """
     查询某个群的某个用户的聊天记录,不带group_id参数则返回用户在所有群的聊天记录
     """
     if user:
         if group_id:
-            msg = await Message.get_this_user(user=user, group_id=group_id)
+            msg = await Message.get_this_user(user=user, group_id=group_id, sort=sort)
             return msg
         else:
-            msg = await Message.get_this_user(user=user)
+            msg = await Message.get_this_user(user=user, sort=sort)
             return msg
 
 

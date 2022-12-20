@@ -165,10 +165,11 @@ GET /msg/user
 
 ### 请求参数
 
-|名称|位置|类型|必选|说明|
-|---|---|---|---|---|
-|user|query|integer| 是 |QQ|
-|group_id|query|integer| 否 |群号|
+| 名称       |位置| 类型      |必选|说明|
+|----------|---|---------|---|---|
+| user     |query| integer | 是 |QQ|
+| group_id |query| integer | 否 |群号|
+| sort     |query| string  | 否 |排序方式 默认no_sort 无排序，default 时间顺序，reverse时间逆序|
 
 > 返回示例
 
