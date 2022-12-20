@@ -1,0 +1,2 @@
+
+recursive-include nonebot_plugin_admin/ *.html
