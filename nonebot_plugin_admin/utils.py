@@ -101,7 +101,8 @@ dirs = [config_path,
         wordcloud_bg_path,
         user_violation_info_path,
         group_message_data_path,
-        error_path]
+        error_path,
+        summary_path]
 
 
 async def init():
@@ -239,7 +240,7 @@ async def replace_tmr(msg: str) -> str:
     return msg
 
 
-async def participle_simple_handle() -> list[str]:
+def participle_simple_handle() -> list[str]:
     """
     wordcloud停用词
     """

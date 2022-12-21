@@ -29,8 +29,8 @@ error_path = config_path / 'admin插件错误数据'
 broadcast_avoid_path = config_path / '广播排除群聊.json'
 admin_models_path = Path() / 'admin_db_models'
 admin_models_init_path = admin_models_path / '__init__.py'
-
-
+ttf_path = Path() / 'resource' / 'msyhblod.ttf'
+summary_path = config_path / 'summary'
 
 admin_funcs = {
     'admin': ['管理', '踢', '禁', '改', '基础群管'],
