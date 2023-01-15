@@ -18,7 +18,7 @@ from nonebot.params import CommandArg
 from nonebot.permission import SUPERUSER
 
 from .path import *
-from .utils import replace_tmr, del_txt_line, add_txt_line, get_txt_line, json_upload, json_load, At, MsgText
+from .utils import get_msg_4_db, replace_tmr, del_txt_line, add_txt_line, get_txt_line, json_upload, json_load, At, MsgText
 
 word_start = on_command('记录本群', block=True, priority=1, permission=GROUP_ADMIN | GROUP_OWNER | SUPERUSER)
 
@@ -68,7 +68,7 @@ async def _(bot: Bot, event: GroupMessageEvent, matcher: Matcher):
     """
     gid = str(event.group_id)
     uid = str(event.user_id)
-    msg = str(MsgText(event.json())).replace(' ', '')
+    msg = get_msg_4_db(event)
     path_temp = words_contents_path / f"{str(gid)}.txt"
     message_path_group = group_message_data_path / f"{gid}"
     # datetime获取今日日期

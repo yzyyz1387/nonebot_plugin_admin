@@ -18,7 +18,7 @@ import httpx
 import nonebot
 from nonebot import logger
 from nonebot.adapters import Message
-from nonebot.adapters.onebot.v11 import GroupMessageEvent, ActionFailed, Bot
+from nonebot.adapters.onebot.v11 import GroupMessageEvent, ActionFailed, Bot, Event
 from nonebot.matcher import Matcher
 from tencentcloud.common import credential
 from tencentcloud.common.exception.tencent_cloud_sdk_exception import TencentCloudSDKException
@@ -90,6 +90,23 @@ def MsgText(data: str):
         return msg_text
     except:
         return ''
+
+
+def get_msg_4_db(event: Event) -> str:
+    """
+     针对数据库处理消息
+    """
+    msg = event.get_message()
+    e_json = json.loads(event.json())
+    for t in e_json['message']:
+        if t['type'] == 'json':
+            msg = "(json消息)"
+            break
+        if t['type'] == 'video':
+            v_file = t['data']['file']
+            v_url = t['data']['url']
+            msg = f"(视频消息)：file={v_file}; url={v_url}"
+    return msg
 
 
 dirs = [config_path,
