@@ -9,7 +9,7 @@ from typing import Optional
 from fastapi import APIRouter
 from fastapi import FastAPI, Request
 from fastapi.responses import RedirectResponse
-from admin_db_models.group_models import *
+from ..models.group_models import *
 
 router = APIRouter(
     prefix="/msg",

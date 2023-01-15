@@ -10,6 +10,7 @@ from fastapi import FastAPI, Request, Response, Form
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
+from nonebot import logger
 from tortoise.contrib.fastapi import register_tortoise
 from tortoise import Tortoise
 from tortoise.exceptions import ConfigurationError
@@ -34,22 +35,15 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# dirs = []
-# models_dir = Path(__file__).parent / "models"
-# bot_models_dir = Path() / "admin_db_models"
-# for file in models_dir.iterdir():
-#     if file.is_file():
-#         dirs.append(models_dir / file.name)
-#
-# if not Path.exists(bot_models_dir):
-#     Path.mkdir(bot_models_dir)
-#     for file in dirs:
-#         copyFile(file, bot_models_dir / file.name)
-#
-# if bot_models_dir.iterdir() != models_dir.iterdir():
-#     for file in dirs:
-#         copyFile(file, bot_models_dir / file.name)
-
+project_dir = Path().resolve().parts
+this_dir = Path(__file__).parent.parts
+plugin_dir = this_dir[len(project_dir):]
+model_path = ".".join(plugin_dir) + ".models"
+group_models = model_path + ".group_models"
+user_models = model_path + ".user_models"
+logger.info(model_path)
+logger.info(group_models)
+logger.info(user_models)
 register_tortoise(
                 app,
                 # modules={"models": ["admin_db_models.group_models", "admin_db_models.user_models"]},
@@ -61,7 +55,7 @@ register_tortoise(
                   },
                   'apps': {
                       'models': {
-                          "models": ["admin_db_models.group_models", "admin_db_models.user_models"],
+                          "models": [group_models, user_models],
                           'default_connection': 'default',
                       }
                   },
