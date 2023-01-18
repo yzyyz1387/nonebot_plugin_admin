@@ -16,7 +16,7 @@ from nonebot.permission import SUPERUSER
 from nonebot.typing import T_State
 
 from .config import global_config
-from .path import broadcast_avoid_path
+from .path import broadcast_avoid_path,config_path
 from .utils import json_load, json_upload, sd, fi
 
 try:
@@ -24,7 +24,8 @@ try:
 except AttributeError:
     su = []
     logger.error("请配置超级用户")
-
+if not config_path.exists():
+    config_path.mkdir()
 if broadcast_avoid_path.exists():
     broadcast_config = json_load(broadcast_avoid_path)
 else:
