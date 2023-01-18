@@ -15,13 +15,14 @@ from nonebot.adapters.onebot.v11.exception import ActionFailed
 from nonebot.adapters.onebot.v11.permission import GROUP_ADMIN, GROUP_OWNER
 from nonebot.matcher import Matcher
 from nonebot.permission import SUPERUSER
+from .admin_role import DEPUTY_ADMIN
 
 from .config import global_config
 from .utils import At, MsgText, banSb, change_s_title, fi, log_fi, sd, Reply, log_sd
 
 su = global_config.superusers
 
-ban = on_command('禁', priority=1, block=True, permission=SUPERUSER | GROUP_ADMIN | GROUP_OWNER)
+ban = on_command('禁', priority=1, block=True, permission=SUPERUSER | GROUP_ADMIN | GROUP_OWNER | DEPUTY_ADMIN)
 
 
 @ban.handle()
@@ -43,12 +44,12 @@ async def _(bot: Bot, matcher: Matcher, event: GroupMessageEvent):
             async for baned in baning:
                 if baned:
                     await baned
-            await log_fi(matcher, '禁言操作成功' if time is not None else '用户已被禁言随机时')
+            await log_fi(matcher, '禁言操作成功' if time is not None else '用户已被禁言随机时长')
         except ActionFailed:
             await fi(matcher, '权限不足')
 
 
-unban = on_command('解', priority=1, block=True, permission=SUPERUSER | GROUP_ADMIN | GROUP_OWNER)
+unban = on_command('解', priority=1, block=True, permission=SUPERUSER | GROUP_ADMIN | GROUP_OWNER | DEPUTY_ADMIN)
 
 
 @unban.handle()
@@ -69,7 +70,7 @@ async def _(bot: Bot, matcher: Matcher, event: GroupMessageEvent):
             await fi(matcher, '权限不足')
 
 
-ban_all = on_command('/all', aliases={'/全员'}, permission=SUPERUSER | GROUP_ADMIN | GROUP_OWNER, priority=1,
+ban_all = on_command('/all', aliases={'/全员'}, permission=SUPERUSER | GROUP_ADMIN | GROUP_OWNER | DEPUTY_ADMIN, priority=1,
                      block=True)
 
 
@@ -95,7 +96,7 @@ async def _(bot: Bot, matcher: Matcher, event: GroupMessageEvent):
         await fi(matcher, '权限不足')
 
 
-change = on_command('改', permission=SUPERUSER | GROUP_ADMIN | GROUP_OWNER, priority=1, block=True)
+change = on_command('改', permission=SUPERUSER | GROUP_ADMIN | GROUP_OWNER | DEPUTY_ADMIN, priority=1, block=True)
 
 
 @change.handle()
@@ -172,7 +173,7 @@ async def _(bot: Bot, matcher: Matcher, event: GroupMessageEvent):
             await fi(matcher, '不能含有@全体成员')
 
 
-kick = on_command('踢', permission=SUPERUSER | GROUP_ADMIN | GROUP_OWNER, priority=1, block=True)
+kick = on_command('踢', permission=SUPERUSER | GROUP_ADMIN | GROUP_OWNER | DEPUTY_ADMIN, priority=1, block=True)
 
 
 @kick.handle()
@@ -203,7 +204,7 @@ async def _(bot: Bot, matcher: Matcher, event: GroupMessageEvent):
         await fi(matcher, '不能含有@全体成员')
 
 
-kick_ = on_command('黑', permission=SUPERUSER | GROUP_ADMIN | GROUP_OWNER, priority=1, block=True)
+kick_ = on_command('黑', permission=SUPERUSER | GROUP_ADMIN | GROUP_OWNER | DEPUTY_ADMIN, priority=1, block=True)
 
 
 @kick_.handle()
@@ -295,7 +296,13 @@ async def _(bot: Bot, matcher: Matcher, event: GroupMessageEvent):
         await fi(matcher, '指令不正确 或 不能含有@全体成员')
 
 
-set_essence = on_command("加精", aliases={'加精', 'set_essence'}, priority=5, block=True)
+set_essence = on_command(
+    "加精",
+    aliases={'加精', 'set_essence'},
+    priority=5,
+    block=True,
+    permission=SUPERUSER | GROUP_ADMIN | GROUP_OWNER | DEPUTY_ADMIN
+)
 
 
 @set_essence.handle()
@@ -306,7 +313,13 @@ async def _(bot: Bot, event: GroupMessageEvent):
         await bot.call_api(api='set_essence_msg', message_id=msg_id)
 
 
-del_essence = on_command("取消精华", aliases={'取消加精', 'del_essence'}, priority=5, block=True)
+del_essence = on_command(
+    "取消精华",
+    aliases={'取消加精', 'del_essence'},
+    priority=5,
+    block=True,
+    permission=SUPERUSER | GROUP_ADMIN | GROUP_OWNER | DEPUTY_ADMIN
+)
 
 
 @del_essence.handle()
@@ -318,7 +331,7 @@ async def _(bot: Bot, event: GroupMessageEvent):
 
 
 msg_recall = on_command('撤回', priority=1, aliases={'recall'}, block=True,
-                        permission=SUPERUSER | GROUP_ADMIN | GROUP_OWNER)
+                        permission=SUPERUSER | GROUP_ADMIN | GROUP_OWNER | DEPUTY_ADMIN)
 
 
 @msg_recall.handle()
