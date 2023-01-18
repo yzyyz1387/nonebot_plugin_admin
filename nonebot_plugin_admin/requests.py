@@ -16,6 +16,7 @@ from nonebot.permission import SUPERUSER
 from nonebot.typing import T_State
 
 from . import approve
+from .approve import g_admin
 from .config import global_config
 from .group_request_verify import verify
 from .path import *
@@ -151,7 +152,8 @@ async def gr_(bot: Bot, event: GroupRequestEvent):
     sub_type = raw['sub_type']
     if sub_type == 'add':
         comment = raw['comment']
-        word = re.findall(re.compile('答案：(.*)'), comment)[0]
+        word = re.findall(re.compile('答案：(.*)'), comment)
+        word = word[0] if word else comment
         compared = await verify(word, gid)
         uid = event.user_id
         if compared:
@@ -162,7 +164,7 @@ async def gr_(bot: Bot, event: GroupRequestEvent):
                 approve=True,
                 reason=' ',
             )
-            admins = json_load(config_group_admin)
+            admins = g_admin()
             if admins['su'] == 'True':
                 for q in su:
                     await bot.send_msg(user_id=int(q), message=f"同意{uid}加入群 {gid},验证消息为 “{word}”")
