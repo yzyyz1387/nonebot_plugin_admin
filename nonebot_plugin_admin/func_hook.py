@@ -83,7 +83,7 @@ async def _(matcher: Matcher, bot: Bot, state: T_State, event: Event):
                 logger.info(event.flag)
                 if event.sub_type == 'add':
                     status = await check_func_status(which_module, str(gid))
-                    if not status:
+                    if status is False:
                         re_msg = f"群{gid}收到{event.user_id}的加群请求，flag为：{event.flag}，但审批处于关闭状态\n发送【请求同意/拒绝 " \
                                  f"flag】来处理次请求，例：\n请求同意{event.flag}\n发送【开关{admin_funcs[which_module][0]}】开启，或人工审批 "
                         logger.info(re_msg)
