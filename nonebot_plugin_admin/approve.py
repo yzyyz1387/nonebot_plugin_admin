@@ -14,8 +14,12 @@ from .path import *
 from .utils import json_load
 
 
-async def g_admin():
+def g_admin() -> dict:
     """
+    {
+      "su":True, //是否将加群审批结果通知到分管
+      "123456":[2222,33333] //群12345(str) 的 分管列表 List[int]
+    }
     :return : 分群管理json对象
     """
     with open(config_group_admin, mode='r') as f:
@@ -30,7 +34,7 @@ async def g_admin_add(gid: str, qq: int) -> Optional[bool]:
     :param qq: qq
     :return: bool
     """
-    admins = await g_admin()
+    admins = g_admin()
     if gid in admins:
         if qq in admins[gid]:
             logger.info(f"{qq}已经是群{gid}的分群管理了")
@@ -58,7 +62,7 @@ async def g_admin_del(gid: str, qq: int) -> Optional[bool]:
     :param qq: qq
     :return: bool
     """
-    admins = await g_admin()
+    admins = g_admin()
     if gid in admins:
         if qq in admins[gid]:
             logger.info(f"已删除群{gid}的分群管理{qq}")
@@ -80,16 +84,16 @@ async def g_admin_del(gid: str, qq: int) -> Optional[bool]:
 
 
 async def su_on_off() -> Optional[bool]:
-    admins = await g_admin()
+    admins = g_admin()
     if admins['su'] == 'False':
         admins['su'] = 'True'
-        logger.info('打开超管消息接收')
+        logger.info('打开审批消息接收')
         with open(config_group_admin, mode='w') as c:
             c.write(str(json.dumps(admins)))
         return True
     else:
         admins['su'] = 'False'
-        logger.info('关闭超管消息接收')
+        logger.info('关闭审批消息接收')
         with open(config_group_admin, mode='w') as c:
             c.write(str(json.dumps(admins)))
         return False

@@ -25,7 +25,7 @@ gad = on_command('分管', aliases={'/gad', '/分群管理'}, priority=1, block=
 @gad.handle()
 async def _(bot: Bot, event: GroupMessageEvent):
     gid = str(event.group_id)
-    admins = await approve.g_admin()
+    admins = approve.g_admin()
     try:
         rely = str(admins[gid])
         await gad.finish(f"本群分管：{rely}")
@@ -39,7 +39,7 @@ su_g_admin = on_command('所有分管', aliases={'/sugad', '/su分群管理'}, p
 
 @su_g_admin.handle()
 async def _(bot: Bot, event: MessageEvent):
-    admins = await approve.g_admin()
+    admins = approve.g_admin()
     await su_g_admin.finish(str(admins))
 
 
@@ -56,7 +56,7 @@ async def _(bot: Bot, matcher: Matcher, event: GroupMessageEvent, state: T_State
         for qq in sb:
             g_admin_handle = await approve.g_admin_add(gid, int(qq))
             if g_admin_handle:
-                await g_admin.send(f"{qq}已成为本群分群管理：将接收加群处理结果")
+                await g_admin.send(f"{qq}已成为本群分群管理：将接收加群处理结果，同时具有群管权限，但分管不能任命超管")
             else:
                 await g_admin.send(f"用户{qq}已存在")
     else:
@@ -64,7 +64,7 @@ async def _(bot: Bot, matcher: Matcher, event: GroupMessageEvent, state: T_State
         for qq in sb:
             g_admin_handle = await approve.g_admin_add(gid, int(qq))
             if g_admin_handle:
-                await g_admin.send(f"{qq}已成为本群分群管理：将接收加群处理结果")
+                await g_admin.send(f"{qq}已成为本群分群管理：将接收加群处理结果，同时具有群管权限，但分管不能任命超管")
             else:
                 await g_admin.send(f"用户{qq}已存在")
 
@@ -76,7 +76,7 @@ su_gad = g_admin = on_command('接收', priority=1, block=True, permission=SUPER
 @su_gad.handle()
 async def _(bot: Bot, event: MessageEvent):
     status = await approve.su_on_off()
-    await su_gad.finish('已开启超管消息接收' if status else '已关闭超管消息接收')
+    await su_gad.finish('已开启审批消息接收' if status else '已关闭审批消息接收')
 
 
 # 删除分群管理
