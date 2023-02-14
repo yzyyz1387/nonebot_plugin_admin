@@ -104,6 +104,7 @@ async def _(bot: Bot, event: GroupMessageEvent, matcher: Matcher):
         json_upload(message_path_group / 'history.json', dic_)
     txt = word_path.read_text(encoding='utf-8').split('\n')
     if gid in txt:
+        msg = str(MsgText(event.json())).replace(' ', '')
         msg = await replace_tmr(msg)
         with open(path_temp, 'a+', encoding='utf-8') as c:
             c.write(msg + '\n')
