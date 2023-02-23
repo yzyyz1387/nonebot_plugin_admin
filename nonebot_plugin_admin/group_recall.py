@@ -8,15 +8,19 @@
 import json
 
 from nonebot import on_notice
-from nonebot.adapters.onebot.v11 import NoticeEvent, Bot
+from nonebot.adapters.onebot.v11 import NoticeEvent, Bot, Message, MessageSegment
 
-from .config import global_config
+from pydantic import parse_obj_as
+from .config import global_config, plugin_config
 
 su = global_config.superusers
+group_recall = plugin_config.group_recall
 
 
 async def _group_recall(bot: Bot, event: NoticeEvent) -> bool:
-    # 有需要自行取消注释
+    # 有需要自行在配置文件中启用
+    if not group_recall:
+        return False
     if event.notice_type == 'group_recall':
         return True
     return False
@@ -41,5 +45,11 @@ async def _(bot: Bot, event: NoticeEvent):
     # 防撤回
     recalled_message = await bot.get_msg(message_id=message_id)
     recall_notice = f"检测到{operator_info['card'] if operator_info['card'] else operator_info['nickname']}({operator_info['user_id']})撤回了一条消息：\n\n"
-    await bot.send_group_msg(group_id=group_id, message=recall_notice + recalled_message['message'])
+    if not isinstance(recalled_message['message'], str):
+        _message = Message([MessageSegment.text(recall_notice), parse_obj_as(
+            MessageSegment, *recalled_message['message']
+        )])
+    else:
+        _message = recall_notice + recalled_message['message']
+    await bot.send_group_msg(group_id=group_id, message=_message)
 
