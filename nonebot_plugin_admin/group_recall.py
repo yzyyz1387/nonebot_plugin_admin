@@ -11,16 +11,13 @@ from nonebot import on_notice
 from nonebot.adapters.onebot.v11 import NoticeEvent, Bot, Message, MessageSegment
 
 from pydantic import parse_obj_as
-from .config import global_config, plugin_config
+from .config import global_config
 
 su = global_config.superusers
-group_recall = plugin_config.group_recall
 
 
 async def _group_recall(bot: Bot, event: NoticeEvent) -> bool:
     # 有需要自行在配置文件中启用
-    if not group_recall:
-        return False
     if event.notice_type == 'group_recall':
         return True
     return False
