@@ -9,9 +9,9 @@
 **你的star是我的动力**  
 **↓**  
 <img src="https://img.shields.io/github/stars/yzyyz1387/nonebot_plugin_admin.svg?style=social">  
-# 简易群管 （考研缓更）  
-   **pypi没更 github最新**    
-   **[dev分支](https://github.com/yzyyz1387/nonebot_plugin_admin/tree/dev)**  
+# 简易群管 （上岸缓更）  
+   ~~pypi没更 github最新~~ 
+   ~~[dev分支](https://github.com/yzyyz1387/nonebot_plugin_admin/tree/dev)~~
   _✨ NoneBot2 (有点不)简易群管✨ _    
 
  
@@ -288,6 +288,7 @@ send_time_night = "23 0"    # 选填 晚上发送时间默认为22:00
 ## 感谢贡献者们
 
 <!-- readme: BalconyJH,collaborators,contributors -start -->
+
 <!-- readme: BalconyJH,collaborators,contributors -end -->
 
 <details>
