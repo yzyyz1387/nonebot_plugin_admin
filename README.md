@@ -287,8 +287,8 @@ send_time_night = "23 0"    # 选填 晚上发送时间默认为22:00
 
 ## 感谢贡献者们
 
-<!-- readme: collaborators,contributors -start -->
-<!-- readme: collaborators,contributors -end -->
+<!-- readme: BalconyJH,collaborators,contributors -start -->
+<!-- readme: BalconyJH,collaborators,contributors -end -->
 
 <details>
   <summary> <h2> 更新日志</h2></summary>  
