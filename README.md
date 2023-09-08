@@ -319,13 +319,6 @@ send_time_night = "23 0"    # 选填 晚上发送时间默认为22:00
         </a>
     </td>
     <td align="center">
-        <a href="https://github.com/GC-ZF">
-            <img src="https://avatars.githubusercontent.com/u/94956933?v=4" width="100;" alt="GC-ZF"/>
-            <br />
-            <sub><b>GC_XiaoZhang</b></sub>
-        </a>
-    </td>
-    <td align="center">
         <a href="https://github.com/deepsourcebot">
             <img src="https://avatars.githubusercontent.com/u/60907429?v=4" width="100;" alt="deepsourcebot"/>
             <br />
