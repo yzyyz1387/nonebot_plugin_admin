@@ -28,7 +28,8 @@ from . import (
     switcher,
     utils,
 )
-from .config import global_config
+from nonebot.plugin import PluginMetadata
+from .config import global_config, Config
 from .path import *
 from .switcher import switcher_integrity_check
 from .utils import At, Reply, MsgText, banSb, change_s_title, log_sd, fi, log_fi, sd, init
@@ -43,6 +44,15 @@ async def _():
     bot = nonebot.get_bot()
     await switcher_integrity_check(bot)
 
+__plugin_meta__ = PluginMetadata(
+    name="不简易群管",
+    description="Nonebot2 群管插件 插件",
+    usage="包含踢改禁，头衔，精华操作，图片安全，违禁词识别，发言记录等功能等你探索",
+    type="application",
+    homepage="https://github.com/yzyyz1387/nonebot_plugin_admin",
+    config=Config,
+    supported_adapters=None,
+)
 
 """
 ! 消息防撤回模块，默认不开启，有需要的自行开启，想对部分群生效也需自行实现(可以并入本插件的开关系统内，也可控制 go-cqhttp 的事件过滤器)
