@@ -15,5 +15,3 @@ driver = get_driver()
 global_config = driver.config
 plugin_config = Config.parse_obj(global_config)
 
-
-
