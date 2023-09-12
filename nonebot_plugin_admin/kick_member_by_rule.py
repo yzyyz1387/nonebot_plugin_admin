@@ -53,6 +53,7 @@ async def _(
         state: T_State,
         k_level=ArgStr()
 ):
+    await kick_by_rule.send("请坐和放宽，正在查询中，这可能会花费几分钟...")
     k_level = str(k_level)
     kick_list = []
     if k_level in ["取消", "算了"]:
@@ -70,7 +71,7 @@ async def _(
 
             send_text = f"将踢出等级 ≤ {k_level} 的成员:\n"
             for qq in kick_list:
-                send_text += f"【{MessageSegment.at(qq)}】【{qq}】【{level_dic[qq]}级】\n"
+                send_text += "【" + MessageSegment.at(qq) + f"】【{qq}】【{level_dic[qq]}级】\n"
             await kick_by_rule.send(send_text)
         elif category == "2":
             last_send_list = {}
