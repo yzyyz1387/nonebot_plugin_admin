@@ -240,6 +240,11 @@ send_time_night = "23 0"    # 选填 晚上发送时间默认为22:00
 【防撤回】
 默认关闭
  发送【开关防撤回】开启或关闭功能 permission=SUPERUSER | GROUP_ADMIN | GROUP_OWNER
+
+【群员清理】
+群内发送 permission=SUPERUSER | GROUP_ADMIN | GROUP_OWNER | DEPUTY_ADMIN
+该功能暂不被开关控制
+发送【群员清理】可根据[等级] 或 [发言时间] 清理群员
 ```
 
 
