@@ -5,9 +5,9 @@
 # @Email   :  youzyyz1384@qq.com
 # @File    : kick_member_by_rule.py
 # @Software: PyCharm
-
-
+import asyncio
 import datetime
+from random import randint
 
 from nonebot import on_command, logger, require
 from nonebot.adapters.onebot.v11 import Bot, GroupMessageEvent, Message, MessageSegment
@@ -26,7 +26,7 @@ from .utils import At, MsgText, banSb, change_s_title, fi, log_fi, sd, Reply, lo
 su = global_config.superusers
 
 kick_by_rule = on_command('成员清理', priority=1, block=True,
-                          permission=SUPERUSER | GROUP_ADMIN | GROUP_OWNER | DEPUTY_ADMIN)
+                          permission=SUPERUSER | GROUP_OWNER)
 
 
 @kick_by_rule.got('k_category', prompt='请输入要清理方式(数字)：\n1、等级 \n2、最后发言时间 \n输入“取消”取消操作')
@@ -114,10 +114,12 @@ async def get_qq_lever(bot: Bot, qq: int):
 async def _(bot: Bot, event: GroupMessageEvent, state: T_State):
     kick_list = state['kick_list']
     if kick_list:
+        await kick_by_rule.send("尝试采用随机时间间隔清理，执行完毕会发出提示...")
         success = []
         fail = []
         for qq in kick_list:
             try:
+                await asyncio.sleep(randint(0, 5))  # 睡眠随机时间，避免黑号
                 await bot.set_group_kick(group_id=event.group_id, user_id=qq)
                 # await bot.send_group_msg(group_id=event.group_id, message=f"T{qq}") # 测试用
                 success.append(qq)
