@@ -102,7 +102,8 @@ dirs = [config_path,
         wordcloud_bg_path,
         user_violation_info_path,
         group_message_data_path,
-        error_path]
+        error_path,
+        kick_lock_path]
 
 
 async def init():
