@@ -218,6 +218,8 @@ __usage__ = """
 群内发送 permission=SUPERUSER | GROUP_ADMIN | GROUP_OWNER | DEPUTY_ADMIN
 该功能暂不被开关控制
 发送【群员清理】可根据[等级] 或 [发言时间] 清理群员
+在执行此命令时，当前群会对此操作加锁，防止其他人同时操作，如果出现问题，可执行【清理解锁】来手动解锁
+
 """
 __help_plugin_name__ = '简易群管'
 

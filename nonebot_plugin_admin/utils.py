@@ -102,7 +102,8 @@ dirs = [config_path,
         wordcloud_bg_path,
         user_violation_info_path,
         group_message_data_path,
-        error_path]
+        error_path,
+        kick_lock_path]
 
 
 async def init():
@@ -146,6 +147,10 @@ async def init():
     if not ttf_name.exists():
         await mk('file', ttf_name, 'wb', url='https://fastly.jsdelivr.net/gh/yzyyz1387/blogimages/msyhblod.ttf',
                  dec='资源字体')
+    # 删除成员清理锁文件
+    for lock in kick_lock_path.iterdir():
+        lock.unlink()
+        logger.info(f"删除成员清理锁文件{lock}")
     logger.info('Admin 插件 初始化检测完成')
 
 
