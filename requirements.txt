@@ -10,3 +10,4 @@ pyppeteer
 imageio
 numpy
 nonebot_plugin_apscheduler
+nb-cli
