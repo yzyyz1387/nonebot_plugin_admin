@@ -1,0 +1,16 @@
+name: Setup Python
+description: Setup Python
+
+inputs:
+  python-version:
+    description: Python version
+    required: false
+    default: "3.10"
+
+runs:
+  using: "composite"
+  steps:
+    - name: Install requirements
+      run: pip install -r requirements.txt
+      shell: bash
+
