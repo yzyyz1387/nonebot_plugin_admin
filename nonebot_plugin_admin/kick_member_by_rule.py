@@ -157,13 +157,14 @@ async def _(bot: Bot, event: GroupMessageEvent, state: T_State):
 get_by_qq = on_command("/get", priority=1, permission=GROUP_OWNER | SUPERUSER)
 
 
-@get_by_qq.handle()
-async def _(bot: Bot, event: MessageEvent, args: Message = CommandArg()):
-    if qq := args.extract_plain_text():
-        info = await bot.get_stranger_info(user_id=int(qq))
-        await get_by_qq.finish(str(info))
-    else:
-        await get_by_qq.finish("PSE INPUT ARG")
+# 测试
+# @get_by_qq.handle()
+# async def _(bot: Bot, event: MessageEvent, args: Message = CommandArg()):
+#     if qq := args.extract_plain_text():
+#         info = await bot.get_stranger_info(user_id=int(qq))
+#         await get_by_qq.finish(str(info))
+#     else:
+#         await get_by_qq.finish("PSE INPUT ARG")
 
 
 async def get_qq_lever(bot: Bot, qq: int):
