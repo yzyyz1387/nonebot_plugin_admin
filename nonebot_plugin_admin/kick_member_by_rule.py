@@ -72,10 +72,11 @@ async def _(
             zero_level_list = [qq for qq, level in level_dic.items() if level == 0]
             state['zero_level_list'] = zero_level_list
             send_0_tips = f"0级成员：\n"
-            for qq in zero_level_list:
-                send_0_tips += f"{qq} "
-            send_0_tips += "\n0级成员可能是未获取到等级信息，不做处理\n"
-            await kick_by_rule.send(send_0_tips)
+            if zero_level_list:
+                for qq in zero_level_list:
+                    send_0_tips += f"{qq} "
+                send_0_tips += "\n0级成员可能是未获取到等级信息，不做处理\n"
+                await kick_by_rule.send(send_0_tips)
 
             # for qq, level in level_dic.items():
             #     logger.info(f"{qq}:{level}级")
@@ -84,9 +85,10 @@ async def _(
             #         logger.info(qq <= level)
 
             send_text = f"将踢出等级 ≤ {k_level} 的成员:\n"
-            for qq in kick_list:
-                send_text += f"【{qq}】 【{level_dic[qq]}级】\n"
-            await kick_by_rule.send(send_text)
+            if kick_list:
+                for qq in kick_list:
+                    send_text += f"【{qq}】 【{level_dic[qq]}级】\n"
+                await kick_by_rule.send(send_text)
         elif category == "2":
             last_send_list = {}
             k_level = str(k_level)
@@ -117,7 +119,7 @@ async def _(
             if len(member_list) - len(kick_list) <= 3:
                 await kick_by_rule.finish("踢出后群人数将少于3人, 已取消操作...")
         else:
-            kick_by_rule.finish("没有满足条件的成员")
+            await kick_by_rule.finish("没有满足条件的成员, 已取消操作...")
 
 
 @kick_by_rule.got('confirm', prompt='确定执行吗:\n1：确定\n2: 取消')
@@ -169,6 +171,3 @@ get_by_qq = on_command("/get", priority=1, permission=GROUP_OWNER | SUPERUSER)
 
 async def get_qq_lever(bot: Bot, qq: int):
     return (await bot.get_stranger_info(user_id=qq, no_cache=True))['level']
-
-
-# TODO 踢出确认（got('comfirm')）、0级如何处理
