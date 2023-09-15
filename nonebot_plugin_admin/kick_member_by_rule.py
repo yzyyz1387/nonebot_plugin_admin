@@ -10,11 +10,11 @@ import datetime
 from random import randint
 
 from nonebot import on_command, logger, require
-from nonebot.adapters.onebot.v11 import Bot, GroupMessageEvent, Message, MessageSegment
+from nonebot.adapters.onebot.v11 import Bot, GroupMessageEvent, Message, MessageSegment, MessageEvent
 from nonebot.adapters.onebot.v11.exception import ActionFailed
 from nonebot.adapters.onebot.v11.permission import GROUP_ADMIN, GROUP_OWNER
 from nonebot.matcher import Matcher
-from nonebot.params import ArgPlainText, ArgStr
+from nonebot.params import ArgPlainText, ArgStr, CommandArg
 
 from nonebot.typing import T_State
 from nonebot.permission import SUPERUSER
@@ -38,22 +38,22 @@ async def _(
     k_category = str(k_category)
     if k_category in ["取消", "算了"]:
         await kick_by_rule.finish("已取消操作...")
-    k_prompt = ['等级(数字)：\n例如：2 则踢出等级 ≤ 2 的成员 \n★=1 ☾=4 ☀=16\n输入“取消”取消操作',
-                '最后发言时间(8位日期)：\n例如：20230912 则踢出2023-09-12后未发言的成员 \n输入“取消”取消操作']
+    k_prompt = ['等级(数字)：\n例如：2 则踢出等级 ≤ 2 的成员 \n★=1 ☾=4 ☀=16\n输入“取消”取消操作\n 请等待...',
+                '最后发言时间(8位日期)：\n例如：20230912 则踢出2023-09-12后未发言的成员 \n输入“取消”取消操作\n 请等待...']
     if k_category in ["1", "2"]:
         await kick_by_rule.send(k_prompt[int(k_category) - 1])
     else:
         await kick_by_rule.reject("输入错误, 请重新输入:")
 
 
-@kick_by_rule.got('k_level', prompt='请输入（注意，此为危险操作，且不可逆，满足条件会被立刻踢出）：')
+@kick_by_rule.got('k_level', prompt='请输入:')
 async def _(
         bot: Bot,
         event: GroupMessageEvent,
         state: T_State,
         k_level=ArgStr()
 ):
-    await kick_by_rule.send("请坐和放宽，正在查询中，这可能会花费几分钟...")
+    await kick_by_rule.send("请坐和放宽，轮询成员信息中，这可能会花费几分钟...")
     k_level = str(k_level)
     kick_list = []
     if k_level in ["取消", "算了"]:
@@ -67,11 +67,25 @@ async def _(
             level_dic = {}
             for qq in qq_list:
                 level_dic[qq] = (await get_qq_lever(bot, qq))
-            kick_list = [qq for qq, level in level_dic.items() if level <= int(k_level)]
+
+            kick_list = [qq for qq, level in level_dic.items() if 0 < level <= int(k_level)]
+            zero_level_list = [qq for qq, level in level_dic.items() if level == 0]
+            state['zero_level_list'] = zero_level_list
+            send_0_tips = f"0级成员：\n"
+            for qq in zero_level_list:
+                send_0_tips += f"{qq} "
+            send_0_tips += "\n0级成员可能是未获取到等级信息，不做处理\n"
+            await kick_by_rule.send(send_0_tips)
+
+            # for qq, level in level_dic.items():
+            #     logger.info(f"{qq}:{level}级")
+            #     if level <= int(k_level):
+            #         kick_list.append(qq)
+            #         logger.info(qq <= level)
 
             send_text = f"将踢出等级 ≤ {k_level} 的成员:\n"
             for qq in kick_list:
-                send_text += "【" + MessageSegment.at(qq) + f"】【{qq}】【{level_dic[qq]}级】\n"
+                send_text += f"【{qq}】 【{level_dic[qq]}级】\n"
             await kick_by_rule.send(send_text)
         elif category == "2":
             last_send_list = {}
@@ -106,8 +120,13 @@ async def _(
             kick_by_rule.finish("没有满足条件的成员")
 
 
-async def get_qq_lever(bot: Bot, qq: int):
-    return (await bot.get_stranger_info(user_id=qq, no_cache=True))['level']
+@kick_by_rule.got('confirm', prompt='确定执行吗:\n1：确定\n2: 取消')
+async def _(bot: Bot, event: GroupMessageEvent, state: T_State):
+    confirm = str(state['confirm'])
+    if confirm == "1":
+        await kick_by_rule.send("正在踢出...")
+    else:
+        await kick_by_rule.finish("已取消操作...")
 
 
 @kick_by_rule.handle()
@@ -133,3 +152,22 @@ async def _(bot: Bot, event: GroupMessageEvent, state: T_State):
 
     else:
         await kick_by_rule.send("没有需要踢出的成员, 已取消操作...")
+
+
+get_by_qq = on_command("/get", priority=1, permission=GROUP_OWNER | SUPERUSER)
+
+
+@get_by_qq.handle()
+async def _(bot: Bot, event: MessageEvent, args: Message = CommandArg()):
+    if qq := args.extract_plain_text():
+        info = await bot.get_stranger_info(user_id=int(qq))
+        await get_by_qq.finish(str(info))
+    else:
+        await get_by_qq.finish("PSE INPUT ARG")
+
+
+async def get_qq_lever(bot: Bot, qq: int):
+    return (await bot.get_stranger_info(user_id=qq, no_cache=True))['level']
+
+
+# TODO 踢出确认（got('comfirm')）、0级如何处理
