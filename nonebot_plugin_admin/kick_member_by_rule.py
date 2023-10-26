@@ -54,7 +54,7 @@ async def get_qq_lever(bot: Bot, qq: int):
     return (await bot.get_stranger_info(user_id=qq, no_cache=True))['level']
 
 
-async def finish_Matcher(matcher: Matcher, state:T_State, event: GroupMessageEvent, arg: str):
+async def finish_Matcher(matcher: Matcher, state: T_State, event: GroupMessageEvent, arg: str):
     """
     :param matcher: Matcher
     :param state: T_State
@@ -87,7 +87,7 @@ async def _(
         this_lock.touch()
         k_category = str(k_category)
 
-        await finish_Matcher(matcher, event, k_category)
+        await finish_Matcher(matcher, state, event, k_category)
 
         k_prompt = ['等级(数字)：\n例如：2 则踢出等级 ≤ 2 的成员 \n★=1 ☾=4 ☀=16\n输入“取消”取消操作\n 请等待...',
                     '最后发言时间(8位日期)：\n例如：20230912 则踢出2023-09-12后未发言的成员 \n输入“取消”取消操作\n 请等待...']
@@ -110,7 +110,7 @@ async def _(
     kick_condition = str(kick_condition)
     kick_list = []
 
-    await finish_Matcher(matcher, event, kick_condition)
+    await finish_Matcher(matcher, state, event, kick_condition)
 
     member_list = await bot.get_group_member_list(group_id=event.group_id)
     category = str(state['k_category'])
@@ -178,7 +178,7 @@ async def _(
 
 
 @kick_by_rule.got('confirm', prompt='确定执行吗:\n1：确定\n2: 取消')
-async def _(bot: Bot,matcher: Matcher, event: GroupMessageEvent, state: T_State):
+async def _(bot: Bot, matcher: Matcher, event: GroupMessageEvent, state: T_State):
     confirm = str(state['confirm'])
     if confirm == "1":
         await kick_by_rule.send("正准备执行...")
