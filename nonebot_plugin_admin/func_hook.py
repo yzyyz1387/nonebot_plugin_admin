@@ -120,6 +120,7 @@ async def check_func_status(func_name: str, gid: str) -> bool:
             # await nonebot.get_bot().send_group_msg(group_id = gid, message = '本群尚未初始化，将自动初始化：开启所有开关且设置过滤级别为简单。\n\n'
             #                                                              '请重新发送指令继续之前的操作')
             logger.info('错误发生在 utils.py line 398')
-        bot = nonebot.get_bot()
-        await switcher_integrity_check(bot)
+        bots = nonebot.get_bots()
+        for bot in bots.values():
+            await switcher_integrity_check(bot)
         return False  # 直接返回 false
