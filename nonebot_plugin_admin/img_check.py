@@ -75,7 +75,7 @@ async def send_pics_ban(bot: Bot, event: GroupMessageEvent, scope: list = None):
         logger.info('检测到违规图片，撤回成功')
     except ActionFailed:
         logger.info('检测到违规图片，但权限不足，撤回失败')
-    baning = banSb(gid, ban_list=uid, scope=scope)
+    baning = banSb(bot, gid, ban_list=uid, scope=scope)
     async for baned in baning:
         if baned:
             try:

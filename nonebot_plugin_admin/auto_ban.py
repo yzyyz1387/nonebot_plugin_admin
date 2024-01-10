@@ -64,7 +64,7 @@ async def _(bot: Bot, event: GroupMessageEvent, matcher: Matcher):
             except ActionFailed:
                 logger.info('消息撤回失败')
         if ban:
-            baning = banSb(gid, ban_list=[event.get_user_id()], scope=ts)
+            baning = banSb(bot, gid, ban_list=[event.get_user_id()], scope=ts)
             async for baned in baning:
                 if baned:
                     try:

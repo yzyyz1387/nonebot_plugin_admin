@@ -120,19 +120,20 @@ async def init():
     if not word_path.exists():
         await mk('file', word_path, 'w', content='123456789\n')
     if not switcher_path.exists():
-        bot = nonebot.get_bot()
-        logger.info('创建开关配置文件,分群设置, 图片检测和违禁词检测,防撤回，广播，早晚安默认关,其他默认开')
-        g_list = (await bot.get_group_list())
-        switcher_dict = {}
-        for group in g_list:
-            switchers = {}
-            for fn_name in admin_funcs:
-                switchers.update({fn_name: True})
-                if fn_name in ['img_check', 'auto_ban', 'group_msg', 'particular_e_notice', 'group_recall']:
-                    switchers.update({fn_name: False})
-            switcher_dict.update({str(group['group_id']): switchers})
-        with open(switcher_path, 'w', encoding='utf-8') as swp:
-            swp.write(f"{json.dumps(switcher_dict)}")
+        bots = nonebot.get_bots()
+        for bot in bots.values():
+            logger.info('创建开关配置文件,分群设置, 图片检测和违禁词检测,防撤回，广播，早晚安默认关,其他默认开')
+            g_list = (await bot.get_group_list())
+            switcher_dict = {}
+            for group in g_list:
+                switchers = {}
+                for fn_name in admin_funcs:
+                    switchers.update({fn_name: True})
+                    if fn_name in ['img_check', 'auto_ban', 'group_msg', 'particular_e_notice', 'group_recall']:
+                        switchers.update({fn_name: False})
+                switcher_dict.update({str(group['group_id']): switchers})
+            with open(switcher_path, 'w', encoding='utf-8') as swp:
+                swp.write(f"{json.dumps(switcher_dict)}")
     if not limit_word_path.exists():  # 要联网的都丢最后面去
         if (config_path / '违禁词_简单.txt').exists():
             with open(config_path / '违禁词_简单.txt', 'r', encoding='utf-8') as f:
@@ -194,7 +195,7 @@ async def mk(type_, path_, *mode, **kwargs):
         raise Exception('type_参数错误')
 
 
-async def banSb(gid: int, ban_list: list, time: int = None, scope: list = None):
+async def banSb(bot: Bot, gid: int, ban_list: list, time: int = None, scope: list = None):
     """
     构造禁言
     :param gid: 群号
@@ -204,7 +205,7 @@ async def banSb(gid: int, ban_list: list, time: int = None, scope: list = None):
     :return:禁言操作
     """
     if 'all' in ban_list:
-        yield nonebot.get_bot().set_group_whole_ban(
+        yield bot.set_group_whole_ban(
             group_id=gid,
             enable=True
         )
@@ -220,7 +221,7 @@ async def banSb(gid: int, ban_list: list, time: int = None, scope: list = None):
                 # if cb_notice:
                 #     await nonebot.get_bot().send_group_msg(group_id = gid, message = 'SUPERUSER无法被禁言')
             else:
-                yield nonebot.get_bot().set_group_ban(
+                yield bot.set_group_ban(
                     group_id=gid,
                     user_id=qq,
                     duration=time,
