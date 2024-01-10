@@ -40,10 +40,10 @@ driver = nonebot.get_driver()
 
 
 @driver.on_bot_connect
-async def _():
+async def _(bot: nonebot.adapters.Bot):
     await init()
-    bot = nonebot.get_bot()
     await switcher_integrity_check(bot)
+
 
 __plugin_meta__ = PluginMetadata(
     name="不简易群管",
