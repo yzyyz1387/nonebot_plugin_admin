@@ -16,9 +16,11 @@ import json
 import random
 
 import requests
-from nonebot import require, get_bot, get_driver
+from nonebot import require, get_bots, get_driver
 from nonebot.log import logger
+
 from .func_hook import check_func_status
+
 try:
     scheduler = require('nonebot_plugin_apscheduler').scheduler
 except BaseException:
@@ -101,15 +103,25 @@ async def send_morning():
             await asyncio.sleep(random.randint(1, 10))
             # await get_bot().send_private_msg(user_id = fire_user_id, message = "🌞早，又是元气满满的一天")  #
             # 当未连接到onebot.v11协议端时会抛出异常
-            for gid in send_group_id:
-                if await check_func_status('group_msg', gid):
-                    if send_mode == 1:
-                        await get_bot().send_group_msg(group_id=gid,
-                                                       message=f"{random.choice(send_sentence_morning)}")
-                    if send_mode == 2:
-                        await get_bot().send_group_msg(group_id=gid, message=hitokoto())
-            logger.info('群聊推送消息')
-            sendSuccess = True
+            bots = get_bots()
+            for bot in bots.values():
+                for gid in send_group_id:
+                    if await check_func_status('group_msg', gid):
+                        if send_mode == 1:
+                            try:
+                                await bot.send_group_msg(group_id=gid,
+                                                         message=f"{random.choice(send_sentence_morning)}")
+                            except Exception:
+                                # 这个机器人没有加这个群
+                                pass
+                        if send_mode == 2:
+                            try:
+                                await bot.send_group_msg(group_id=gid, message=hitokoto())
+                            except Exception:
+                                # 这个机器人没有加这个群
+                                pass
+                logger.info('群聊推送消息')
+                sendSuccess = True
         except ValueError as E:
             logger.error("ValueError:{}", E)
             logger.error('群聊推送消息插件获取bot失败，1s后重试')
@@ -127,15 +139,25 @@ async def send_night():
             await asyncio.sleep(random.randint(1, 10))
             # await get_bot().send_private_msg(user_id = fire_user_id, message = "🌛今天续火花了么，晚安啦")  #
             # 当未连接到onebot.v11协议端时会抛出异常
-            for gid in send_group_id:
-                if await check_func_status('group_msg', gid):
-                    if send_mode == 1:
-                        await get_bot().send_group_msg(group_id=gid,
-                                                       message=f"{random.choice(send_sentence_night)}")
-                    if send_mode == 2:
-                        await get_bot().send_group_msg(group_id=gid, message=hitokoto())
-            logger.info('群聊推送消息')
-            sendSuccess = True
+            bots = get_bots()
+            for bot in bots.values():
+                for gid in send_group_id:
+                    if await check_func_status('group_msg', gid):
+                        if send_mode == 1:
+                            try:
+                                await bot.send_group_msg(group_id=gid,
+                                                         message=f"{random.choice(send_sentence_night)}")
+                            except Exception:
+                                # 这个机器人没有加这个群
+                                pass
+                        if send_mode == 2:
+                            try:
+                                await bot.send_group_msg(group_id=gid, message=hitokoto())
+                            except Exception:
+                                # 这个机器人没有加这个群
+                                pass
+                logger.info('群聊推送消息')
+                sendSuccess = True
         except ValueError as E:
             logger.error("ValueError:{}", E)
             logger.error('群聊推送消息插件获取bot失败，1s后重试')

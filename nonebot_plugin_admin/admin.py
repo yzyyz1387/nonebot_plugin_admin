@@ -39,7 +39,7 @@ async def _(bot: Bot, matcher: Matcher, event: GroupMessageEvent):
     sb = At(event.json())
     gid = event.group_id
     if sb:
-        baning = banSb(gid, ban_list=sb, time=time)
+        baning = banSb(bot, gid, ban_list=sb, time=time)
         try:
             async for baned in baning:
                 if baned:
@@ -60,7 +60,7 @@ async def _(bot: Bot, matcher: Matcher, event: GroupMessageEvent):
     sb = At(event.json())
     gid = event.group_id
     if sb:
-        baning = banSb(gid, ban_list=sb, time=0)
+        baning = banSb(bot, gid, ban_list=sb, time=0)
         try:
             async for baned in baning:
                 if baned:
@@ -70,7 +70,8 @@ async def _(bot: Bot, matcher: Matcher, event: GroupMessageEvent):
             await fi(matcher, '权限不足')
 
 
-ban_all = on_command('/all', aliases={'/全员'}, permission=SUPERUSER | GROUP_ADMIN | GROUP_OWNER | DEPUTY_ADMIN, priority=1,
+ban_all = on_command('/all', aliases={'/全员'}, permission=SUPERUSER | GROUP_ADMIN | GROUP_OWNER | DEPUTY_ADMIN,
+                     priority=1,
                      block=True)
 
 
