@@ -245,7 +245,7 @@ async def replace_tmr(msg: str) -> str:
     return msg
 
 
-async def participle_simple_handle() -> list[str]:
+def participle_simple_handle() -> list[str]:
     """
     wordcloud停用词
     """
@@ -600,3 +600,8 @@ async def fi(cmd: Matcher, msg) -> None:
 async def log_fi(cmd: Matcher, msg, log: str = None, err=False) -> None:
     (logger.error if err else logger.info)(log if log else msg)
     await fi(cmd, msg)
+
+
+def copyFile(origin, target):
+    with open(origin, "rb") as f, open(target, "wb") as f2:
+        f2.write(f.read())
