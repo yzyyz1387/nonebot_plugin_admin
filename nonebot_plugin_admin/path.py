@@ -6,6 +6,7 @@
 # @File    : path.py
 # @Software: PyCharm
 from pathlib import Path
+from nonebot import get_driver
 
 # FIXME 群配置文件目前都以配置文件的类型分文件夹，而不是以群分文件夹，后者是不是会更好，但是目前懒得改了
 config_path = Path() / 'config'
@@ -25,6 +26,8 @@ user_violation_info_path = config_path / '群内用户违规信息'
 group_message_data_path = config_path / '群消息数据'
 error_path = config_path / 'admin插件错误数据'
 broadcast_avoid_path = config_path / '广播排除群聊.json'
+ttf_path = Path() / 'resource' / 'msyhblod.ttf'
+summary_path = config_path / 'summary'
 kick_lock_path = config_path / 'kick_lock'
 
 admin_funcs = {
@@ -53,4 +56,8 @@ time_scop_map = {
     5: [24 * 60 * 60, 7 * 24 * 60 * 60],
     6: [7 * 24 * 60 * 60, 14 * 24 * 60 * 60],
     7: [14 * 24 * 60 * 60, 2591999]
+
 }
+
+
+localhost = "http://" + str(get_driver().config.host) + ":" + str(get_driver().config.port)
