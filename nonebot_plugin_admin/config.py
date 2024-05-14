@@ -1,7 +1,7 @@
 # from typing import Optional
 from nonebot import get_driver
 from pydantic import BaseModel, Extra
-
+from nonebot import get_plugin_config
 
 class Config(BaseModel, extra=Extra.ignore):
     tenid: str = 'xxxxxx'  # 腾讯云图片安全，开通地址： https://console.cloud.tencent.com/cms
@@ -13,5 +13,6 @@ class Config(BaseModel, extra=Extra.ignore):
 
 driver = get_driver()
 global_config = driver.config
-plugin_config = Config.parse_obj(global_config)
+# plugin_config = Config.parse_obj(global_config)
+plugin_config = get_plugin_config(Config)
 
