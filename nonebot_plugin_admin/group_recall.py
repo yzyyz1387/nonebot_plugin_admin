@@ -9,12 +9,11 @@ import json
 
 from nonebot import on_notice
 from nonebot.adapters.onebot.v11 import NoticeEvent, Bot, Message, MessageSegment
-
 from pydantic import parse_obj_as
+
 from .config import global_config
 
 su = global_config.superusers
-
 
 async def _group_recall(bot: Bot, event: NoticeEvent) -> bool:
     # 有需要自行在配置文件中启用
@@ -22,10 +21,7 @@ async def _group_recall(bot: Bot, event: NoticeEvent) -> bool:
         return True
     return False
 
-
 group_recall = on_notice(_group_recall, priority=5)
-
-
 @group_recall.handle()
 async def _(bot: Bot, event: NoticeEvent):
     event_obj = json.loads(event.json())
@@ -43,10 +39,10 @@ async def _(bot: Bot, event: NoticeEvent):
     recalled_message = await bot.get_msg(message_id=message_id)
     recall_notice = f"检测到{operator_info['card'] if operator_info['card'] else operator_info['nickname']}({operator_info['user_id']})撤回了一条消息：\n\n"
     if not isinstance(recalled_message['message'], str):
-        _message = Message([MessageSegment.text(recall_notice), parse_obj_as(
-            MessageSegment, *recalled_message['message']
-        )])
+        _message = Message([
+            MessageSegment.text(recall_notice),
+            parse_obj_as(MessageSegment, *recalled_message['message'])
+        ])
     else:
         _message = recall_notice + recalled_message['message']
     await bot.send_group_msg(group_id=group_id, message=_message)
-

@@ -49,7 +49,7 @@ async def init():
         bots = nonebot.get_bots()
         for bot in bots.values():
             logger.info('创建开关配置文件,分群设置, 图片检测和违禁词检测,防撤回，广播，早晚安默认关,其他默认开')
-            g_list = (await bot.get_group_list())
+            g_list = await bot.get_group_list()
             switcher_dict = {}
             for group in g_list:
                 switchers = {}
@@ -119,16 +119,16 @@ async def mk(type_, path_, *mode, **kwargs):
     else:
         raise Exception('type_参数错误')
 
-async def banSb(bot: Bot, gid: int, ban_list: list, time: int = None, scope: list = None):
+async def mute_sb(bot: Bot, gid: int, lst: list, time: int = None, scope: list = None):
     """
     构造禁言
     :param gid: 群号
     :param time: 时间（s)
-    :param ban_list: at列表
+    :param lst: at列表
     :param scope: 用于被动检测禁言的时间范围
     :return:禁言操作
     """
-    if 'all' in ban_list:
+    if 'all' in lst:
         yield bot.set_group_whole_ban(group_id=gid, enable=True)
     else:
         if time is None:
@@ -136,7 +136,7 @@ async def banSb(bot: Bot, gid: int, ban_list: list, time: int = None, scope: lis
                 time = random.randint(plugin_config.ban_rand_time_min, plugin_config.ban_rand_time_max)
             else:
                 time = random.randint(scope[0], scope[1])
-        for qq in ban_list:
+        for qq in lst:
             if int(qq) in su or str(qq) in su:
                 logger.info(f"SUPERUSER无法被禁言, {qq}")
             else:
@@ -249,8 +249,7 @@ def image_moderation(img):
 
 async def image_moderation_async(img: Union[str, bytes]) -> Optional[dict]:
     try:
-        resp = (await asyncio.to_thread(image_moderation, img))
-        return resp
+        return await asyncio.to_thread(image_moderation, img)
     except Exception:
         return None
 

@@ -5,7 +5,6 @@
 # @Email   :  youzyyz1384@qq.com
 # @File    : notice.py
 # @Software: PyCharm
-
 from nonebot import on_command
 from nonebot.adapters.onebot.v11 import MessageEvent
 from nonebot.adapters.onebot.v11.permission import GROUP_ADMIN, GROUP_OWNER
@@ -22,8 +21,6 @@ from .utils import fi
 # 查看当前群分管
 gad = on_command('分管', priority=2, aliases={'/gad', '/分群管理'}, block=True,
                  permission=GROUP_ADMIN | GROUP_OWNER | SUPERUSER)
-
-
 @gad.handle()
 async def _(bot: Bot, event: GroupMessageEvent):
     gid = str(event.group_id)
@@ -34,22 +31,16 @@ async def _(bot: Bot, event: GroupMessageEvent):
     except KeyError:
         await gad.finish('查询不到呢，使用 分管+@xx 来添加分管')
 
-
 # 查看所有分管
 su_g_admin = on_command('所有分管', priority=2, aliases={'/sugad', '/su分群管理'}, block=True, permission=SUPERUSER)
-
-
 @su_g_admin.handle()
 async def _(bot: Bot, event: MessageEvent):
     admins = approve.g_admin()
     await su_g_admin.finish(str(admins))
 
-
 # 添加分群管理员
 g_admin = on_command('分管+', priority=2, aliases={'/gad+', '分群管理+'}, block=True,
                      permission=GROUP_ADMIN | GROUP_OWNER | SUPERUSER)
-
-
 @g_admin.handle()
 async def _(event: GroupMessageEvent, state: T_State, sb: list = Depends(msg_at)):
     gid = str(event.group_id)
@@ -69,22 +60,16 @@ async def _(event: GroupMessageEvent, state: T_State, sb: list = Depends(msg_at)
             else:
                 await g_admin.send(f"用户{qq}已存在")
 
-
 # 开启superuser接收处理结果
 su_gad = g_admin = on_command('接收', priority=2, block=True, permission=SUPERUSER)
-
-
 @su_gad.handle()
 async def _(bot: Bot, event: MessageEvent):
     status = await approve.su_on_off()
     await su_gad.finish('已开启审批消息接收' if status else '已关闭审批消息接收')
 
-
 # 删除分群管理
 g_admin_ = on_command('分管-', priority=2, aliases={'/gad-', '分群管理-'}, block=True,
                       permission=GROUP_ADMIN | GROUP_OWNER | SUPERUSER)
-
-
 @g_admin_.handle()
 async def _(matcher: Matcher, event: GroupMessageEvent, state: T_State, sb: list = Depends(msg_at)):
     gid = str(event.group_id)

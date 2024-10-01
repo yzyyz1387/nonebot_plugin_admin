@@ -5,7 +5,6 @@
 # @Email   :  youzyyz1384@qq.com
 # @File    : group_request.py
 # @Software: PyCharm
-# import nonebot
 import json
 import re
 
@@ -26,8 +25,6 @@ su = global_config.superusers
 
 # 查看所有审批词条
 super_sp = on_command('所有词条', priority=2, aliases={'/susp', '/su审批'}, block=True, permission=SUPERUSER)
-
-
 @super_sp.handle()
 async def _(bot: Bot, event: MessageEvent):
     answers = json_load(config_admin)
@@ -36,11 +33,8 @@ async def _(bot: Bot, event: MessageEvent):
         rely += i + ' : ' + str(answers[i]) + '\n'
     await super_sp.finish(rely)
 
-
 # 按群号添加词条
 super_sp_add = on_command('指定词条+', priority=2, aliases={'/susp+', '/su审批+'}, block=True, permission=SUPERUSER)
-
-
 @super_sp_add.handle()
 async def _(bot: Bot, event: MessageEvent):
     msg = str(event.get_message()).split()
@@ -60,11 +54,8 @@ async def _(bot: Bot, event: MessageEvent):
     else:
         await super_sp_de.finish('输入有误 /susp+ [群号] [词条]')
 
-
 # 按群号删除词条
 super_sp_de = on_command('指定词条-', priority=2, aliases={'/susp-', '/su审批-'}, block=True, permission=SUPERUSER)
-
-
 @super_sp_de.handle()
 async def _(bot: Bot, event: MessageEvent):
     msg = str(event.get_message()).split()
@@ -84,11 +75,8 @@ async def _(bot: Bot, event: MessageEvent):
     else:
         await super_sp_de.finish('输入有误 /susp- [群号] [词条]')
 
-
 check = on_command('查看词条', priority=2, aliases={'/sp', '/审批'}, block=True,
                    permission=GROUP_ADMIN | GROUP_OWNER | SUPERUSER)
-
-
 @check.handle()
 async def _(bot: Bot, event: GroupMessageEvent):
     """
@@ -101,11 +89,8 @@ async def _(bot: Bot, event: GroupMessageEvent):
         await check.finish(f"当前群审批词条：{this_config}")
     await check.finish('当前群从未配置过审批词条')
 
-
 config = on_command('词条+', priority=2, aliases={'/sp+', '/审批+'}, block=True,
                     permission=GROUP_ADMIN | GROUP_OWNER | SUPERUSER)
-
-
 @config.handle()
 async def _(bot: Bot, event: GroupMessageEvent, state: T_State):
     """
@@ -118,11 +103,8 @@ async def _(bot: Bot, event: GroupMessageEvent, state: T_State):
         await config.finish(f"群{gid}添加词条：{msg}")
     await config.finish(f"{msg} 已存在于群{gid}的词条中")
 
-
 config_ = on_command('词条-', priority=2, aliases={'/sp-', '/审批-'}, block=True,
                      permission=GROUP_ADMIN | GROUP_OWNER | SUPERUSER)
-
-
 @config_.handle()
 async def _(bot: Bot, event: GroupMessageEvent, state: T_State):
     """
@@ -138,11 +120,8 @@ async def _(bot: Bot, event: GroupMessageEvent, state: T_State):
     elif sp_delete is None:
         await config_.finish("当前群从未配置过词条")
 
-
 # 加群审批
 group_req = on_request(priority=2, block=True)
-
-
 @group_req.handle()
 async def gr_(bot: Bot, event: GroupRequestEvent):
     raw = json.loads(event.json())
@@ -158,12 +137,7 @@ async def gr_(bot: Bot, event: GroupRequestEvent):
         uid = event.user_id
         if compared:
             logger.info(f"同意{uid}加入群 {gid},验证消息为 “{word}”")
-            await bot.set_group_add_request(
-                flag=flag,
-                sub_type=sub_type,
-                approve=True,
-                reason=' ',
-            )
+            await bot.set_group_add_request(flag=flag, sub_type=sub_type, approve=True, reason=' ')
             admins = g_admin()
             if admins['su'] == 'True':
                 for q in su:
@@ -175,12 +149,8 @@ async def gr_(bot: Bot, event: GroupRequestEvent):
 
         elif compared is False:
             logger.info(f"拒绝{uid}加入群 {gid},验证消息为 “{word}”")
-            await bot.set_group_add_request(
-                flag=flag,
-                sub_type=sub_type,
-                approve=False,
-                reason='答案未通过群管验证，可修改答案后再次申请',
-            )
+            await bot.set_group_add_request(flag=flag, sub_type=sub_type, approve=False,
+                                            reason='答案未通过群管验证，可修改答案后再次申请')
             admins = json_load(config_group_admin)
             if admins['su'] == 'True':
                 for q in su:

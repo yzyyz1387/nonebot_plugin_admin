@@ -12,15 +12,25 @@ async def msg_text_no_url(event: GroupMessageEvent) -> str:
     no_url = re.sub(r'https?://[-A-Za-z0-9+&@#/%?=~_|!:,.;]+[-A-Za-z0-9+&@#/%=~_|]', '', msg)
     return re.sub(r'\s+', '', no_url)
 
-async def msg_raw(bot: Bot, event: GroupMessageEvent) -> str:
-    full_msg = event.raw_message
+async def msg_img(bot: Bot, event: GroupMessageEvent) -> list:
+    img = []
     for msg in event.message:
         if msg.type in ['image', 'mface']:
-            full_msg = full_msg.replace(str(msg), ' ' + msg.data['url'] + ' ', 1)
-        elif msg.type == 'forward': # 合并转发不可能与其他消息结合
-            forward = await bot.get_forward_msg(id=msg.data['id'])
-            return ' '.join([i['raw_message'] for i in forward['messages']])
-    return full_msg
+            img.append(msg.data['url'])
+    return img
+
+async def msg_raw(bot: Bot, event: GroupMessageEvent) -> str:
+    raw = event.raw_message
+    for msg in event.message:
+        if msg.type in ['image', 'mface']:
+            raw = raw.replace(str(msg), ' ' + msg.data['url'] + ' ', 1)
+        elif msg.type == 'forward':  # 合并转发不可能与其他消息结合
+            try:
+                forward = await bot.get_forward_msg(id=msg.data['id'])
+                return ' '.join([i['raw_message'] for i in forward['messages']])
+            except Exception:
+                break
+    return raw
 
 async def msg_at(event: GroupMessageEvent) -> list:
     qq = []

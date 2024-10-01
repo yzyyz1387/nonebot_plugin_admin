@@ -19,7 +19,7 @@ from nonebot.permission import SUPERUSER
 from .admin_role import DEPUTY_ADMIN
 from .config import global_config
 from .message import *
-from .utils import banSb, change_s_title, fi, log_fi, sd, log_sd
+from .utils import mute_sb, change_s_title, fi, log_fi, sd, log_sd
 
 su = global_config.superusers
 
@@ -37,7 +37,7 @@ async def _(bot: Bot, matcher: Matcher, event: GroupMessageEvent, msg: str = Dep
     except ValueError:
         time = None
     if sb:
-        baning = banSb(bot, event.group_id, ban_list=sb, time=time)
+        baning = mute_sb(bot, event.group_id, lst=sb, time=time)
         try:
             async for baned in baning:
                 if baned:
@@ -53,7 +53,7 @@ async def _(bot: Bot, matcher: Matcher, event: GroupMessageEvent, sb: list = Dep
     /解 @user 解禁
     """
     if sb:
-        baning = banSb(bot, event.group_id, ban_list=sb, time=0)
+        baning = mute_sb(bot, event.group_id, lst=sb, time=0)
         try:
             async for baned in baning:
                 if baned:
