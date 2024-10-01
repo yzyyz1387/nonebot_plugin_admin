@@ -19,7 +19,7 @@ from pyppeteer import launch
 from .path import *
 from .utils import json_load, json_upload, fi, log_fi
 
-switcher = on_command('开关', priority=1, block=True, permission=SUPERUSER | GROUP_ADMIN | GROUP_OWNER)
+switcher = on_command('开关', priority=2, block=True, permission=SUPERUSER | GROUP_ADMIN | GROUP_OWNER)
 
 
 @switcher.handle()
@@ -33,7 +33,7 @@ async def _(bot: Bot, matcher: Matcher, event: GroupMessageEvent, state: T_State
         await switcher_handle(gid, matcher, user_input_func_name)
 
 
-switcher_html = on_command('开关状态', priority=1, block=True, permission=SUPERUSER | GROUP_ADMIN | GROUP_OWNER)
+switcher_html = on_command('开关状态', priority=2, block=True, permission=SUPERUSER | GROUP_ADMIN | GROUP_OWNER)
 
 
 @switcher_html.handle()

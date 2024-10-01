@@ -68,8 +68,7 @@ async def finish_Matcher(matcher: Matcher, state: T_State, event: GroupMessageEv
         await matcher.finish("已取消操作...")
 
 
-kick_by_rule = on_command('成员清理', priority=1, block=True,
-                          permission=SUPERUSER | GROUP_OWNER)
+kick_by_rule = on_command('成员清理', priority=2, block=True, permission=SUPERUSER | GROUP_OWNER)
 
 
 @kick_by_rule.got('k_category', prompt='请输入要清理方式(数字)：\n1、等级 \n2、最后发言时间 \n输入“取消”取消操作')
@@ -212,7 +211,7 @@ async def _(bot: Bot, event: GroupMessageEvent, state: T_State):
         await kick_by_rule.send("没有需要踢出的成员, 已取消操作...")
 
 
-delete_lock_manually = on_command('清理解锁', priority=1, block=True, permission=SUPERUSER | GROUP_OWNER)
+delete_lock_manually = on_command('清理解锁', priority=2, block=True, permission=SUPERUSER | GROUP_OWNER)
 
 
 @delete_lock_manually.handle()
@@ -225,7 +224,7 @@ async def _(bot: Bot, event: GroupMessageEvent):
         await delete_lock_manually.finish("当前群组没有成员清理任务正在执行")
 
 # 测试
-# get_by_qq = on_command("/get", priority=1, permission=GROUP_OWNER | SUPERUSER)
+# get_by_qq = on_command("/get", priority=2, permission=GROUP_OWNER | SUPERUSER)
 # @get_by_qq.handle()
 # async def _(bot: Bot, event: MessageEvent, args: Message = CommandArg()):
 #     if qq := args.extract_plain_text():

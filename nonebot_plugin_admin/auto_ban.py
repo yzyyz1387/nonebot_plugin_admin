@@ -8,14 +8,17 @@
 import re
 
 from nonebot import logger, on_message
+from nonebot.adapters import Bot
+from nonebot.adapters.onebot.v11 import GroupMessageEvent
 from nonebot.adapters.onebot.v11.exception import ActionFailed
-from nonebot.adapters.onebot.v11 import Bot, GroupMessageEvent
+from nonebot.internal.params import Depends
 from nonebot.matcher import Matcher
 
+from .message import msg_raw
 from .path import *
 from .utils import banSb, get_user_violation, sd
 
-def checkMsg(text: str, gid: int):
+def check_msg(text: str, gid: int) -> [bool, bool, str]:
     rules = [re.sub(r'\t+', '\t', i).split('\t') for i in limit_word_path.read_text(encoding='utf-8').split('\n')]
     for rule in rules:
         if not rule[0]: continue
@@ -27,38 +30,29 @@ def checkMsg(text: str, gid: int):
                 chk = rf.groups()
                 lst = chk[1].split(',')
                 if chk[0] == '仅限':
-                    if str(gid) not in lst:
-                        continue
+                    if str(gid) not in lst: continue
                 else:
-                    if str(gid) in lst:
-                        continue
+                    if str(gid) in lst: continue
         try:
-            if not re.search(rule[0], text):
-                continue
+            if not re.search(rule[0], text): continue
         except:
-            if text.find(rule[0]) == -1:
-                continue
+            if text.find(rule[0]) == -1: continue
         return delete, ban, rule[0]
     return False, False, None
 
-f_word = on_message(priority=2, block=False)
+f_word = on_message(priority=1)
 @f_word.handle()
-async def _(bot: Bot, event: GroupMessageEvent, matcher: Matcher):
+async def _(bot: Bot, event: GroupMessageEvent, matcher: Matcher, msg: str = Depends(msg_raw)) -> None:
     """
     违禁词禁言
     :param bot:
     :param event:
     :return:
     """
-    full_msg = event.raw_message
-    for msg in event.message:
-        if msg.type == 'forward':
-            forward = await bot.get_forward_msg(id=msg.data['id'])
-            full_msg = ' '.join([i['raw_message'] for i in forward['messages']])
     gid = event.group_id
     uid = event.user_id
-    logger.info(f"{gid}收到{uid}的消息: \"{full_msg}\"")
-    delete, ban, rule = checkMsg(full_msg, gid)
+    logger.info(f"{gid}收到{uid}的消息: \"{msg}\"")
+    delete, ban, rule = check_msg(msg, gid)
     if rule:
         matcher.stop_propagation()  # block
         logger.info(f"敏感词触发: \"{rule}\"")
@@ -76,7 +70,7 @@ async def _(bot: Bot, event: GroupMessageEvent, matcher: Matcher):
                 if baned:
                     try:
                         await baned
-                        await sd(matcher, f"触发违禁词,当前处罚级别为{level}级", True)
+                        await sd(matcher, f"触发违禁词,当前处罚级别为{level}级", at=True)
                         logger.info(f"禁言成功，用户: {uid}")
                     except ActionFailed:
                         logger.info('禁言失败，权限不足')

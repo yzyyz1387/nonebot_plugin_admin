@@ -7,18 +7,20 @@
 # @Software: PyCharm
 
 from nonebot import on_command
-from nonebot.adapters.onebot.v11 import Bot, GroupMessageEvent, MessageEvent
+from nonebot.adapters.onebot.v11 import MessageEvent
 from nonebot.adapters.onebot.v11.permission import GROUP_ADMIN, GROUP_OWNER
 from nonebot.internal.matcher import Matcher
+from nonebot.params import Depends
 from nonebot.permission import SUPERUSER
 from nonebot.typing import T_State
 
 from . import approve
-from .utils import At, fi
 from .func_hook import check_func_status
+from .message import *
+from .utils import fi
 
 # 查看当前群分管
-gad = on_command('分管', aliases={'/gad', '/分群管理'}, priority=1, block=True,
+gad = on_command('分管', priority=2, aliases={'/gad', '/分群管理'}, block=True,
                  permission=GROUP_ADMIN | GROUP_OWNER | SUPERUSER)
 
 
@@ -34,7 +36,7 @@ async def _(bot: Bot, event: GroupMessageEvent):
 
 
 # 查看所有分管
-su_g_admin = on_command('所有分管', aliases={'/sugad', '/su分群管理'}, priority=1, block=True, permission=SUPERUSER)
+su_g_admin = on_command('所有分管', priority=2, aliases={'/sugad', '/su分群管理'}, block=True, permission=SUPERUSER)
 
 
 @su_g_admin.handle()
@@ -44,13 +46,12 @@ async def _(bot: Bot, event: MessageEvent):
 
 
 # 添加分群管理员
-g_admin = on_command('分管+', aliases={'/gad+', '分群管理+'}, priority=1, block=True,
+g_admin = on_command('分管+', priority=2, aliases={'/gad+', '分群管理+'}, block=True,
                      permission=GROUP_ADMIN | GROUP_OWNER | SUPERUSER)
 
 
 @g_admin.handle()
-async def _(bot: Bot, matcher: Matcher, event: GroupMessageEvent, state: T_State):
-    sb = At(event.json())
+async def _(event: GroupMessageEvent, state: T_State, sb: list = Depends(msg_at)):
     gid = str(event.group_id)
     if sb and 'all' not in sb:
         for qq in sb:
@@ -70,7 +71,7 @@ async def _(bot: Bot, matcher: Matcher, event: GroupMessageEvent, state: T_State
 
 
 # 开启superuser接收处理结果
-su_gad = g_admin = on_command('接收', priority=1, block=True, permission=SUPERUSER)
+su_gad = g_admin = on_command('接收', priority=2, block=True, permission=SUPERUSER)
 
 
 @su_gad.handle()
@@ -80,13 +81,12 @@ async def _(bot: Bot, event: MessageEvent):
 
 
 # 删除分群管理
-g_admin_ = on_command('分管-', aliases={'/gad-', '分群管理-'}, priority=1, block=True,
+g_admin_ = on_command('分管-', priority=2, aliases={'/gad-', '分群管理-'}, block=True,
                       permission=GROUP_ADMIN | GROUP_OWNER | SUPERUSER)
 
 
 @g_admin_.handle()
-async def _(bot: Bot, matcher: Matcher, event: GroupMessageEvent, state: T_State):
-    sb = At(event.json())
+async def _(matcher: Matcher, event: GroupMessageEvent, state: T_State, sb: list = Depends(msg_at)):
     gid = str(event.group_id)
     status = await check_func_status('requests', str(gid))
     if not status:

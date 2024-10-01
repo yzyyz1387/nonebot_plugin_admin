@@ -7,7 +7,7 @@
 # @Software: PyCharm
 import asyncio
 
-from nonebot import logger, on_command, get_bot
+from nonebot import logger, on_command
 from nonebot.adapters import Message
 from nonebot.adapters.onebot.v11 import Bot, MessageEvent, GroupMessageEvent, ActionFailed
 from nonebot.matcher import Matcher
@@ -35,7 +35,7 @@ else:
             broadcast_config.update({str(su_): []})
             json_upload(broadcast_avoid_path, broadcast_config)
 
-on_broadcast = on_command('广播', aliases={'告诉所有人', '告诉大家', '告诉全世界'}, priority=1, block=True,
+on_broadcast = on_command('广播', priority=2, aliases={'告诉所有人', '告诉大家', '告诉全世界'}, block=True,
                           permission=SUPERUSER)
 
 
@@ -61,7 +61,7 @@ async def _(
             await broadcast(uid, b_args, bot, matcher)
 
 
-add_broadcast_avoid = on_command('广播排除', priority=1, block=True, permission=SUPERUSER)
+add_broadcast_avoid = on_command('广播排除', priority=2, block=True, permission=SUPERUSER)
 
 
 @add_broadcast_avoid.handle()
@@ -78,7 +78,7 @@ async def _(bot: Bot, event: MessageEvent, state: T_State, matcher: Matcher, arg
         await fi(matcher, "请发送【广播排除+12345 / 广播排除-123456】\n多个群用空格分隔，查看所有群号请发送【群列表】")
 
 
-all_group_list = on_command('群列表', priority=1, block=True, permission=SUPERUSER)
+all_group_list = on_command('群列表', priority=2, block=True, permission=SUPERUSER)
 
 
 @all_group_list.handle()
@@ -151,7 +151,7 @@ async def add_avoid_group(bot: Bot, event: MessageEvent, args, matcher: Matcher,
     await sd(matcher, f"{r}\n 发送【排除列表】可查看已排除的群")
 
 
-avoided_group_list = on_command('排除列表', priority=1, block=True, permission=SUPERUSER)
+avoided_group_list = on_command('排除列表', priority=2, block=True, permission=SUPERUSER)
 
 
 @avoided_group_list.handle()
@@ -216,7 +216,7 @@ async def broadcast(uid: str, args: Message, bot: Bot, matcher: Matcher):
         await fi(matcher, f"广播完成\n成功：{success}\n失败：{failed}\n排除：{excluded}")
 
 
-broad_cast_help = on_command('广播帮助', priority=1, block=True)
+broad_cast_help = on_command('广播帮助', priority=2, block=True)
 
 
 @broad_cast_help.handle()
