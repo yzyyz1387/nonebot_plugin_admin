@@ -20,11 +20,6 @@ from nonebot import logger
 from nonebot.adapters import Message
 from nonebot.adapters.onebot.v11 import GroupMessageEvent, ActionFailed, Bot
 from nonebot.matcher import Matcher
-from tencentcloud.common import credential
-from tencentcloud.common.exception.tencent_cloud_sdk_exception import TencentCloudSDKException
-from tencentcloud.common.profile.client_profile import ClientProfile
-from tencentcloud.common.profile.http_profile import HttpProfile
-from tencentcloud.ims.v20201229 import ims_client, models
 
 from .config import plugin_config, global_config
 from .path import *
@@ -324,32 +319,40 @@ def participle_simple_handle() -> list[str]:
 # TENCENT 图片检测 @A60 https://github.com/djkcyl/ABot-Graia
 def image_moderation(img):
     try:
-        cred = credential.Credential(
-            TencentID,
-            TencentKeys,
-        )
-        httpProfile = HttpProfile()
-        httpProfile.endpoint = 'ims.tencentcloudapi.com'
+        from tencentcloud.common import credential
+        from tencentcloud.common.exception.tencent_cloud_sdk_exception import TencentCloudSDKException
+        from tencentcloud.common.profile.client_profile import ClientProfile
+        from tencentcloud.common.profile.http_profile import HttpProfile
+        from tencentcloud.ims.v20201229 import ims_client, models
+        try:
+            cred = credential.Credential(
+                TencentID,
+                TencentKeys,
+            )
+            httpProfile = HttpProfile()
+            httpProfile.endpoint = 'ims.tencentcloudapi.com'
 
-        clientProfile = ClientProfile()
-        clientProfile.httpProfile = httpProfile
-        client = ims_client.ImsClient(cred, 'ap-shanghai', clientProfile)
+            clientProfile = ClientProfile()
+            clientProfile.httpProfile = httpProfile
+            client = ims_client.ImsClient(cred, 'ap-shanghai', clientProfile)
 
-        req = models.ImageModerationRequest()
-        params = (
-            {'BizType': 'group_recall', 'FileUrl': img}
-            if type(img) is str
-            else {'BizType': 'group_recall', 'FileContent': bytes_to_base64(img)}
-        )
-        req.from_json_string(json.dumps(params))
+            req = models.ImageModerationRequest()
+            params = (
+                {'BizType': 'group_recall', 'FileUrl': img}
+                if type(img) is str
+                else {'BizType': 'group_recall', 'FileContent': bytes_to_base64(img)}
+            )
+            req.from_json_string(json.dumps(params))
 
-        resp = client.ImageModeration(req)
-        return json.loads(resp.to_json_string())
+            resp = client.ImageModeration(req)
+            return json.loads(resp.to_json_string())
 
-    except TencentCloudSDKException as err:
-        return err
-    except KeyError as kerr:
-        return kerr
+        except TencentCloudSDKException as err:
+            return err
+        except KeyError as kerr:
+            return kerr
+    except:
+        return None
 
 
 async def image_moderation_async(img: Union[str, bytes]) -> Optional[dict]:

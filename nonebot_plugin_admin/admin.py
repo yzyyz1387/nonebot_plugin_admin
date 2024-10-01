@@ -71,8 +71,7 @@ async def _(bot: Bot, matcher: Matcher, event: GroupMessageEvent):
 
 
 ban_all = on_command('/all', aliases={'/全员'}, permission=SUPERUSER | GROUP_ADMIN | GROUP_OWNER | DEPUTY_ADMIN,
-                     priority=1,
-                     block=True)
+                     priority=1, block=True)
 
 
 @ban_all.handle()

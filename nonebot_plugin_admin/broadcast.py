@@ -122,7 +122,7 @@ async def _(
         await add_avoid_group(event, gid, matcher, state)
 
 
-async def add_avoid_group(event: MessageEvent, bot: Bot, args, matcher: Matcher, state: T_State):
+async def add_avoid_group(bot: Bot, event: MessageEvent, args, matcher: Matcher, state: T_State):
     uid = str(event.user_id)
     args = str(args).replace("+", "").strip()
     groups = str(args).split(" ")

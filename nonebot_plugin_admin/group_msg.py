@@ -16,21 +16,11 @@ import json
 import random
 
 import requests
+from nonebot.plugin import get_available_plugin_names
 from nonebot import require, get_bots, get_driver
 from nonebot.log import logger
 
 from .func_hook import check_func_status
-
-try:
-    scheduler = require('nonebot_plugin_apscheduler').scheduler
-except BaseException:
-    scheduler = None
-
-logger.opt(colors=True).info(
-    '已检测到软依赖<y>nonebot_plugin_apscheduler</y>, <g>开启定时任务功能</g>'
-    if scheduler
-    else '未检测到软依赖<y>nonebot_plugin_apscheduler</y>，<r>禁用定时任务功能</r>'
-)
 
 # 获取QQ群号
 try:
@@ -164,6 +154,12 @@ async def send_night():
             await asyncio.sleep(1)  # 重试前时延，防止阻塞
 
 
-if scheduler:
+try:
+    assert 'nonebot_plugin_apscheduler' in get_available_plugin_names()
+    require('nonebot_plugin_apscheduler')
+    from nonebot_plugin_apscheduler import scheduler
+    logger.info('已检测到软依赖nonebot_plugin_apscheduler，开启定时任务功能')
     scheduler.add_job(send_morning, 'cron', hour=m_hour, minute=m_minute, id='send_morning')  # 早上推送
     scheduler.add_job(send_night, 'cron', hour=n_hour, minute=n_minute, id='send_night')  # 晚上推送
+except:
+    logger.error('未检测到软依赖nonebot_plugin_apscheduler，禁用定时任务功能')

@@ -6,7 +6,6 @@
 # @File    : wordcloud.py
 # @Software: PyCharm
 import os
-import jieba
 import random
 
 import httpx
@@ -24,6 +23,7 @@ cloud = on_command('群词云', priority=1)
 async def _(bot: Bot, event: GroupMessageEvent):
     try:
         from wordcloud import WordCloud, ImageColorGenerator
+        import jieba
         gid = str(event.group_id)
         path_temp = words_contents_path / f"{gid}.txt"
         dir_list = os.listdir(words_contents_path)
