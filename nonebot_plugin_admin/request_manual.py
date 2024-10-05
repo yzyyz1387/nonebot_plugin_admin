@@ -9,12 +9,11 @@ import re
 
 from nonebot import on_command
 from nonebot.adapters.onebot.v11 import (
-    Bot,
-    MessageEvent,
-    ActionFailed)
+    Bot, MessageEvent, ActionFailed
+)
 from nonebot.typing import T_State
 
-request_m = on_command('请求', priority=1, block=True)
+request_m = on_command('请求', priority=2, block=True)
 
 
 @request_m.handle()

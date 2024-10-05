@@ -16,7 +16,7 @@ from nonebot.adapters.onebot.v11 import Bot, GroupMessageEvent, MessageSegment
 from .path import *
 from .utils import participle_simple_handle
 
-cloud = on_command('群词云', priority=1)
+cloud = on_command('群词云', priority=2, block=True)
 
 
 @cloud.handle()

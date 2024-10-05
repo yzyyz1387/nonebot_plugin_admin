@@ -9,21 +9,14 @@ import asyncio
 from datetime import datetime
 
 from nonebot.adapters.onebot.v11 import (
-    Bot, Event, PokeNotifyEvent,
-    HonorNotifyEvent,
-    GroupUploadNoticeEvent,
-    GroupDecreaseNoticeEvent,
-    GroupIncreaseNoticeEvent,
-    GroupAdminNoticeEvent,
-    LuckyKingNotifyEvent,
-    MessageSegment
+    Bot, Event, PokeNotifyEvent, HonorNotifyEvent, GroupUploadNoticeEvent, GroupDecreaseNoticeEvent,
+    GroupIncreaseNoticeEvent, GroupAdminNoticeEvent, LuckyKingNotifyEvent, MessageSegment
 )
 from nonebot.matcher import Matcher
 from nonebot.plugin import on_notice
 from nonebot.typing import T_State
 
 from .utils import fi
-
 
 # 获取戳一戳状态
 async def _is_poke(bot: Bot, event: Event, state: T_State) -> bool:
@@ -60,13 +53,13 @@ async def _is_red_packet(bot: Bot, event: Event, state: T_State) -> bool:
     return isinstance(event, LuckyKingNotifyEvent)
 
 
-poke = on_notice(_is_poke, priority=50, block=True)
-honor = on_notice(_is_honor, priority=50, block=True)
-upload_files = on_notice(_is_checker, priority=50, block=True)
-user_decrease = on_notice(_is_user_decrease, priority=50, block=True)
-user_increase = on_notice(_is_user_increase, priority=50, block=True)
-admin_change = on_notice(_is_admin_change, priority=50, block=True)
-red_packet = on_notice(_is_red_packet, priority=50, block=True)
+poke = on_notice(_is_poke, priority=50)
+honor = on_notice(_is_honor, priority=50)
+upload_files = on_notice(_is_checker, priority=50)
+user_decrease = on_notice(_is_user_decrease, priority=50)
+user_increase = on_notice(_is_user_increase, priority=50)
+admin_change = on_notice(_is_admin_change, priority=50)
+red_packet = on_notice(_is_red_packet, priority=50)
 
 
 @poke.handle()

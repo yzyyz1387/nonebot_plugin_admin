@@ -11,16 +11,17 @@ import os
 import httpx
 from nonebot import on_command, logger, on_message
 from nonebot.adapters import Message
-from nonebot.adapters.onebot.v11 import Bot, GroupMessageEvent
 from nonebot.adapters.onebot.v11.permission import GROUP_ADMIN, GROUP_OWNER
 from nonebot.matcher import Matcher
 from nonebot.params import CommandArg
+from nonebot.params import Depends
 from nonebot.permission import SUPERUSER
 
+from .message import *
 from .path import *
-from .utils import replace_tmr, del_txt_line, add_txt_line, get_txt_line, json_upload, json_load, At, MsgText
+from .utils import del_txt_line, add_txt_line, get_txt_line, json_upload, json_load
 
-word_start = on_command('记录本群', block=True, priority=1, permission=GROUP_ADMIN | GROUP_OWNER | SUPERUSER)
+word_start = on_command('记录本群', priority=2, block=True, permission=GROUP_ADMIN | GROUP_OWNER | SUPERUSER)
 
 
 @word_start.handle()
@@ -36,7 +37,7 @@ async def _(bot: Bot, event: GroupMessageEvent):
         await word_start.finish(f"{gid}已存在")
 
 
-word_stop = on_command('停止记录本群', block=True, priority=1, permission=GROUP_ADMIN | GROUP_OWNER | SUPERUSER)
+word_stop = on_command('停止记录本群', priority=2, block=True, permission=GROUP_ADMIN | GROUP_OWNER | SUPERUSER)
 
 
 @word_stop.handle()
@@ -53,11 +54,11 @@ async def _(bot: Bot, event: GroupMessageEvent):
         await word_start.finish(f"停用失败：{gid}不存在")
 
 
-word = on_message(priority=1, block=False)
+word = on_message(priority=3, block=False)
 
 
 @word.handle()
-async def _(bot: Bot, event: GroupMessageEvent, matcher: Matcher):
+async def _(event: GroupMessageEvent, msg: str = Depends(msg_text_no_url)):
     """
     记录聊天内容
     :param bot:
@@ -66,7 +67,6 @@ async def _(bot: Bot, event: GroupMessageEvent, matcher: Matcher):
     """
     gid = str(event.group_id)
     uid = str(event.user_id)
-    msg = str(MsgText(event.json())).replace(' ', '')
     path_temp = words_contents_path / f"{str(gid)}.txt"
     message_path_group = group_message_data_path / f"{gid}"
     # datetime获取今日日期
@@ -93,11 +93,10 @@ async def _(bot: Bot, event: GroupMessageEvent, matcher: Matcher):
         json_upload(message_path_group / 'history.json', dic_)
     txt = word_path.read_text(encoding='utf-8').split('\n')
     if gid in txt:
-        msg = await replace_tmr(msg)
         with open(path_temp, 'a+', encoding='utf-8') as c:
             c.write(msg + '\n')
 
-stop_words_add = on_command('添加停用词', aliases={'增加停用词', '新增停用词'}, block=True, priority=1,
+stop_words_add = on_command('添加停用词', priority=2, aliases={'增加停用词', '新增停用词'}, block=True,
                             permission=GROUP_ADMIN | GROUP_OWNER | SUPERUSER)
 
 
@@ -109,7 +108,7 @@ async def _(bot: Bot, event: GroupMessageEvent, matcher: Matcher, args: Message 
     await add_txt_line(stop_words_path, matcher, event, args, '停用词')
 
 
-stop_words_del = on_command('删除停用词', aliases={'移除停用词', '去除停用词'}, block=True, priority=1,
+stop_words_del = on_command('删除停用词', priority=2, aliases={'移除停用词', '去除停用词'}, block=True,
                             permission=GROUP_ADMIN | GROUP_OWNER | SUPERUSER)
 
 
@@ -121,7 +120,7 @@ async def _(bot: Bot, event: GroupMessageEvent, matcher: Matcher, args: Message 
     await del_txt_line(stop_words_path, matcher, event, args, '停用词')
 
 
-stop_words_list = on_command('停用词列表', aliases={'查看停用词', '查询停用词'}, block=True, priority=1,
+stop_words_list = on_command('停用词列表', priority=2, aliases={'查看停用词', '查询停用词'}, block=True,
                              permission=GROUP_ADMIN | GROUP_OWNER | SUPERUSER)
 
 
@@ -133,7 +132,7 @@ async def _(bot: Bot, event: GroupMessageEvent, matcher: Matcher, args: Message 
     await get_txt_line(stop_words_path, matcher, event, args, '停用词')
 
 
-update_mask = on_command('更新mask', aliases={'下载mask'}, block=True, priority=1,
+update_mask = on_command('更新mask', priority=2, aliases={'下载mask'}, block=True,
                          permission=GROUP_ADMIN | GROUP_OWNER | SUPERUSER)
 
 
@@ -163,8 +162,8 @@ async def _(bot: Bot, event: GroupMessageEvent):
 
 
 # FIXME: 这一块重复代码有点多了
-who_speak_most_today = on_command('今日榜首', aliases={'今天谁话多', '今儿谁话多', '今天谁屁话最多'}, block=True,
-                                  priority=1)
+who_speak_most_today = on_command('今日榜首', priority=2, aliases={'今天谁话多', '今儿谁话多', '今天谁屁话最多'},
+                                  block=True)
 
 
 @who_speak_most_today.handle()
@@ -182,7 +181,7 @@ async def _(bot: Bot, event: GroupMessageEvent, matcher: Matcher, args: Message 
     await who_speak_most_today.finish(f"太强了！今日榜首：\n{nickname}，发了{top[0][1]}条消息")
 
 
-speak_top = on_command('今日发言排行', aliases={'今日排行榜', '今日发言排行榜', '今日排行'}, block=True, priority=1)
+speak_top = on_command('今日发言排行', priority=2, aliases={'今日排行榜', '今日发言排行榜', '今日排行'}, block=True)
 
 
 @speak_top.handle()
@@ -203,8 +202,8 @@ async def _(bot: Bot, event: GroupMessageEvent, matcher: Matcher, args: Message 
     await speak_top.finish('\n'.join(top_list))
 
 
-speak_top_yesterday = on_command('昨日发言排行', aliases={'昨日排行榜', '昨日发言排行榜', '昨日排行'}, block=True,
-                                 priority=1)
+speak_top_yesterday = on_command('昨日发言排行', priority=2, aliases={'昨日排行榜', '昨日发言排行榜', '昨日排行'},
+                                 block=True)
 
 
 @speak_top_yesterday.handle()
@@ -231,7 +230,7 @@ async def _(bot: Bot, event: GroupMessageEvent, matcher: Matcher, args: Message 
         await speak_top_yesterday.finish('昨日没有记录')
 
 
-who_speak_most = on_command('排行', aliases={'谁话多', '谁屁话最多', '排行', '排行榜'}, block=True, priority=1)
+who_speak_most = on_command('排行', priority=2, aliases={'谁话多', '谁屁话最多', '排行', '排行榜'}, block=True)
 
 
 @who_speak_most.handle()
@@ -253,14 +252,13 @@ async def _(bot: Bot, event: GroupMessageEvent, matcher: Matcher, args: Message 
     await who_speak_most.finish('\n'.join(top_list))
 
 
-get_speak_num = on_command('发言数', aliases={'发言数', '发言', '发言量'}, block=True, priority=1)
+get_speak_num = on_command('发言数', priority=2, aliases={'发言数', '发言', '发言量'}, block=True)
 
 
 @get_speak_num.handle()
-async def _(bot: Bot, event: GroupMessageEvent, matcher: Matcher, args: Message = CommandArg()):
+async def _(bot: Bot, event: GroupMessageEvent, at_list: list = Depends(msg_at)):
     gid = event.group_id
     dic_ = json_load(group_message_data_path / f"{gid}" / 'history.json')
-    at_list = At(event.json())
     if at_list:
         for qq in at_list:
             nickname = (await bot.get_group_member_info(group_id=gid, user_id=int(qq)))['card']
@@ -273,15 +271,14 @@ async def _(bot: Bot, event: GroupMessageEvent, matcher: Matcher, args: Message 
                 await get_speak_num.send(f"{nickname}没有发消息")
 
 
-get_speak_num_today = on_command('今日发言数', aliases={'今日发言数', '今日发言', '今日发言量'}, block=True, priority=1)
+get_speak_num_today = on_command('今日发言数', priority=2, aliases={'今日发言数', '今日发言', '今日发言量'}, block=True)
 
 
 @get_speak_num_today.handle()
-async def _(bot: Bot, event: GroupMessageEvent, matcher: Matcher, args: Message = CommandArg()):
+async def _(bot: Bot, event: GroupMessageEvent, at_list: list = Depends(msg_at)):
     gid = event.group_id
     today = datetime.date.today().strftime('%Y-%m-%d')
     dic_ = json_load(group_message_data_path / f"{gid}" / f"{today}.json")
-    at_list = At(event.json())
     if at_list:
         for qq in at_list:
             nickname = (await bot.get_group_member_info(group_id=gid, user_id=int(qq)))['card']

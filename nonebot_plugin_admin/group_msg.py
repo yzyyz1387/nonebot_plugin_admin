@@ -16,9 +16,9 @@ import json
 import random
 
 import requests
-from nonebot.plugin import get_available_plugin_names
 from nonebot import require, get_bots, get_driver
 from nonebot.log import logger
+from nonebot.plugin import get_available_plugin_names
 
 from .func_hook import check_func_status
 
@@ -65,7 +65,6 @@ except(AttributeError, AssertionError):
 m_hour, m_minute = send_time_morning.split(' ')
 n_hour, n_minute = send_time_night.split(' ')
 
-
 # 随机一言API
 def hitokoto():
     url = "https://v1.hitokoto.cn?c=a&c=b&c=c&c=d&c=h"
@@ -80,7 +79,6 @@ def hitokoto():
     if add:
         msg += f"\n——{add}"
     return msg
-
 
 async def send_morning():
     # 如果False直接退出函数
@@ -117,7 +115,6 @@ async def send_morning():
             logger.error('群聊推送消息插件获取bot失败，1s后重试')
             await asyncio.sleep(1)  # 重试前时延，防止阻塞
 
-
 async def send_night():
     # 如果False直接退出函数
     if not send_switch_night:
@@ -135,8 +132,7 @@ async def send_night():
                     if await check_func_status('group_msg', gid):
                         if send_mode == 1:
                             try:
-                                await bot.send_group_msg(group_id=gid,
-                                                         message=f"{random.choice(send_sentence_night)}")
+                                await bot.send_group_msg(group_id=gid, message=f"{random.choice(send_sentence_night)}")
                             except Exception:
                                 # 这个机器人没有加这个群
                                 pass
@@ -152,7 +148,6 @@ async def send_night():
             logger.error("ValueError:{}", E)
             logger.error('群聊推送消息插件获取bot失败，1s后重试')
             await asyncio.sleep(1)  # 重试前时延，防止阻塞
-
 
 try:
     assert 'nonebot_plugin_apscheduler' in get_available_plugin_names()

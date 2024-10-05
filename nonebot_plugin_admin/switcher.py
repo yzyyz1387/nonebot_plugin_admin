@@ -20,8 +20,6 @@ from .path import *
 from .utils import json_load, json_upload, fi, log_fi
 
 switcher = on_command('开关', priority=1, block=True, permission=SUPERUSER | GROUP_ADMIN | GROUP_OWNER)
-
-
 @switcher.handle()
 async def _(bot: Bot, matcher: Matcher, event: GroupMessageEvent, state: T_State, args: Message = CommandArg()):
     gid = str(event.group_id)
@@ -32,10 +30,7 @@ async def _(bot: Bot, matcher: Matcher, event: GroupMessageEvent, state: T_State
         await switcher_integrity_check(bot)
         await switcher_handle(gid, matcher, user_input_func_name)
 
-
 switcher_html = on_command('开关状态', priority=1, block=True, permission=SUPERUSER | GROUP_ADMIN | GROUP_OWNER)
-
-
 @switcher_html.handle()
 async def _(bot: Bot, matcher: Matcher, event: GroupMessageEvent):
     gid = str(event.group_id)
@@ -55,20 +50,15 @@ async def _(bot: Bot, matcher: Matcher, event: GroupMessageEvent):
             img_bytes = f.read()
         await fi(matcher, MessageSegment.image(img_bytes))
     except ActionFailed:
-        await log_fi(matcher,
-                     '当前群组开关状态：\n' + '\n'.join(
-                         [f"{admin_funcs[func][0]}：{'开启' if funcs_status[gid][func] else '关闭'}" for func in
-                          admin_funcs]),
-                     '可能被风控，已使用文字发送', err=True)
+        await log_fi(matcher, '当前群组开关状态：\n' + '\n'.join(
+            [f"{admin_funcs[func][0]}：{'开启' if funcs_status[gid][func] else '关闭'}" for func in admin_funcs]
+        ), '可能被风控，已使用文字发送', err=True)
     except FinishedException:
         pass
     except Exception as e:
-        await log_fi(matcher,
-                     '当前群组开关状态：\n' + '\n'.join(
-                         [f"{admin_funcs[func][0]}：{'开启' if funcs_status[gid][func] else '关闭'}" for func in
-                          admin_funcs]),
-                     f'开关渲染网页并截图失败，已使用文字发送，错误信息：\n{"-" * 30}{type(e)}: {e}{"-" * 30}', err=True)
-
+        await log_fi(matcher, '当前群组开关状态：\n' + '\n'.join(
+            [f"{admin_funcs[func][0]}：{'开启' if funcs_status[gid][func] else '关闭'}" for func in admin_funcs]
+        ), f'开关渲染网页并截图失败，已使用文字发送，错误信息：\n{"-" * 30}{type(e)}: {e}{"-" * 30}', err=True)
 
 async def save_image(url, img_path):
     """
@@ -94,9 +84,8 @@ async def save_image(url, img_path):
     await page.screenshot({'path': img_path, 'clip': {'x': 0, 'y': 0, 'width': 320, 'height': 800}})
     await browser.close()
 
-
 async def switcher_integrity_check(bot: Bot):
-    g_list = (await bot.get_group_list())
+    g_list = await bot.get_group_list()
     switcher_dict = json_load(switcher_path)
     for group in g_list:
         gid = str(group['group_id'])
@@ -116,7 +105,6 @@ async def switcher_integrity_check(bot: Bot):
                     else:
                         this_group_switcher[func] = True
     json_upload(switcher_path, switcher_dict)
-
 
 async def switcher_handle(gid, matcher, user_input_func_name):
     for func in admin_funcs:

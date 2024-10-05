@@ -9,50 +9,28 @@
 import nonebot
 
 from . import (
-    admin,
-    approve,
-    auto_ban,
-    auto_ban_,
-    broadcast,
-    func_hook,
-    group_msg,
-    group_request_verify,
-    group_recall,
-    img_check,
-    kick_member_by_rule,
-    notice,
-    particular_e_notice,
-    requests,
-    request_manual,
-    word_analyze,
-    wordcloud,
-    switcher,
-    utils,
+    admin, approve, auto_ban, auto_ban_, broadcast, func_hook, group_msg, group_request_verify, group_recall, img_check,
+    kick_member_by_rule, notice, particular_e_notice, requests, request_manual, word_analyze, wordcloud, switcher, utils
 )
-from nonebot.plugin import PluginMetadata
 from .config import global_config, Config
 from .path import *
-from .switcher import switcher_integrity_check
-from .utils import At, Reply, MsgText, banSb, change_s_title, log_sd, fi, log_fi, sd, init
 
 su = global_config.superusers
 driver = nonebot.get_driver()
 
-
 @driver.on_bot_connect
 async def _(bot: nonebot.adapters.Bot):
-    await init()
-    await switcher_integrity_check(bot)
+    await utils.init()
+    await switcher.switcher_integrity_check(bot)
 
-
-__plugin_meta__ = PluginMetadata(
+__plugin_meta__ = nonebot.plugin.PluginMetadata(
     name="不简易群管",
     description="Nonebot2 群管插件 插件",
     usage="包含踢改禁，头衔，精华操作，图片安全，违禁词识别，发言记录等功能等你探索",
     type="application",
     homepage="https://github.com/yzyyz1387/nonebot_plugin_admin",
     config=Config,
-    supported_adapters=None,
+    supported_adapters=None
 )
 
 """
