@@ -40,7 +40,7 @@ on_broadcast = on_command('广播', priority=2, aliases={'告诉所有人', '告
 
 
 @on_broadcast.handle()
-async def _(bot: Bot, event: MessageEvent, state: T_State, matcher: Matcher, args: Message = CommandArg()):
+async def _(bot: Bot, matcher: Matcher, event: MessageEvent, state: T_State, args: Message = CommandArg()):
     if args:
         state['b_args'] = args
         await broadcast(str(event.user_id), args, bot, matcher)
@@ -49,9 +49,8 @@ async def _(bot: Bot, event: MessageEvent, state: T_State, matcher: Matcher, arg
 @on_broadcast.got('b_args', prompt='请输入要广播的内容，发送【取消】取消')
 async def _(
         bot: Bot,
-        event: MessageEvent,
-        state: T_State,
         matcher: Matcher,
+        event: MessageEvent,
         b_args: Message = Arg("b_args")):
     uid = str(event.user_id)
     for i in ["取消", "算了", "退出"]:
@@ -65,13 +64,13 @@ add_broadcast_avoid = on_command('广播排除', priority=2, block=True, permiss
 
 
 @add_broadcast_avoid.handle()
-async def _(bot: Bot, event: MessageEvent, state: T_State, matcher: Matcher, args: Message = CommandArg()):
+async def _(bot: Bot, matcher: Matcher, event: MessageEvent, args: Message = CommandArg()):
     """
     添加广播排除群
     """
     if args:
         if "+" in str(args):
-            await add_avoid_group(event, args, matcher, state)
+            await add_avoid_group(bot, event, args, matcher)
         elif "-" in str(args):
             await del_avoid_group(event, args, matcher)
     else:
@@ -82,7 +81,7 @@ all_group_list = on_command('群列表', priority=2, block=True, permission=SUPE
 
 
 @all_group_list.handle()
-async def _(bot: Bot, event: MessageEvent, state: T_State, matcher: Matcher):
+async def _(bot: Bot, matcher: Matcher, state: T_State):
     """
     获取所有群号
     """
@@ -100,9 +99,9 @@ async def _(bot: Bot, event: MessageEvent, state: T_State, matcher: Matcher):
                     prompt="你现在可以直接告诉我群号，我可以帮你添加到广播排除列表\n多个用【空格】分隔\n只保留本群其他全部排除请回复【0】\n发送【取消】取消")
 async def _(
         bot: Bot,
+        matcher: Matcher,
         event: MessageEvent,
         state: T_State,
-        matcher: Matcher,
         gid: str = ArgStr("gid")):
     """
     添加群号到广播排除列表
@@ -115,14 +114,14 @@ async def _(
         if isinstance(event, GroupMessageEvent):
             g_list.remove(str(event.group_id))
             g_avoid = " ".join(g_list)
-            await add_avoid_group(event, g_avoid, matcher, state)
+            await add_avoid_group(bot, event, g_avoid, matcher)
         else:
             await fi(matcher, "当前不在群聊中")
     else:
-        await add_avoid_group(event, gid, matcher, state)
+        await add_avoid_group(bot, event, gid, matcher)
 
 
-async def add_avoid_group(bot: Bot, event: MessageEvent, args, matcher: Matcher, state: T_State):
+async def add_avoid_group(bot: Bot, event: MessageEvent, args, matcher: Matcher):
     uid = str(event.user_id)
     args = str(args).replace("+", "").strip()
     groups = str(args).split(" ")
@@ -155,7 +154,7 @@ avoided_group_list = on_command('排除列表', priority=2, block=True, permissi
 
 
 @avoided_group_list.handle()
-async def _(bot: Bot, event: MessageEvent, state: T_State, matcher: Matcher):
+async def _(bot: Bot, matcher: Matcher, event: MessageEvent):
     """
     获取广播排除列表
     """
@@ -220,7 +219,7 @@ broad_cast_help = on_command('广播帮助', priority=2, block=True)
 
 
 @broad_cast_help.handle()
-async def _(bot: Bot, event: MessageEvent, state: T_State, matcher: Matcher):
+async def _(matcher: Matcher):
     """
     广播帮助
     """

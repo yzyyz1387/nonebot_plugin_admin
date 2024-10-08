@@ -12,7 +12,7 @@ async def msg_text_no_url(event: GroupMessageEvent) -> str:
     no_url = re.sub(r'https?://[-A-Za-z0-9+&@#/%?=~_|!:,.;]+[-A-Za-z0-9+&@#/%=~_|]', '', msg)
     return re.sub(r'\s+', '', no_url)
 
-async def msg_img(bot: Bot, event: GroupMessageEvent) -> list:
+async def msg_img(event: GroupMessageEvent) -> list:
     img = []
     for msg in event.message:
         if msg.type in ['image', 'mface']:

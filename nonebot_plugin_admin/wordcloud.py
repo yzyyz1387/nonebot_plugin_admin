@@ -11,7 +11,7 @@ import random
 import httpx
 from imageio import imread
 from nonebot import on_command, logger
-from nonebot.adapters.onebot.v11 import Bot, GroupMessageEvent, MessageSegment
+from nonebot.adapters.onebot.v11 import GroupMessageEvent, MessageSegment
 
 from .path import *
 from .utils import participle_simple_handle
@@ -20,7 +20,7 @@ cloud = on_command('群词云', priority=2, block=True)
 
 
 @cloud.handle()
-async def _(bot: Bot, event: GroupMessageEvent):
+async def _(event: GroupMessageEvent):
     try:
         from wordcloud import WordCloud, ImageColorGenerator
         import jieba
@@ -29,7 +29,6 @@ async def _(bot: Bot, event: GroupMessageEvent):
         dir_list = os.listdir(words_contents_path)
         background_img = os.listdir(wordcloud_bg_path)
         if background_img:
-            wordcloud_bg = random.choice(os.listdir(wordcloud_bg_path))
             try:
                 async with httpx.AsyncClient() as client:
                     num = int((await client.get(
@@ -56,8 +55,6 @@ async def _(bot: Bot, event: GroupMessageEvent):
             except:
                 logger.error('下载词云mask图片出现错误')
                 return
-        wordcloud_bg = random.choice(os.listdir(wordcloud_bg_path))
-        background_image = imread(wordcloud_bg_path / wordcloud_bg)
         if gid + '.txt' in dir_list:
             text = path_temp.read_text(encoding='utf-8')
             txt = jieba.lcut(text)

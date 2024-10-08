@@ -7,7 +7,6 @@
 # @Software: PyCharm
 from nonebot import on_command
 from nonebot.adapters import Message
-from nonebot.adapters.onebot.v11 import Bot, GroupMessageEvent
 from nonebot.adapters.onebot.v11.permission import GROUP_ADMIN, GROUP_OWNER
 from nonebot.matcher import Matcher
 from nonebot.params import CommandArg
@@ -22,19 +21,19 @@ cb_notice = plugin_config.callback_notice
 del_custom_limit_words = on_command('删除违禁词', priority=2, aliases={'移除违禁词', '去除违禁词'}, block=True,
                                     permission=GROUP_ADMIN | GROUP_OWNER | SUPERUSER)
 @del_custom_limit_words.handle()
-async def _(bot: Bot, event: GroupMessageEvent, matcher: Matcher, args: Message = CommandArg()):
-    await del_txt_line(limit_word_path, matcher, event, args, '违禁词', False)
+async def _(matcher: Matcher, args: Message = CommandArg()):
+    await del_txt_line(limit_word_path, matcher, args, '违禁词')
 
 # TODO: 支持配置是否撤回&禁言
 add_custom_limit_words = on_command('添加违禁词', priority=2, aliases={'增加违禁词', '新增违禁词'}, block=True,
                                     permission=GROUP_ADMIN | GROUP_OWNER | SUPERUSER)
 @add_custom_limit_words.handle()
-async def _(bot: Bot, event: GroupMessageEvent, matcher: Matcher, args: Message = CommandArg()):
-    await add_txt_line(limit_word_path, matcher, event, args, '违禁词', False)
+async def _(matcher: Matcher, args: Message = CommandArg()):
+    await add_txt_line(limit_word_path, matcher, args, '违禁词')
 
 get_custom_limit_words = on_command('查看违禁词', priority=2, aliases={'查看违禁词', '查询违禁词', '违禁词列表'},
                                     block=True, permission=GROUP_ADMIN | GROUP_OWNER | SUPERUSER)
 @get_custom_limit_words.handle()
-async def _(bot: Bot, event: GroupMessageEvent, matcher: Matcher, args: Message = CommandArg()):
+async def _(matcher: Matcher):
     if cb_notice:
-        await get_txt_line(limit_word_path, matcher, event, args, '违禁词', False)
+        await get_txt_line(limit_word_path, matcher, '违禁词')
