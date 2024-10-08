@@ -7,8 +7,8 @@
 # @Software: PyCharm
 from nonebot import logger, on_message
 from nonebot.adapters.onebot.v11.exception import ActionFailed
-from nonebot.internal.params import Depends
 from nonebot.matcher import Matcher
+from nonebot.params import Depends
 
 from .message import *
 from .path import *

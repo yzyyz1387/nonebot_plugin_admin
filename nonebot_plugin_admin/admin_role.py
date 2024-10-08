@@ -5,13 +5,10 @@
 # @Email   :  youzyyz1384@qq.com
 # @File    : admin_role.py
 # @Software: PyCharm
-
-
 from nonebot.adapters.onebot.v11 import GroupMessageEvent
-from nonebot.internal.permission import Permission as Permission
+from nonebot.permission import Permission
 
 from .approve import g_admin
-
 
 async def _deputy_admin(event: GroupMessageEvent) -> bool:
     admins = g_admin()

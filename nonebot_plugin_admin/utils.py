@@ -277,27 +277,25 @@ def json_upload(path, dict_content) -> None:
     with open(path, mode='w', encoding='utf-8') as c:
         c.write(json.dumps(dict_content, ensure_ascii=False, indent=2))
 
-async def del_txt_line(path: Path, matcher: Matcher, event: GroupMessageEvent, args: Message, dec: str,
-                       group: bool = True) -> None:
+def get_group_path(event: GroupMessageEvent, path: Path) -> Path:
+    return path / f"{str(event.group_id)}.txt"
+
+async def del_txt_line(path: Path, matcher: Matcher, args: Message, dec: str) -> None:
     """
     分群、按行删除txt内容
-    :param path: 文件父级路径（文件以群号命名）
+    :param path: 文件路径
     :param matcher: matcher
-    :param event: 事件
     :param args: 文本
     :param dec: 描述
-    :param group: 是否为群聊
     """
-    gid = str(event.group_id)
     logger.info(args)
     if args:
         msg = str(args).split(' ')
         logger.info(msg)
-        this_path = (path / f"{str(gid)}.txt") if group else path
         try:
-            with open(this_path, mode='r+', encoding='utf-8') as c:
+            with open(path, mode='r+', encoding='utf-8') as c:
                 is_saved = c.read().split("\n")
-            with open(this_path, mode='w', encoding='utf-8') as c:
+            with open(path, mode='w', encoding='utf-8') as c:
                 success_del = []
                 already_del = []
                 for words in msg:
@@ -318,25 +316,20 @@ async def del_txt_line(path: Path, matcher: Matcher, event: GroupMessageEvent, a
     else:
         await matcher.finish(f"请输入删除内容,多个以空格分隔，例：\n删除{dec} 内容1 内容2")
 
-async def add_txt_line(path: Path, matcher: Matcher, event: GroupMessageEvent, args: Message, dec: str,
-                       group: bool = True) -> None:
+async def add_txt_line(path: Path, matcher: Matcher, args: Message, dec: str) -> None:
     """
     分群、按行添加txt内容
     :param path: 文件父级路径（文件以群号命名）
     :param matcher: matcher
-    :param event: 事件
     :param args: 文本
     :param dec: 描述
-    :param group: 是否为群聊
     """
-    gid = str(event.group_id)
     logger.info(args)
     if args:
         msg = str(args).split(' ')
         logger.info(msg)
-        this_path = (path / f"{str(gid)}.txt") if group else path
         try:
-            with open(this_path, mode='r+', encoding='utf-8') as c:
+            with open(path, mode='r+', encoding='utf-8') as c:
                 is_saved = c.read().split('\n')
                 success_add = []
                 already_add = []
@@ -354,7 +347,7 @@ async def add_txt_line(path: Path, matcher: Matcher, event: GroupMessageEvent, a
                     await matcher.send(f"{str(success_add)}添加成功")
         except FileNotFoundError:
             success_add = []
-            with open(this_path, mode='w', encoding='utf-8') as c:
+            with open(path, mode='w', encoding='utf-8') as c:
                 for words in msg:
                     c.write(words + '\n')
                     logger.info(f"添加\"{words}\"为{dec}成功")
@@ -363,31 +356,22 @@ async def add_txt_line(path: Path, matcher: Matcher, event: GroupMessageEvent, a
     else:
         await matcher.finish(f"请输入添加内容,多个以空格分隔，例：\n添加{dec} 内容1 内容2")
 
-async def get_txt_line(path: Path, matcher: Matcher, event: GroupMessageEvent, args: Message, dec: str,
-                       group: bool = True) -> None:
+async def get_txt_line(path: Path, matcher: Matcher, dec: str) -> None:
     """
     分群、按行获取txt内容
     :param path: 文件父级路径（文件以群号命名）
     :param matcher: matcher
-    :param event: 事件
-    :param args: 文本
     :param dec: 描述
-    :param group: 是否为群聊
     """
-    gid = str(event.group_id)
     try:
-        this_path = (path / f"{str(gid)}.txt") if group else path
-        try:
-            with open(this_path, 'r', encoding='utf-8') as c:
-                is_saved = c.read().split('\n')
-                is_saved.remove('')
-            await matcher.finish(f"{str(is_saved)}")
-        except ActionFailed:
-            await matcher.finish('内容太长，无法发送')
-        except FileNotFoundError:
-            await matcher.finish(f"该群没有{dec}")
+        with open(path, 'r', encoding='utf-8') as c:
+            is_saved = c.read().split('\n')
+            is_saved.remove('')
+        await matcher.finish(f"{str(is_saved)}")
+    except ActionFailed:
+        await matcher.finish('内容太长，无法发送')
     except FileNotFoundError:
-        logger.error('文件不存在!!!!!')
+        await matcher.finish(f"该群没有{dec}")
 
 async def change_s_title(bot: Bot, matcher: Matcher, gid: int, uid: int, s_title: Optional[str]):
     """
