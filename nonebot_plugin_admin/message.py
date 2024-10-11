@@ -23,6 +23,13 @@ async def msg_raw(bot: Bot, event: GroupMessageEvent) -> str:
     raw = event.raw_message
     for msg in event.message:
         if msg.type in ['image', 'mface']:
+            if msg.type == 'image':
+                try:
+                    res = await bot.call_api(api='ocr_image', image=msg.data['url'])
+                    raw = raw.replace(str(msg), ' ' + ' '.join([i['text'] for i in res['texts']]) + ' ', 1)
+                    continue
+                except Exception:
+                    pass
             raw = raw.replace(str(msg), ' ' + msg.data['url'] + ' ', 1)
         elif msg.type == 'forward':  # 合并转发不可能与其他消息结合
             try:

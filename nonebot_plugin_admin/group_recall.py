@@ -5,7 +5,6 @@
 # @Email   :  youzyyz1384@qq.com
 # @File    : group_recall.py
 # @Software: PyCharm
-
 from nonebot import on_notice
 from nonebot.adapters.onebot.v11 import GroupRecallNoticeEvent, Bot, Message, MessageSegment
 from pydantic import parse_obj_as
@@ -31,8 +30,10 @@ async def _(bot: Bot, event: GroupRecallNoticeEvent):
     recalled_message = await bot.get_msg(message_id=message_id)
     recall_notice = f"检测到{operator_info['card'] if operator_info['card'] else operator_info['nickname']}({operator_info['user_id']})撤回了一条消息：\n\n"
     if not isinstance(recalled_message['message'], str):
-        _message = Message(
-                [MessageSegment.text(recall_notice), parse_obj_as(MessageSegment, *recalled_message['message'])])
+        _message = Message([
+            MessageSegment.text(recall_notice),
+            parse_obj_as(MessageSegment, *recalled_message['message'])
+        ])
     else:
         _message = recall_notice + recalled_message['message']
     await bot.send_group_msg(group_id=group_id, message=_message)
