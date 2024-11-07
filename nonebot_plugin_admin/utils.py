@@ -306,22 +306,22 @@ async def del_txt_line(path: Path, matcher: Matcher, args: Message, dec: str) ->
     else:
         msg = str(args).split(' ')
         logger.info(msg)
-        is_saved = read_all_lines(path)
+        saved_words = read_all_lines(path)
         success_del = []
         already_del = []
 
         for word in msg:
             # FIXME: word一般为'群主是猪',需要加参的话\t手机比较难打出来,用代码将word中的\\t替换为\t?
-            if word in is_saved:
-                is_saved.remove(word)
+            if word in saved_words:
+                saved_words.remove(word)
                 success_del.append(word)
                 logger.info(f"删除'{dec}' '{word}'成功")
             else:
                 already_del.append(word)
 
         # 回写
-        if is_saved:
-            r = '\n'.join(is_saved)
+        if saved_words:
+            r = '\n'.join(saved_words)
             write_all_txt(path, r, False)
         if success_del:
             await matcher.send(f"{str(success_del)}删除成功")
@@ -344,12 +344,12 @@ async def add_txt_line(path: Path, matcher: Matcher, args: Message, dec: str) ->
     else:
         msg = str(args).split(' ')
         logger.info(msg)
-        is_saved = read_all_lines(path)
+        saved_words = read_all_lines(path)
         already_add = []
         success_add = []
         write_append = []
         for words in msg:
-            if words in is_saved:
+            if words in saved_words:
                 logger.info(f"{words}已存在")
                 already_add.append(words)
             else:
@@ -373,8 +373,8 @@ async def get_txt_line(path: Path, matcher: Matcher, dec: str) -> None:
     :param dec: 描述
     """
     try:
-        is_saved = read_all_text(path).rstrip()
-        await matcher.finish(is_saved)
+        saved_words = read_all_text(path).rstrip()
+        await matcher.finish(saved_words)
     except ActionFailed:
         await matcher.finish('内容太长，无法发送')
     except FileNotFoundError:
