@@ -3,7 +3,7 @@
 # @Time    : 2022/1/16 10:15
 # @Author  : yzyyz
 # @Email   :  youzyyz1384@qq.com
-# @File    : util.py
+# @File    : utils.py
 # @Software: PyCharm
 import asyncio
 import base64
@@ -200,7 +200,7 @@ def participle_simple_handle() -> list[str]:
 #         else:
 #             return r
 #     except Exception as err:
-#         logger.debug(f"于\"util.py\"中的 pic_cof 发生错误：{err}")
+#         logger.debug(f"于\"utils.py\"中的 pic_cof 发生错误：{err}")
 #         return None
 #
 # async def pic_ban_cof(**data) -> Optional[bool]:
