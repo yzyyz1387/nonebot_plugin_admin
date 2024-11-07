@@ -311,7 +311,7 @@ async def del_txt_line(path: Path, matcher: Matcher, args: Message, dec: str) ->
         already_del = []
 
         for word in msg:
-            # FIX: word 一般为'群主是猪',手机很难打出\t,考虑用'\t'解析?
+            # FIXME: word一般为'群主是猪',需要加参的话\t手机比较难打出来,用代码将word中的\\t替换为\t?
             if word in is_saved:
                 is_saved.remove(word)
                 success_del.append(word)
