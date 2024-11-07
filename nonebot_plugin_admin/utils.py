@@ -376,11 +376,8 @@ async def get_txt_line(path: Path, matcher: Matcher, dec: str) -> None:
     :param dec: 描述
     """
     try:
-        with open(path, 'r', encoding='utf-8') as c:
-            is_saved = c.read().split('\n')
-            if '' in is_saved:
-                is_saved.remove('')
-        await matcher.finish(f"{str(is_saved)}")
+        is_saved = read_all_text(path).rstrip()
+        await matcher.finish(is_saved)
     except ActionFailed:
         await matcher.finish('内容太长，无法发送')
     except FileNotFoundError:
