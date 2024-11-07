@@ -9,7 +9,7 @@
 import nonebot
 
 from . import (
-    admin, approve, auto_ban, auto_ban_, broadcast, func_hook, group_msg, group_request_verify, group_recall, img_check,
+    admin, approve, auto_ban, broadcast, func_hook, group_msg, group_request_verify, group_recall, img_check,
     kick_member_by_rule, notice, particular_e_notice, requests, request_manual, word_analyze, wordcloud, switcher, utils
 )
 from .config import global_config, Config
@@ -152,7 +152,7 @@ __usage__ = """
  - 可定义触发违禁词操作(默认为禁言+撤回)
  - 可定义生效范围(排除某些群 or 仅限某些群生效)
  - 示例(使用TAB隔开)：
-  - 加(群|君\S?羊|羣)\S*\d{6,}    $撤回$禁言$仅限123456789,987654321
+  - 加(群|君\\S?羊|羣)\\S*\\d{6,}    $撤回$禁言$仅限123456789,987654321
   - 狗群主                        $禁言$排除987654321
 
 【功能开关】

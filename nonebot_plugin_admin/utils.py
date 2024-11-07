@@ -3,7 +3,7 @@
 # @Time    : 2022/1/16 10:15
 # @Author  : yzyyz
 # @Email   :  youzyyz1384@qq.com
-# @File    : utils.py
+# @File    : util.py
 # @Software: PyCharm
 import asyncio
 import base64
@@ -20,6 +20,7 @@ from nonebot.adapters import Message
 from nonebot.adapters.onebot.v11 import GroupMessageEvent, ActionFailed, Bot
 from nonebot.matcher import Matcher
 
+from .util.file_util import *
 from .config import plugin_config, global_config
 from .path import *
 
@@ -30,6 +31,7 @@ cb_notice = plugin_config.callback_notice
 
 dirs = [config_path, template_path, words_contents_path, res_path, re_img_path, stop_words_path, wordcloud_bg_path,
         user_violation_info_path, group_message_data_path, error_path, kick_lock_path]
+
 
 async def init():
     """
@@ -79,6 +81,7 @@ async def init():
         logger.info(f"删除成员清理锁文件{lock}")
     logger.info('Admin 插件 初始化检测完成')
 
+
 async def mk(type_, path_, *mode, **kwargs):
     """
     创建文件夹 下载文件
@@ -119,6 +122,7 @@ async def mk(type_, path_, *mode, **kwargs):
     else:
         raise Exception('type_参数错误')
 
+
 async def mute_sb(bot: Bot, gid: int, lst: list, time: int = None, scope: list = None):
     """
     构造禁言
@@ -141,6 +145,7 @@ async def mute_sb(bot: Bot, gid: int, lst: list, time: int = None, scope: list =
                 logger.info(f"SUPERUSER无法被禁言, {qq}")
             else:
                 yield bot.set_group_ban(group_id=gid, user_id=qq, duration=time)
+
 
 def participle_simple_handle() -> list[str]:
     """
@@ -173,6 +178,7 @@ def participle_simple_handle() -> list[str]:
     sum_ = prep_ + pron_ + others_
     return sum_
 
+
 # async def pic_cof(data: str, **kwargs) -> Optional[dict]:
 #     try:
 #         if kwargs['mode'] == 'url':
@@ -194,7 +200,7 @@ def participle_simple_handle() -> list[str]:
 #         else:
 #             return r
 #     except Exception as err:
-#         logger.debug(f"于\"utils.py\"中的 pic_cof 发生错误：{err}")
+#         logger.debug(f"于\"util.py\"中的 pic_cof 发生错误：{err}")
 #         return None
 #
 # async def pic_ban_cof(**data) -> Optional[bool]:
@@ -247,14 +253,17 @@ def image_moderation(img):
     except Exception:
         return None
 
+
 async def image_moderation_async(img: Union[str, bytes]) -> Optional[dict]:
     try:
         return await asyncio.to_thread(image_moderation, img)
     except Exception:
         return None
 
+
 def bytes_to_base64(data):
     return base64.b64encode(data).decode('utf-8')
+
 
 def json_load(path) -> Optional[dict]:
     """
@@ -268,6 +277,7 @@ def json_load(path) -> Optional[dict]:
     except FileNotFoundError:
         return None
 
+
 def json_upload(path, dict_content) -> None:
     """
     更新json文件
@@ -277,8 +287,10 @@ def json_upload(path, dict_content) -> None:
     with open(path, mode='w', encoding='utf-8') as c:
         c.write(json.dumps(dict_content, ensure_ascii=False, indent=2))
 
+
 def get_group_path(event: GroupMessageEvent, path: Path) -> Path:
     return path / f"{str(event.group_id)}.txt"
+
 
 async def del_txt_line(path: Path, matcher: Matcher, args: Message, dec: str) -> None:
     """
@@ -289,32 +301,37 @@ async def del_txt_line(path: Path, matcher: Matcher, args: Message, dec: str) ->
     :param dec: 描述
     """
     logger.info(args)
-    if args:
+    if not args:
+        await matcher.finish(f"请输入删除内容,多个以空格分隔，例：\n删除{dec} 内容1 内容2")
+    else:
         msg = str(args).split(' ')
         logger.info(msg)
-        try:
-            with open(path, mode='r+', encoding='utf-8') as c:
-                is_saved = c.read().split("\n")
-            with open(path, mode='w', encoding='utf-8') as c:
-                success_del = []
-                already_del = []
-                for words in msg:
-                    if words not in is_saved:
-                        already_del.append(words)
-                    for i in is_saved:
-                        if words == i:
-                            is_saved.remove(i)
-                            logger.info(f"删除{dec} \"{words}\"成功")
-                            success_del.append(words)
-                c.write('\n'.join(is_saved))
-                if success_del:
-                    await matcher.send(f"{str(success_del)}删除成功")
-                if already_del:
-                    await matcher.send(f"{str(already_del)}还不是{dec}")
-        except FileNotFoundError:
-            await matcher.finish(f"该群没有{dec}")
-    else:
-        await matcher.finish(f"请输入删除内容,多个以空格分隔，例：\n删除{dec} 内容1 内容2")
+        is_saved = read_all_lines(path)
+        success_del = []
+        already_del = []
+        # 去掉多余的\n
+        # s也有可能是' 群主傻逼'开头就是空格,用rstrip
+        map(lambda s: s.rstrip(), is_saved)
+
+        for word in msg:
+            # FIX: word 一般为'群主是猪',手机很难打出\t,考虑用'\t'解析?
+            if word in is_saved:
+                is_saved.remove(word)
+                success_del.append(word)
+                logger.info(f"删除'{dec}' '{word}'成功")
+            else:
+                already_del.append(word)
+
+        # 回写
+        if is_saved:
+            r = '\n'.join(is_saved)
+            write_all_txt(path, r, False)
+        if success_del:
+            await matcher.send(f"{str(success_del)}删除成功")
+        if already_del:
+            await matcher.send(f"{str(already_del)}还不是{dec}")
+        await matcher.finish()
+
 
 async def add_txt_line(path: Path, matcher: Matcher, args: Message, dec: str) -> None:
     """
@@ -325,36 +342,31 @@ async def add_txt_line(path: Path, matcher: Matcher, args: Message, dec: str) ->
     :param dec: 描述
     """
     logger.info(args)
-    if args:
+    if not args:
+        await matcher.finish(f"请输入添加内容,多个以空格分隔，例：\n添加{dec} 内容1 内容2")
+    else:
         msg = str(args).split(' ')
         logger.info(msg)
-        try:
-            with open(path, mode='r+', encoding='utf-8') as c:
-                is_saved = c.read().split('\n')
-                success_add = []
-                already_add = []
-                for words in msg:
-                    if words in is_saved:
-                        logger.info(f"{words}已存在")
-                        already_add.append(words)
-                    else:
-                        c.write(words + '\n')
-                        logger.info(f"添加\"{words}\"为{dec}成功")
-                        success_add.append(words)
-                if already_add:
-                    await matcher.send(f"{str(already_add)}已存在")
-                if success_add:
-                    await matcher.send(f"{str(success_add)}添加成功")
-        except FileNotFoundError:
-            success_add = []
-            with open(path, mode='w', encoding='utf-8') as c:
-                for words in msg:
-                    c.write(words + '\n')
-                    logger.info(f"添加\"{words}\"为{dec}成功")
-                    success_add.append(words)
-            await matcher.finish(f"添加{str(success_add)}成功")
-    else:
-        await matcher.finish(f"请输入添加内容,多个以空格分隔，例：\n添加{dec} 内容1 内容2")
+        is_saved = read_all_lines(path)
+        already_add = []
+        success_add = []
+        write_append = []
+        for words in msg:
+            if words in is_saved:
+                logger.info(f"{words}已存在")
+                already_add.append(words)
+            else:
+                write_append.append(words + '\n')
+                logger.info(f"添加\"{words}\"为{dec}成功")
+                success_add.append(words)
+        if write_append:
+            r = '\n'.join(write_append)
+            write_all_txt(path, r, True)
+        if already_add:
+            await matcher.send(f"{str(already_add)}已存在")
+        if success_add:
+            await matcher.send(f"{str(success_add)}添加成功")
+
 
 async def get_txt_line(path: Path, matcher: Matcher, dec: str) -> None:
     """
@@ -366,12 +378,14 @@ async def get_txt_line(path: Path, matcher: Matcher, dec: str) -> None:
     try:
         with open(path, 'r', encoding='utf-8') as c:
             is_saved = c.read().split('\n')
-            is_saved.remove('')
+            if '' in is_saved:
+                is_saved.remove('')
         await matcher.finish(f"{str(is_saved)}")
     except ActionFailed:
         await matcher.finish('内容太长，无法发送')
     except FileNotFoundError:
         await matcher.finish(f"该群没有{dec}")
+
 
 async def change_s_title(bot: Bot, matcher: Matcher, gid: int, uid: int, s_title: Optional[str]):
     """
@@ -387,6 +401,7 @@ async def change_s_title(bot: Bot, matcher: Matcher, gid: int, uid: int, s_title
         await log_fi(matcher, f"头衔操作成功:{s_title}")
     except ActionFailed:
         logger.info('权限不足')
+
 
 async def get_user_violation(gid: int, uid: int, label: str, content: str, add_: bool = True) -> int:
     """
@@ -427,9 +442,11 @@ async def get_user_violation(gid: int, uid: int, label: str, content: str, add_:
         await vio_level_init(path_user, uid, this_time, label, content)
         return 0
 
+
 async def vio_level_init(path_user, uid, this_time, label, content) -> None:
     with open(path_user, mode='w', encoding='utf-8') as c:
         c.write(json.dumps({uid: {'level': 0, 'info': {this_time: [label, content]}}}, ensure_ascii=False))
+
 
 async def error_log(gid: int, time: str, matcher: Matcher, err: str) -> None:
     module = str(matcher.module_name)
@@ -445,16 +462,20 @@ async def error_log(gid: int, time: str, matcher: Matcher, err: str) -> None:
         except Exception as e:
             logger.error(f"写入错误日志出错：{e}")
 
+
 async def sd(cmd: Matcher, msg: str, at=False) -> None:
     if cb_notice:
         await cmd.send(msg, at_sender=at)
+
 
 async def log_sd(cmd: Matcher, msg, log: str = None, at=False, err=False) -> None:
     (logger.error if err else logger.info)(log if log else msg)
     await sd(cmd, msg, at)
 
+
 async def fi(cmd: Matcher, msg) -> None:
     await cmd.finish(msg if cb_notice else None)
+
 
 async def log_fi(cmd: Matcher, msg, log: str = None, err=False) -> None:
     (logger.error if err else logger.info)(log if log else msg)
