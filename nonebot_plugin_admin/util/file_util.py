@@ -14,7 +14,6 @@ def read_all_lines(path: Path, split: str = '\n') -> list[str]:
     if t is None:
         return list[str]()
     a = t.split(split)
-    map(lambda s: s.strip(), a)
     return a
 
 

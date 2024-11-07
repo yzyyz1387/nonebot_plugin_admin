@@ -309,9 +309,6 @@ async def del_txt_line(path: Path, matcher: Matcher, args: Message, dec: str) ->
         is_saved = read_all_lines(path)
         success_del = []
         already_del = []
-        # 去掉多余的\n
-        # s也有可能是' 群主傻逼'开头就是空格,用rstrip
-        map(lambda s: s.rstrip(), is_saved)
 
         for word in msg:
             # FIX: word 一般为'群主是猪',手机很难打出\t,考虑用'\t'解析?
