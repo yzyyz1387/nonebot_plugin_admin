@@ -1,5 +1,5 @@
 import os.path
-from ..path import *
+from pathlib import Path
 
 
 def read_all_text(path: Path) -> str:
