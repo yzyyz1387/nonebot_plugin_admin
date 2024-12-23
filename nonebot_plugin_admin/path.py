@@ -7,6 +7,7 @@
 # @Software: PyCharm
 from pathlib import Path
 from nonebot import get_driver
+from .util.time_util import *
 
 # FIXME 群配置文件目前都以配置文件的类型分文件夹，而不是以群分文件夹，后者是不是会更好，但是目前懒得改了
 config_path = Path() / 'config'
@@ -45,18 +46,19 @@ admin_funcs = {
 # TODO 后续在这里对功能加 {‘default': True} 以便于初始化时自动设置开关状态
 funcs_name_cn = ['基础群管', '加群审批', '群词云', '违禁词检测', '图片检测']
 
+
+GROUP_MUTE_MAX_TIME = 30 * TIME_DAY - 1
 # 交给Copilot
 # 0到5分钟、5到10分钟、10分钟到30分钟、30分钟到10小时、10到24小时、24小时到7天、7天到14天、14天到2591999秒
 time_scop_map = {
-    0: [0, 5 * 60],
-    1: [5 * 60, 10 * 60],
-    2: [10 * 60, 30 * 60],
-    3: [30 * 60, 10 * 60 * 60],
-    4: [10 * 60 * 60, 24 * 60 * 60],
-    5: [24 * 60 * 60, 7 * 24 * 60 * 60],
-    6: [7 * 24 * 60 * 60, 14 * 24 * 60 * 60],
-    7: [14 * 24 * 60 * 60, 2591999]
-
+    0: [0, 5 * TIME_MINUS],
+    1: [5 * TIME_MINUS, 10 * TIME_MINUS],
+    2: [10 * TIME_MINUS, 30 * TIME_MINUS],
+    3: [30 * TIME_MINUS, 10 * TIME_HOUR],
+    4: [10 * TIME_HOUR, 1 * TIME_DAY],
+    5: [1 * TIME_DAY, 7 * TIME_DAY],
+    6: [7 * TIME_DAY, 14 * TIME_DAY],
+    7: [14 * TIME_DAY, GROUP_MUTE_MAX_TIME]
 }
 
 
