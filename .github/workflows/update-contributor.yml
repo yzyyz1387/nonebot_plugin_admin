@@ -1,9 +1,9 @@
 on:
   release:
     types: [published]
-  push:
-      branches:
-          - main
+  # push:
+    #  branches:
+     #     - main
 
 
 jobs:
