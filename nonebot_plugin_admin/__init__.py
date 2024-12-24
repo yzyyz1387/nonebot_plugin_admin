@@ -10,7 +10,8 @@ import nonebot
 
 from . import (
     admin, approve, auto_ban, broadcast, func_hook, group_msg, group_request_verify, group_recall, img_check,
-    kick_member_by_rule, notice, particular_e_notice, requests, request_manual, word_analyze, wordcloud, switcher, utils
+    kick_member_by_rule, notice, particular_e_notice, requests, request_manual, word_analyze, wordcloud, switcher, utils,
+util
 )
 from .config import global_config, Config
 from .path import *
