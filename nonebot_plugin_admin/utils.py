@@ -47,6 +47,8 @@ async def init():
         await mk('file', config_group_admin, 'w', content='{"su": "True"}')
     if not word_path.exists():
         await mk('file', word_path, 'w', content='123456789\n')
+    if not appr_bk.exists():
+        await mk('file', appr_bk, 'w', content='{"1008611":["This_is","an_example"]}')
     if not switcher_path.exists():
         bots = nonebot.get_bots()
         for bot in bots.values():

@@ -30,6 +30,7 @@ broadcast_avoid_path = config_path / '广播排除群聊.json'
 ttf_path = Path() / 'resource' / 'msyhblod.ttf'
 summary_path = config_path / 'summary'
 kick_lock_path = config_path / 'kick_lock'
+appr_bk = config_path / '加群验证信息黑名单.json'
 
 admin_funcs = {
     'admin': ['管理', '踢', '禁', '改', '基础群管'],
