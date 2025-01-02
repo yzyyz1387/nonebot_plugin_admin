@@ -181,7 +181,7 @@ async def _(bot: Bot, matcher: Matcher, event: GroupMessageEvent, sb: list = Dep
     except ActionFailed:
         await fi(matcher, '权限不足')
 
-set_g_admin = on_command('管理员+', priority=2, block=True, permission=SUPERUSER | GROUP_OWNER)
+set_g_admin = on_command('管理员+', aliases={'加管理', '管理加', '加管理员', '管理员加'}, priority=2, block=True, permission=SUPERUSER | GROUP_OWNER)
 @set_g_admin.handle()
 async def _(bot: Bot, matcher: Matcher, event: GroupMessageEvent, sb: list = Depends(msg_at)):
     """
@@ -196,7 +196,7 @@ async def _(bot: Bot, matcher: Matcher, event: GroupMessageEvent, sb: list = Dep
     except ActionFailed:
         await fi(matcher, '权限不足')
 
-unset_g_admin = on_command('管理员-', priority=2, block=True, permission=SUPERUSER | GROUP_OWNER)
+unset_g_admin = on_command('管理员-', aliases={'减管理', '管理减', '减管理员', '管理员减'}, priority=2, block=True, permission=SUPERUSER | GROUP_OWNER)
 @unset_g_admin.handle()
 async def _(bot: Bot, matcher: Matcher, event: GroupMessageEvent, sb: list = Depends(msg_at)):
     """
