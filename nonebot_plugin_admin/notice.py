@@ -38,7 +38,7 @@ async def _(matcher: Matcher):
     await matcher.finish(str(admins))
 
 # 添加分群管理员
-g_admin = on_command('分管+', priority=2, aliases={'/gad+', '分群管理+', '分管加', '分群管理加'}, block=True,
+g_admin = on_command('分管+', priority=2, aliases={'/gad+', '分群管理+', '分管加', '分群管理加', 'fg+'}, block=True,
                      permission=GROUP_ADMIN | GROUP_OWNER | SUPERUSER)
 @g_admin.handle()
 async def _(matcher: Matcher, event: GroupMessageEvent, state: T_State, sb: list = Depends(msg_at)):
@@ -67,7 +67,7 @@ async def _(matcher: Matcher):
     await matcher.finish('已开启审批消息接收' if status else '已关闭审批消息接收')
 
 # 删除分群管理
-g_admin_ = on_command('分管-', priority=2, aliases={'/gad-', '分群管理-', '分管减', '分群管理减'}, block=True,
+g_admin_ = on_command('分管-', priority=2, aliases={'/gad-', '分群管理-', '分管减', '分群管理减', 'fg-'}, block=True,
                       permission=GROUP_ADMIN | GROUP_OWNER | SUPERUSER)
 @g_admin_.handle()
 async def _(matcher: Matcher, event: GroupMessageEvent, state: T_State, sb: list = Depends(msg_at)):

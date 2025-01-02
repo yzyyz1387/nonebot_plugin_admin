@@ -38,7 +38,7 @@ async def _(matcher: Matcher):
 
 
 # 按群号添加词条
-super_sp_add = on_command('指定词条+', priority=2, aliases={'/susp+', '/su审批+', "指定词条加"}, block=True, permission=SUPERUSER)
+super_sp_add = on_command('指定词条+', priority=2, aliases={'/susp+', '/su审批+', "指定词条加", 'zdct+'}, block=True, permission=SUPERUSER)
 
 
 @super_sp_add.handle()
@@ -62,7 +62,7 @@ async def _(matcher: Matcher, event: MessageEvent):
 
 
 # 按群号删除词条
-super_sp_de = on_command('指定词条-', priority=2, aliases={'/susp-', '/su审批-', "指定词条减"}, block=True, permission=SUPERUSER)
+super_sp_de = on_command('指定词条-', priority=2, aliases={'/susp-', '/su审批-', "指定词条减", 'zdct-'}, block=True, permission=SUPERUSER)
 
 
 @super_sp_de.handle()
@@ -102,7 +102,7 @@ async def _(matcher: Matcher, event: GroupMessageEvent):
     await matcher.finish('当前群从未配置过审批词条')
 
 
-add_appr_term = on_command('词条+', priority=2, aliases={'/sp+', '/审批+', '审批词条加', "词条加"}, block=True,
+add_appr_term = on_command('词条+', priority=2, aliases={'/sp+', '/审批+', '审批词条加', "词条加", 'ct+', 'sp+'}, block=True,
                            permission=GROUP_ADMIN | GROUP_OWNER | SUPERUSER)
 
 
@@ -119,7 +119,7 @@ async def _(matcher: Matcher, event: GroupMessageEvent, state: T_State):
     await matcher.finish(f"{msg} 已存在于群{gid}的词条中")
 
 
-del_appr_term = on_command('词条-', priority=2, aliases={'/sp-', '/审批-', '审批词条减', "词条减"}, block=True,
+del_appr_term = on_command('词条-', priority=2, aliases={'/sp-', '/审批-', '审批词条减', "词条减", 'ct-', 'sp-'}, block=True,
                            permission=GROUP_ADMIN | GROUP_OWNER | SUPERUSER)
 
 
@@ -139,7 +139,7 @@ async def _(matcher: Matcher, event: GroupMessageEvent, state: T_State):
         await matcher.finish("当前群从未配置过词条")
 
 
-edit_appr_bk = on_command('词条拒绝', priority=2, aliases={'/spx', '/审批拒绝', '拒绝词条'}, block=True,
+edit_appr_bk = on_command('词条拒绝', priority=2, aliases={'/spx', '/审批拒绝', '拒绝词条', 'ctjj', 'jj'}, block=True,
                           permission=GROUP_ADMIN | GROUP_OWNER | SUPERUSER)
 
 
