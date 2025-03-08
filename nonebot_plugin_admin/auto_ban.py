@@ -18,6 +18,7 @@ from .config import plugin_config
 from .message import *
 from .path import *
 from .utils import mute_sb, get_user_violation, sd, del_txt_line, add_txt_line, get_txt_line
+from typing import Tuple
 
 cb_notice = plugin_config.callback_notice
 
@@ -50,7 +51,7 @@ async def _(matcher: Matcher):
         await get_txt_line(limit_word_path, matcher, '违禁词')
 
 
-def check_msg(text: str, gid: int) -> [bool, bool, str]:
+def check_msg(text: str, gid: int) -> Tuple[bool, bool, str]:
     rules = [re.sub(r'\t+', '\t', i).split('\t') for i in limit_word_path.read_text(encoding='utf-8').split('\n')]
     for rule in rules:
         if not rule[0]: continue
@@ -101,7 +102,7 @@ async def _(bot: Bot, event: GroupMessageEvent, matcher: Matcher, msg: str = Dep
         except ActionFailed:
             logger.info('消息撤回失败')
     if ban:
-        level = await get_user_violation(gid, uid, 'Porn', event.raw_message)
+        level = await get_user_violation(gid, uid, f"敏感词: {rule}", event.raw_message)
         mute_lst = mute_sb(bot, gid, lst=[uid], scope=time_scop_map[level])
         async for mute in mute_lst:
             if not mute:
