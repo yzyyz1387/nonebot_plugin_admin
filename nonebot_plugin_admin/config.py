@@ -9,6 +9,8 @@ class Config(BaseModel, extra=Extra.ignore):
     callback_notice: bool = True  # 是否在操作完成后在 QQ 返回提示
     ban_rand_time_min: int = 60  # 随机禁言最短时间(s) default: 1分钟
     ban_rand_time_max: int = 2591999  # 随机禁言最长时间(s) default: 30天: 60*60*24*30
+    ai_verify_proxy: str = ''  # AI 鉴权请求代理，例如 http://127.0.0.1:7890
+    ai_verify_use_proxy: bool = True  # AI 鉴权请求是否走代理
 
 driver = get_driver()
 global_config = driver.config
