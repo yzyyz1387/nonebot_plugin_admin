@@ -22,7 +22,7 @@
         </div>
 
         <div class="admin-note-block mdui-m-t-2">
-          若将 dist 放入插件根目录的 admin-web/dist，默认接口地址通常就是 /admin-dashboard/api。
+          若直接使用插件内置前端，默认接口地址通常会跟随后端当前配置自动推导。
         </div>
       </div>
 

@@ -85,7 +85,7 @@ import DashboardPage from './pages/DashboardPage.vue'
 import LogsPage from './pages/LogsPage.vue'
 import WorkspacePage from './pages/WorkspacePage.vue'
 import LoginPage from './pages/LoginPage.vue'
-import { DEFAULT_API_BASE, apiRequest, extractErrorMessage, normalizeApiBase } from './lib/api'
+import { DEFAULT_API_BASE, DEFAULT_DASHBOARD_TITLE, DASHBOARD_BOOTSTRAP, apiRequest, extractErrorMessage, normalizeApiBase } from './lib/api'
 
 const STORAGE_KEYS = {
   apiBase: 'nb-admin-web:api-base',
@@ -138,7 +138,12 @@ const settings = reactive({
 })
 
 const isAuthenticated = ref(!!settings.token)
-const meta = reactive({ title: '机器人管理后台', base_path: '', auth_required: false, frontend_enabled: true })
+const meta = reactive({
+  title: DEFAULT_DASHBOARD_TITLE,
+  base_path: DASHBOARD_BOOTSTRAP.basePath || '',
+  auth_required: !!DASHBOARD_BOOTSTRAP.authRequired,
+  frontend_enabled: true
+})
 const currentPage = ref(resolvePage())
 const connectionText = ref('未连接')
 const refreshKey = ref(0)
@@ -149,7 +154,7 @@ const sidebarCollapsed = ref(localStorage.getItem(STORAGE_KEYS.sidebar) === '1')
 const themeMode = ref(localStorage.getItem(STORAGE_KEYS.theme) || 'light')
 const sidebarHoverExpand = ref(false)
 
-const title = computed(() => meta.title || '机器人管理后台')
+const title = computed(() => meta.title || DEFAULT_DASHBOARD_TITLE)
 const pageLabel = computed(() => pages.find((item) => item.key === currentPage.value)?.label || '数据面板')
 const desktopSidebarCollapsed = computed(() => isDesktop.value && sidebarCollapsed.value)
 const themeLayoutClass = computed(() => {
@@ -205,7 +210,7 @@ async function loadMeta() {
   try {
     const payload = await apiRequest(settings.apiBase, settings.token, '/meta')
     Object.assign(meta, payload || {})
-    document.title = meta.title || '机器人管理后台'
+    document.title = meta.title || DEFAULT_DASHBOARD_TITLE
     connectionText.value = '已连接'
     if (meta.auth_required && !settings.token) {
       isAuthenticated.value = false

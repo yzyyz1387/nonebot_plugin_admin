@@ -3,7 +3,7 @@
     <div class="admin-login-card">
       <div class="admin-login-header">
         <i class="material-icons admin-login-icon">admin_panel_settings</i>
-        <h1 class="admin-login-title">机器人管理后台</h1>
+        <h1 class="admin-login-title">{{ dashboardTitle }}</h1>
         <p class="admin-login-subtitle">请输入 Token 以继续</p>
       </div>
 
@@ -46,7 +46,7 @@
 
 <script setup>
 import { ref } from 'vue'
-import { DEFAULT_API_BASE, apiRequest, extractErrorMessage, normalizeApiBase } from '../lib/api'
+import { DEFAULT_API_BASE, DEFAULT_DASHBOARD_TITLE, apiRequest, extractErrorMessage, normalizeApiBase } from '../lib/api'
 
 const emit = defineEmits(['login'])
 
@@ -54,6 +54,7 @@ const token = ref('')
 const error = ref('')
 const loading = ref(false)
 const isDark = ref(window.matchMedia?.('(prefers-color-scheme: dark)')?.matches || false)
+const dashboardTitle = DEFAULT_DASHBOARD_TITLE
 
 async function handleLogin() {
   const trimmed = token.value.trim()

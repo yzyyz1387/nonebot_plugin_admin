@@ -378,10 +378,15 @@ async def run_checks():
 
         if (ADMIN_WEB_DIST_DIR / "index.html").exists():
             assert '<div id="app"></div>' in index_response.text
+            assert "Ops Console" in index_response.text
+            assert "window.ADMIN_DASHBOARD_BOOTSTRAP" in index_response.text
+            assert "/ops/api" in index_response.text
 
             login_page_response = client.get("/ops/login")
             assert login_page_response.status_code == 200
             assert '<div id="app"></div>' in login_page_response.text
+            assert "Ops Console" in login_page_response.text
+            assert "/ops/api" in login_page_response.text
 
             favicon_response = client.get("/ops/favicon.svg")
             assert favicon_response.status_code == 200
