@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>群词云</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --page-bg: linear-gradient(135deg, #f6efe2 0%, #edf6f7 45%, #f9f7ef 100%);
+      --card-bg: rgba(255, 252, 245, 0.96);
+      --card-border: rgba(28, 55, 78, 0.08);
+      --text-main: #19344c;
+      --text-muted: #5e6f7f;
+      --panel-bg: rgba(244, 248, 250, 0.95);
+      --panel-border: rgba(28, 55, 78, 0.08);
+      --shadow: 0 26px 60px rgba(21, 46, 64, 0.14);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      padding: 36px;
+      background: var(--page-bg);
+      color: var(--text-main);
+      font-family: "Microsoft YaHei", "PingFang SC", "Noto Sans SC", sans-serif;
+    }
+
+    .wordcloud-card {
+      width: 1480px;
+      border-radius: 30px;
+      border: 1px solid var(--card-border);
+      background: var(--card-bg);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 24px;
+      padding: 34px 40px 20px;
+      background:
+        radial-gradient(circle at top left, rgba(255, 188, 120, 0.28), transparent 34%),
+        radial-gradient(circle at top right, rgba(105, 164, 188, 0.24), transparent 36%);
+    }
+
+    .eyebrow {
+      margin: 0 0 10px;
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #8a7047;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 40px;
+      line-height: 1.1;
+      font-weight: 800;
+    }
+
+    .subtitle {
+      margin: 14px 0 0;
+      font-size: 18px;
+      line-height: 1.6;
+      color: var(--text-muted);
+    }
+
+    .header-meta {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 10px;
+      min-width: 240px;
+    }
+
+    .meta-chip {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 42px;
+      padding: 0 16px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.72);
+      border: 1px solid rgba(28, 55, 78, 0.08);
+      color: var(--text-main);
+      font-size: 15px;
+      font-weight: 600;
+    }
+
+    .body {
+      display: grid;
+      grid-template-columns: minmax(0, 1.8fr) 360px;
+      gap: 24px;
+      padding: 0 28px 28px;
+    }
+
+    .cloud-panel,
+    .side-panel {
+      border-radius: 24px;
+      border: 1px solid var(--panel-border);
+      background: var(--panel-bg);
+    }
+
+    .cloud-panel {
+      padding: 28px;
+      min-height: 720px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .panel-title {
+      margin: 0;
+      font-size: 22px;
+      font-weight: 800;
+    }
+
+    .panel-note {
+      margin: 0;
+      font-size: 15px;
+      color: var(--text-muted);
+    }
+
+    .cloud-content {
+      display: flex;
+      flex-wrap: wrap;
+      align-content: flex-start;
+      gap: 14px 16px;
+      padding: 10px 4px 0;
+    }
+
+    .cloud-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 16px;
+      border-radius: 999px;
+      border: 1px solid rgba(28, 55, 78, 0.06);
+      font-weight: 800;
+      line-height: 1;
+      white-space: nowrap;
+      transform-origin: center;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45);
+    }
+
+    .cloud-count {
+      font-size: 14px;
+      opacity: 0.72;
+    }
+
+    .side-panel {
+      padding: 24px 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .metric {
+      padding: 16px 14px;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.72);
+      border: 1px solid rgba(28, 55, 78, 0.06);
+    }
+
+    .metric-label {
+      margin: 0 0 8px;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .metric-value {
+      margin: 0;
+      font-size: 30px;
+      font-weight: 800;
+      line-height: 1.1;
+    }
+
+    .ranking {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .ranking-item {
+      display: grid;
+      grid-template-columns: 36px minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 10px;
+      min-height: 52px;
+      padding: 10px 12px;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.72);
+      border: 1px solid rgba(28, 55, 78, 0.06);
+    }
+
+    .ranking-index {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 15px;
+      font-weight: 800;
+      color: #fff;
+      background: linear-gradient(135deg, #214e6a 0%, #4b8796 100%);
+    }
+
+    .ranking-word {
+      min-width: 0;
+      font-size: 18px;
+      font-weight: 700;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .ranking-count {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-muted);
+    }
+  </style>
+</head>
+<body>
+  <section class="wordcloud-card">
+    <header class="header">
+      <div>
+        <p class="eyebrow">Group Keyword Cloud</p>
+        <h1>群 {{ group_id }} 词云</h1>
+        <p class="subtitle">{{ description }}</p>
+      </div>
+      <div class="header-meta">
+        <div class="meta-chip">生成时间 {{ generated_at }}</div>
+        <div class="meta-chip">展示关键词 {{ cloud_words_count }}</div>
+      </div>
+    </header>
+
+    <div class="body">
+      <section class="cloud-panel">
+        <div>
+          <h2 class="panel-title">高频关键词</h2>
+          <p class="panel-note">已过滤停用词与低信息量短词，以下内容来自本群已记录消息。</p>
+        </div>
+        <div class="cloud-content">
+          {% for item in cloud_items %}
+          <span
+            class="cloud-item"
+            style="
+              font-size: {{ item.font_size }}px;
+              color: {{ item.text_color }};
+              background: {{ item.background }};
+              transform: rotate({{ item.rotate }}deg);
+            "
+          >
+            <span>{{ item.word }}</span>
+            <span class="cloud-count">{{ item.count }}</span>
+          </span>
+          {% endfor %}
+        </div>
+      </section>
+
+      <aside class="side-panel">
+        <div>
+          <h2 class="panel-title">统计摘要</h2>
+          <p class="panel-note">便于快速浏览当前词云覆盖到的数据规模。</p>
+        </div>
+        <div class="metrics">
+          <section class="metric">
+            <p class="metric-label">分词总量</p>
+            <p class="metric-value">{{ total_tokens }}</p>
+          </section>
+          <section class="metric">
+            <p class="metric-label">唯一词数</p>
+            <p class="metric-value">{{ unique_words }}</p>
+          </section>
+          <section class="metric">
+            <p class="metric-label">最高频词</p>
+            <p class="metric-value">{{ top_word_count }}</p>
+          </section>
+          <section class="metric">
+            <p class="metric-label">停用词数</p>
+            <p class="metric-value">{{ stop_words_count }}</p>
+          </section>
+        </div>
+
+        <div>
+          <h2 class="panel-title">Top {{ top_words|length }}</h2>
+        </div>
+        <div class="ranking">
+          {% for item in top_words %}
+          <section class="ranking-item">
+            <span class="ranking-index">{{ loop.index }}</span>
+            <span class="ranking-word">{{ item.word }}</span>
+            <span class="ranking-count">{{ item.count }}</span>
+          </section>
+          {% endfor %}
+        </div>
+      </aside>
+    </div>
+  </section>
+</body>
+</html>

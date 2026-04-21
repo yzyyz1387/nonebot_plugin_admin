@@ -1,2 +1,15 @@
-
-recursive-include nonebot_plugin_admin/ *.html
+recursive-include nonebot_plugin_admin *.html
+recursive-include nonebot_plugin_admin *.css
+recursive-include nonebot_plugin_admin *.js
+recursive-include nonebot_plugin_admin *.json
+recursive-include nonebot_plugin_admin *.vue
+recursive-include nonebot_plugin_admin *.txt
+recursive-include nonebot_plugin_admin *.env.example
+recursive-include nonebot_plugin_admin/admin-web/dist *
+prune nonebot_plugin_admin/admin-web/node_modules
+prune nonebot_plugin_admin/admin-web/src
+prune nonebot_plugin_admin/admin-web/public
+exclude nonebot_plugin_admin/admin-web/index.html
+exclude nonebot_plugin_admin/admin-web/package.json
+exclude nonebot_plugin_admin/admin-web/package-lock.json
+exclude nonebot_plugin_admin/admin-web/vite.config.js

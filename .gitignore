@@ -3,3 +3,11 @@ dist/
 nonebot_plugin_admin.egg-info/
 .idea/
 .idea
+__pycache__/
+*.py[cod]
+.codex_tmp/
+config/
+docs/*
+!docs/development-guide.md
+nonebot_plugin_admin/admin-web/node_modules/
+nonebot_plugin_admin/admin-web/dist/
