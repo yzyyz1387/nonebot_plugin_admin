@@ -277,35 +277,4 @@ ai拒绝prompt 本群的验证问题为"从哪里知道的本群？"如果用户
 
 说明：仅超级管理员可用，返回 ORM 数据库连接地址。未配置 `tortoise_orm_db_url` 时会提示配置方法。
 
-## 当前目录结构
-
-插件内部已经按业务域拆分为以下目录：
-
-- `nonebot_plugin_admin/core/`：公共配置、路径、工具、功能开关
-- `nonebot_plugin_admin/approval/`：入群审批、AI 审核、分群管理员
-- `nonebot_plugin_admin/basic_group_admin/`：基础群管
-- `nonebot_plugin_admin/content_guard/`：违禁词与图片审核
-- `nonebot_plugin_admin/statistics/`：消息记录、排行、词云、定时群消息
-- `nonebot_plugin_admin/broadcasting/`：广播相关逻辑
-- `nonebot_plugin_admin/event_notice/`：事件提醒
-- `nonebot_plugin_admin/member_cleanup/`：成员清理
-- `nonebot_plugin_admin/dashboard/`：dashboard API 与前端挂载逻辑
-- `nonebot_plugin_admin/migration/`：历史数据迁移（文件存储 → ORM）
-- `nonebot_plugin_admin/admin-web/`：独立 dashboard 前端工程（Vue.js）
-
-## 文档
-
-重构相关文档位于 [`docs/`](./docs/)。
-
-建议从以下文件开始：
-
-- [`docs/README.md`](./docs/README.md)
-- [`docs/main-check-audit-and-roadmap.zh-CN.md`](./docs/main-check-audit-and-roadmap.zh-CN.md)
-- [`docs/manual-regression-checklist.md`](./docs/manual-regression-checklist.md)
-
-## 当前状态说明
-
-- 代码目录分层已经落地
-- 审批域、基础群管域、成员清理域、统计域已补充最小 smoke check
-- 部分历史文档仍在清理中，若文档与代码不一致，以代码实现为准
 
