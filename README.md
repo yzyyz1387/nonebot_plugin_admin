@@ -278,3 +278,63 @@ ai拒绝prompt 本群的验证问题为"从哪里知道的本群？"如果用户
 说明：仅超级管理员可用，返回 ORM 数据库连接地址。未配置 `tortoise_orm_db_url` 时会提示配置方法。
 
 
+## 感谢贡献者们
+<!-- readme: BalconyJH,collaborators,contributors -start -->
+<table>
+	<tbody>
+		<tr>
+            <td align="center">
+                <a href="https://github.com/balconyjh">
+                    <img src="https://avatars.githubusercontent.com/u/73932916?v=4" width="100;" alt="balconyjh"/>
+                    <br />
+                    <sub><b>BalconyJH</b></sub>
+                </a>
+            </td>
+            <td align="center">
+                <a href="https://github.com/lakwsh">
+                    <img src="https://avatars.githubusercontent.com/u/13025769?v=4" width="100;" alt="lakwsh"/>
+                    <br />
+                    <sub><b>lakwsh</b></sub>
+                </a>
+            </td>
+            <td align="center">
+                <a href="https://github.com/yzyyz1387">
+                    <img src="https://avatars.githubusercontent.com/u/51691024?v=4" width="100;" alt="yzyyz1387"/>
+                    <br />
+                    <sub><b>幼稚园园长</b></sub>
+                </a>
+            </td>
+            <td align="center">
+                <a href="https://github.com/tom-snow">
+                    <img src="https://avatars.githubusercontent.com/u/79245287?v=4" width="100;" alt="tom-snow"/>
+                    <br />
+                    <sub><b>A lucky guy</b></sub>
+                </a>
+            </td>
+            <td align="center">
+                <a href="https://github.com/NekoPunchs">
+                    <img src="https://avatars.githubusercontent.com/u/41229611?v=4" width="100;" alt="NekoPunchs"/>
+                    <br />
+                    <sub><b>NekoPunch!</b></sub>
+                </a>
+            </td>
+            <td align="center">
+                <a href="https://github.com/Redmomn">
+                    <img src="https://avatars.githubusercontent.com/u/109732988?v=4" width="100;" alt="Redmomn"/>
+                    <br />
+                    <sub><b>脑袋里进花生了</b></sub>
+                </a>
+            </td>
+		</tr>
+		<tr>
+            <td align="center">
+                <a href="https://github.com/deepsourcebot">
+                    <img src="https://avatars.githubusercontent.com/u/60907429?v=4" width="100;" alt="deepsourcebot"/>
+                    <br />
+                    <sub><b>DeepSource Bot</b></sub>
+                </a>
+            </td>
+		</tr>
+	<tbody>
+</table>
+<!-- readme: BalconyJH,collaborators,contributors -end -->

@@ -1,17 +1,22 @@
-on:
-  release:
-    types: [published]
-  # push:
-    #  branches:
-     #     - main
+name: Update Contributors
 
+on:
+  push:
+    branches:
+      - main
+      - main-check
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
 
 jobs:
-    contrib-readme-job:
-        runs-on: ubuntu-latest
-        name: A job to automate contrib in readme
-        steps:
-            - name: Contribute List
-              uses: akhilmhdh/contributors-readme-action@v2.3.10
-              env:
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  contrib-readme-job:
+    runs-on: ubuntu-latest
+    name: Update contributors in README
+    steps:
+      - name: Contribute List
+        uses: akhilmhdh/contributors-readme-action@v2.3.10
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
