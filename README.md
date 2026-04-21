@@ -309,3 +309,6 @@ ai拒绝prompt 本群的验证问题为"从哪里知道的本群？"如果用户
 - 审批域、基础群管域、成员清理域、统计域已补充最小 smoke check
 - 部分历史文档仍在清理中，若文档与代码不一致，以代码实现为准
 
+## 感谢贡献者们
+<!-- readme: BalconyJH,collaborators,contributors -start -->
+<!-- readme: BalconyJH,collaborators,contributors -end -->
