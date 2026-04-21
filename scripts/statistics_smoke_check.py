@@ -571,12 +571,34 @@ async def run_checks():
 
         await statistics_record_flow.record_group_message(gid, "20001", "第一条消息", "2026-04-18", message_id="m1", created_at="2026-04-18T08:30:00")
         await statistics_record_flow.record_group_message(gid, "20002", "第二条消息", "2026-04-18", message_id="m2", created_at="2026-04-18T09:45:00")
-        assert await statistics_store.load_daily_message_stats(gid, "2026-04-18") == {"20001": 1, "20002": 1}
-        assert await statistics_store.load_history_message_stats(gid) == {"20001": 1, "20002": 1}
-        assert await orm_store.load_group_word_corpus_lines(gid) == ["第一条消息", "第二条消息"]
-        assert {(record.group_id, record.user_id, record.message_count) for record in orm_models.StatisticsHistoryMessageStat._records} == {(gid, "20001", 1), (gid, "20002", 1)}
-        assert {(record.group_id, record.user_id, str(record.stat_date), record.message_count) for record in orm_models.StatisticsDailyMessageStat._records} == {(gid, "20001", "2026-04-18", 1), (gid, "20002", "2026-04-18", 1)}
-        assert {(record.message_key, record.plain_text, record.message_hour) for record in orm_models.StatisticsMessageRecord._records} == {("10001:m1", "第一条消息", 8), ("10001:m2", "第二条消息", 9)}
+        await statistics_record_flow.record_group_message(
+            gid,
+            "20002",
+            "链接：https://www.baidu.com 哈哈哈哈哈测试",
+            "2026-04-18",
+            message_id="m4",
+            created_at="2026-04-18T09:50:00",
+        )
+        assert await statistics_store.load_daily_message_stats(gid, "2026-04-18") == {"20001": 1, "20002": 2}
+        assert await statistics_store.load_history_message_stats(gid) == {"20001": 1, "20002": 2}
+        assert await orm_store.load_group_word_corpus_lines(gid) == ["第一条消息", "第二条消息", "链接：哈哈哈哈哈测试"]
+        assert {(record.group_id, record.user_id, record.message_count) for record in orm_models.StatisticsHistoryMessageStat._records} == {(gid, "20001", 1), (gid, "20002", 2)}
+        assert {(record.group_id, record.user_id, str(record.stat_date), record.message_count) for record in orm_models.StatisticsDailyMessageStat._records} == {(gid, "20001", "2026-04-18", 1), (gid, "20002", "2026-04-18", 2)}
+        assert {
+            (record.message_key, record.plain_text, record.message_hour)
+            for record in orm_models.StatisticsMessageRecord._records
+        } == {
+            ("10001:m1", "第一条消息", 8),
+            ("10001:m2", "第二条消息", 9),
+            ("10001:m4", "链接：https://www.baidu.com 哈哈哈哈哈测试", 9),
+        }
+        assert {
+            (record.action, record.detail)
+            for record in orm_models.DashboardOplogRecord._records
+            if record.action == "message_record"
+        } >= {
+            ("message_record", "链接：https://www.baidu.com 哈哈哈哈哈测试"),
+        }
 
         disabled, message = await statistics_record_flow.handle_disable_group_recording(gid)
         await asyncio.sleep(0)
@@ -586,11 +608,11 @@ async def run_checks():
         assert orm_models.StatisticsGroupRecordSetting._records[0].enabled is False
 
         await statistics_record_flow.record_group_message(gid, "20001", "第三条消息", "2026-04-18", message_id="m3", created_at="2026-04-18T10:15:00")
-        assert await statistics_store.load_daily_message_stats(gid, "2026-04-18") == {"20001": 2, "20002": 1}
-        assert await statistics_store.load_history_message_stats(gid) == {"20001": 2, "20002": 1}
-        assert await orm_store.load_group_word_corpus_lines(gid) == ["第一条消息", "第二条消息"]
-        assert len(orm_models.StatisticsMessageRecord._records) == 2
-        assert {(record.group_id, record.user_id, record.message_count) for record in orm_models.StatisticsHistoryMessageStat._records} == {(gid, "20001", 2), (gid, "20002", 1)}
+        assert await statistics_store.load_daily_message_stats(gid, "2026-04-18") == {"20001": 2, "20002": 2}
+        assert await statistics_store.load_history_message_stats(gid) == {"20001": 2, "20002": 2}
+        assert await orm_store.load_group_word_corpus_lines(gid) == ["第一条消息", "第二条消息", "链接：哈哈哈哈哈测试"]
+        assert len(orm_models.StatisticsMessageRecord._records) == 3
+        assert {(record.group_id, record.user_id, record.message_count) for record in orm_models.StatisticsHistoryMessageStat._records} == {(gid, "20001", 2), (gid, "20002", 2)}
 
         disabled, message = await statistics_record_flow.handle_disable_group_recording(gid)
         assert disabled is False
@@ -644,8 +666,8 @@ async def run_checks():
         assert wordcloud_source.text == "\u7b2c\u4e00\u6761\u6d88\u606f\n\u7b2c\u4e8c\u6761\u6d88\u606f\n"
         assert "\u5c4f\u853d\u8bcdB" in wordcloud_source.stop_words
         assert await statistics_read_service.daily_message_stats_exists_snapshot(gid, "2026-04-18") is True
-        assert await statistics_read_service.load_daily_message_stats_snapshot(gid, "2026-04-18") == {"20001": 2, "20002": 1}
-        assert await statistics_read_service.load_history_message_stats_snapshot(gid) == {"20001": 2, "20002": 1, "20003": 7}
+        assert await statistics_read_service.load_daily_message_stats_snapshot(gid, "2026-04-18") == {"20001": 2, "20002": 2}
+        assert await statistics_read_service.load_history_message_stats_snapshot(gid) == {"20001": 2, "20002": 2, "20003": 7}
 
         top_message = await statistics_query_flow.build_top_speaker_message(
             fake_group_bot,

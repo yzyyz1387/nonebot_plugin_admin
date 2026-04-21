@@ -12,7 +12,7 @@ from nonebot.params import CommandArg, Depends
 from nonebot.permission import SUPERUSER
 
 from ..core.exact_command import exact_command
-from ..core.message import msg_at, msg_text_no_url
+from ..core.message import msg_at, msg_text
 from .statistics_query_flow import build_member_count_messages, build_ranking_message, build_top_speaker_message
 from .statistics_record_flow import handle_disable_group_recording, handle_enable_group_recording, record_group_message
 from .statistics_read_service import (
@@ -70,7 +70,7 @@ word = on_message(priority=3, block=False)
 
 
 @word.handle()
-async def _(event: GroupMessageEvent, msg: str = Depends(msg_text_no_url)):
+async def _(event: GroupMessageEvent, msg: str = Depends(msg_text)):
     plain_text = msg
     raw_text = str(event.raw_message or "")
     await record_group_message(

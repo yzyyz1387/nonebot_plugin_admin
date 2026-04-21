@@ -291,6 +291,14 @@ async def run_checks():
             message_id="m3",
             created_at="2026-04-17T21:35:00",
         )
+        await statistics_record_flow.record_group_message(
+            "12345",
+            "20002",
+            "链接：https://www.baidu.com 哈哈哈哈哈测试",
+            "2026-04-18",
+            message_id="m4",
+            created_at="2026-04-18T11:30:00",
+        )
         await asyncio.sleep(0)
 
         class FakeMatcher:
@@ -463,6 +471,11 @@ async def run_checks():
         assert logs_payload["pagination"]["page_size"] == 5
         assert logs_payload["filters"]["source"] == "runtime_log"
         assert len(logs_payload["items"]) >= 1
+
+        oplog_response = client.get("/ops/api/logs?page=1&page_size=20&source=dashboard_oplog&keyword=baidu.com", headers=headers)
+        assert oplog_response.status_code == 200
+        oplog_payload = oplog_response.json()
+        assert any("https://www.baidu.com" in item["detail"] for item in oplog_payload["items"])
 
         statistics_overview_response = client.get("/ops/api/statistics/overview", headers=headers)
         assert statistics_overview_response.status_code == 200
