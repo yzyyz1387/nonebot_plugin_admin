@@ -13,6 +13,7 @@ from .orm_bootstrap import ensure_statistics_orm_support
 
 _FAILED_ACTIONS: set[str] = set()
 _IMAGE_SEGMENT_PATTERN = re.compile(r"\[image:([^\]]*)\]")
+_URL_PATTERN = re.compile(r"https?://[-A-Za-z0-9+&@#/%?=~_|!:,.;]+[-A-Za-z0-9+&@#/%=~_|]")
 
 
 def _is_orm_sync_enabled() -> bool:
@@ -133,6 +134,17 @@ def _extract_media_tags(raw_message: str) -> list[str]:
         else:
             tags.append("[图片]")
     return tags
+
+
+def _sanitize_message_for_corpus(message: str) -> str:
+    """
+    清洗消息词料文本
+    :param message: 消息内容
+    :return: str
+    """
+    raw_text = str(message or "")
+    without_url = _URL_PATTERN.sub("", raw_text)
+    return re.sub(r"\s+", "", without_url).strip()
 
 
 async def _increment_counter(model_cls, **lookup) -> bool:
@@ -454,9 +466,10 @@ async def sync_group_message(
     created_time = _coerce_datetime(created_at, stat_date)
     plain_text = str(message or "")
     display_text = plain_text.strip() or str(raw_message or "").strip() or ""
+    corpus_plain_text = _sanitize_message_for_corpus(plain_text)
     word_parts: list[str] = []
-    if plain_text.strip():
-        word_parts.append(plain_text.strip())
+    if corpus_plain_text:
+        word_parts.append(corpus_plain_text)
     word_parts.extend(_extract_media_tags(str(raw_message or "")))
     corpus_text = " ".join(word_parts).strip()
 
