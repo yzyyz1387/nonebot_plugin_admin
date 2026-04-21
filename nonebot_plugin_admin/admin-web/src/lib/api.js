@@ -1,4 +1,9 @@
-export const DEFAULT_API_BASE = import.meta.env.VITE_DEFAULT_API_BASE || '/admin-dashboard/api'
+export const DASHBOARD_BOOTSTRAP = typeof window !== 'undefined'
+  ? (window.ADMIN_DASHBOARD_BOOTSTRAP || {})
+  : {}
+
+export const DEFAULT_API_BASE = DASHBOARD_BOOTSTRAP.apiBasePath || import.meta.env.VITE_DEFAULT_API_BASE || '/admin-dashboard/api'
+export const DEFAULT_DASHBOARD_TITLE = DASHBOARD_BOOTSTRAP.title || '机器人管理后台'
 
 function trimTrailingSlash(value) {
   const text = String(value || '').trim()

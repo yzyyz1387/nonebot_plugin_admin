@@ -3,6 +3,7 @@ from __future__ import annotations
 import html
 import json
 import logging
+import re
 from pathlib import Path
 
 import nonebot
@@ -144,13 +145,7 @@ def _render_dashboard_html(base_path: str) -> str:
     :return: str
     """
     template = TEMPLATE_PATH.read_text(encoding="utf-8")
-    bootstrap = {
-        "title": plugin_config.dashboard_title,
-        "basePath": base_path,
-        "apiBasePath": f"{base_path}/api",
-        "authRequired": bool(plugin_config.dashboard_api_token.strip()),
-        "frontendEnabled": plugin_config.dashboard_frontend_enabled,
-    }
+    bootstrap = build_dashboard_frontend_bootstrap(base_path)
     return (
         template.replace("__ADMIN_DASHBOARD_TITLE__", html.escape(plugin_config.dashboard_title))
         .replace("__ADMIN_DASHBOARD_STATIC_PREFIX__", f"{base_path}/static")
@@ -159,6 +154,82 @@ def _render_dashboard_html(base_path: str) -> str:
             json.dumps(bootstrap, ensure_ascii=False),
         )
     )
+
+
+def build_dashboard_frontend_bootstrap(base_path: str) -> dict[str, object]:
+    """
+    构建面板前端 bootstrap 配置
+    :param base_path: 路径对象
+    :return: dict[str, object]
+    """
+    return {
+        "title": plugin_config.dashboard_title,
+        "basePath": base_path,
+        "apiBasePath": f"{base_path}/api",
+        "authRequired": bool(plugin_config.dashboard_api_token.strip()),
+        "frontendEnabled": plugin_config.dashboard_frontend_enabled,
+    }
+
+
+def _build_admin_web_runtime_injection(base_path: str) -> str:
+    """
+    构建 admin-web 运行时注入脚本
+    :param base_path: 路径对象
+    :return: str
+    """
+    bootstrap_json = json.dumps(build_dashboard_frontend_bootstrap(base_path), ensure_ascii=False)
+    return (
+        "<script>\n"
+        "(function () {\n"
+        f"  var bootstrap = {bootstrap_json};\n"
+        "  window.ADMIN_DASHBOARD_BOOTSTRAP = bootstrap;\n"
+        "  if (bootstrap.title) {\n"
+        "    document.title = bootstrap.title;\n"
+        "  }\n"
+        "  try {\n"
+        "    var storageKey = 'nb-admin-web:api-base';\n"
+        "    var autoKey = 'nb-admin-web:auto-api-base';\n"
+        "    var detected = bootstrap.apiBasePath || '/admin-dashboard/api';\n"
+        "    var current = window.localStorage.getItem(storageKey);\n"
+        "    var previousAuto = window.localStorage.getItem(autoKey);\n"
+        "    if (!current || current === previousAuto || current === '/admin-dashboard/api') {\n"
+        "      window.localStorage.setItem(storageKey, detected);\n"
+        "    }\n"
+        "    window.localStorage.setItem(autoKey, detected);\n"
+        "  } catch (error) {}\n"
+        "})();\n"
+        "</script>"
+    )
+
+
+def _render_dashboard_frontend_dist_html(frontend_dist_dir: Path, base_path: str) -> str:
+    """
+    渲染 admin-web dist 首页
+    :param frontend_dist_dir: frontend_dist_dir 参数
+    :param base_path: 路径对象
+    :return: str
+    """
+    index_path = frontend_dist_dir / "index.html"
+    html_text = index_path.read_text(encoding="utf-8")
+    title_tag = f"<title>{html.escape(plugin_config.dashboard_title)}</title>"
+    injected_script = _build_admin_web_runtime_injection(base_path)
+
+    html_text, replace_count = re.subn(
+        r"<title>.*?</title>",
+        title_tag,
+        html_text,
+        count=1,
+        flags=re.IGNORECASE | re.DOTALL,
+    )
+    if replace_count == 0:
+        html_text = title_tag + "\n" + html_text
+
+    if "</head>" in html_text:
+        html_text = html_text.replace("</head>", f"{injected_script}\n  </head>", 1)
+    else:
+        html_text += "\n" + injected_script
+
+    return html_text
 
 
 def resolve_dashboard_frontend_dist_dir() -> Path | None:
@@ -238,6 +309,8 @@ def register_dashboard_routes() -> bool:
                     file_path = _resolve_admin_web_asset(frontend_dist_dir, full_path)
                 except FileNotFoundError:
                     return HTMLResponse("Not Found", status_code=404)
+                if file_path == frontend_dist_dir / "index.html":
+                    return HTMLResponse(_render_dashboard_frontend_dist_html(frontend_dist_dir, base_path))
                 return FileResponse(file_path)
 
             server_app.add_api_route(base_path, dashboard_frontend_dist, methods=["GET"], include_in_schema=False)
