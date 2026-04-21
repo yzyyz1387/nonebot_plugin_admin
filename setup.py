@@ -28,7 +28,7 @@ INSTALL_REQUIRES = [
 
 setup(
     name="nonebot-plugin-admin",
-    version="0.4.7",
+    version="1.0.0",
     author="yzyyz1387",
     author_email="youzyyz1384@qq.com",
     keywords=["pip", "nonebot2", "nonebot", "admin", "nonebot_plugin"],
