@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>__ADMIN_DASHBOARD_TITLE__</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+  <link rel="stylesheet" href="https://unpkg.com/mdui@1.0.2/dist/css/mdui.min.css">
+  <link rel="stylesheet" href="__ADMIN_DASHBOARD_STATIC_PREFIX__/dashboard.css">
+</head>
+<body class="mdui-theme-primary-indigo mdui-theme-accent-blue mdui-appbar-with-toolbar">
+  <div class="mdui-appbar mdui-appbar-fixed workspace-appbar">
+    <div class="mdui-toolbar mdui-color-theme">
+      <a href="javascript:;" class="mdui-btn mdui-btn-icon workspace-mobile-only" mdui-drawer="{target: '#mobile-drawer', swipe: true}">
+        <i class="mdui-icon material-icons">menu</i>
+      </a>
+      <span class="mdui-typo-title" id="page-title">__ADMIN_DASHBOARD_TITLE__</span>
+      <span class="workspace-page-caption" id="page-subtitle">主页数据面板</span>
+      <div class="mdui-toolbar-spacer"></div>
+      <span class="workspace-badge-chip" id="connection-chip">等待连接</span>
+      <a href="javascript:;" class="mdui-btn mdui-btn-icon" id="open-token-btn" mdui-tooltip="{content: '设置 X-Admin-Token'}">
+        <i class="mdui-icon material-icons">vpn_key</i>
+      </a>
+      <a href="javascript:;" class="mdui-btn mdui-btn-icon" id="refresh-all-btn" mdui-tooltip="{content: '刷新全部数据'}">
+        <i class="mdui-icon material-icons">refresh</i>
+      </a>
+    </div>
+  </div>
+
+  <div class="mdui-drawer" id="mobile-drawer">
+    <div class="workspace-mobile-drawer">
+      <div class="workspace-mobile-brand">
+        <div class="workspace-mobile-title" id="drawer-title">__ADMIN_DASHBOARD_TITLE__</div>
+        <div class="workspace-mobile-subtitle">NoneBot Admin Console</div>
+      </div>
+      <div class="mdui-list workspace-nav-list" id="mobile-nav-list">
+        <a href="javascript:;" class="mdui-list-item mdui-ripple is-active" data-page="dashboard">
+          <i class="mdui-list-item-icon mdui-icon material-icons">dashboard</i>
+          <div class="mdui-list-item-content">主页数据面板</div>
+        </a>
+        <a href="javascript:;" class="mdui-list-item mdui-ripple" data-page="logs">
+          <i class="mdui-list-item-icon mdui-icon material-icons">assignment</i>
+          <div class="mdui-list-item-content">日志中心</div>
+        </a>
+        <a href="javascript:;" class="mdui-list-item mdui-ripple" data-page="groups">
+          <i class="mdui-list-item-icon mdui-icon material-icons">forum</i>
+          <div class="mdui-list-item-content">群聊工作台</div>
+        </a>
+      </div>
+      <div class="workspace-mobile-group-panel">
+        <div class="workspace-side-title">Group List</div>
+        <div class="mdui-textfield mdui-textfield-floating-label workspace-inline-textfield">
+          <label class="mdui-textfield-label">搜索群号 / 群名</label>
+          <input class="mdui-textfield-input" id="mobile-group-search-input" type="text">
+        </div>
+        <div class="mdui-list workspace-group-list" id="mobile-group-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="workspace-shell">
+    <aside class="workspace-sidebar">
+      <div class="workspace-rail">
+        <a href="javascript:;" class="workspace-rail-btn is-active" data-page="dashboard" mdui-tooltip="{content: '主页数据面板', position: 'right'}">
+          <i class="mdui-icon material-icons">dashboard</i>
+        </a>
+        <a href="javascript:;" class="workspace-rail-btn" data-page="logs" mdui-tooltip="{content: '日志中心', position: 'right'}">
+          <i class="mdui-icon material-icons">assignment</i>
+        </a>
+        <a href="javascript:;" class="workspace-rail-btn" data-page="groups" mdui-tooltip="{content: '群聊工作台', position: 'right'}">
+          <i class="mdui-icon material-icons">forum</i>
+        </a>
+        <div class="workspace-rail-spacer"></div>
+        <a href="javascript:;" class="workspace-rail-btn" id="sidebar-settings-btn" mdui-tooltip="{content: '设置 Token', position: 'right'}">
+          <i class="mdui-icon material-icons">settings</i>
+        </a>
+      </div>
+
+      <div class="workspace-group-panel">
+        <div class="workspace-group-panel-header">
+          <div>
+            <div class="workspace-side-title">Group List</div>
+            <div class="workspace-side-subtitle" id="group-panel-meta">等待加载群列表…</div>
+          </div>
+          <a href="javascript:;" class="mdui-btn mdui-btn-icon" id="refresh-groups-btn">
+            <i class="mdui-icon material-icons">refresh</i>
+          </a>
+        </div>
+        <div class="mdui-textfield mdui-textfield-floating-label workspace-inline-textfield">
+          <label class="mdui-textfield-label">搜索群号 / 群名</label>
+          <input class="mdui-textfield-input" id="group-search-input" type="text">
+        </div>
+        <div class="workspace-inline-hint" id="group-status-box">等待加载群列表…</div>
+        <div class="mdui-list workspace-group-list" id="desktop-group-list"></div>
+      </div>
+    </aside>
+
+    <main class="workspace-main">
+      <section class="workspace-page is-active" data-page="dashboard">
+        <div class="workspace-page-head">
+          <div>
+            <h1 class="workspace-page-title">主页数据面板</h1>
+            <div class="workspace-page-description">基于插件聚合 API 与 NapCat 扩展接口的总览工作台</div>
+          </div>
+          <div class="workspace-page-tools">
+            <span class="workspace-inline-hint" id="dashboard-generated-at">尚未生成</span>
+          </div>
+        </div>
+
+        <div class="mdui-row" id="dashboard-metrics"></div>
+
+        <div class="mdui-row">
+          <div class="mdui-col-xs-12 mdui-col-lg-7">
+            <div class="mdui-card workspace-card">
+              <div class="mdui-card-primary workspace-card-primary">
+                <div class="mdui-card-primary-title">7 日消息量趋势</div>
+                <div class="mdui-card-primary-subtitle">聚合各群每日消息量，直接驱动首页折线图</div>
+              </div>
+              <div class="mdui-card-content">
+                <div class="workspace-chart" id="trend-chart"></div>
+                <div class="workspace-inline-hint" id="trend-status-box">等待加载趋势数据…</div>
+              </div>
+            </div>
+          </div>
+          <div class="mdui-col-xs-12 mdui-col-lg-5">
+            <div class="mdui-card workspace-card">
+              <div class="mdui-card-primary workspace-card-primary">
+                <div class="mdui-card-primary-title">日志级别分布</div>
+                <div class="mdui-card-primary-subtitle">以运行日志与插件错误聚合结果生成环图</div>
+              </div>
+              <div class="mdui-card-content">
+                <div class="workspace-donut-wrap" id="logs-donut"></div>
+                <div class="workspace-inline-hint" id="logs-overview-status">等待加载日志概览…</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mdui-row">
+          <div class="mdui-col-xs-12 mdui-col-lg-6">
+            <div class="mdui-card workspace-card">
+              <div class="mdui-card-primary workspace-card-primary">
+                <div class="mdui-card-primary-title">最近活跃群组</div>
+                <div class="mdui-card-primary-subtitle">按照今日消息量排序，便于快速切入群工作台</div>
+              </div>
+              <div class="mdui-card-content">
+                <div class="workspace-ranked-list" id="top-group-list"></div>
+              </div>
+            </div>
+          </div>
+          <div class="mdui-col-xs-12 mdui-col-lg-6">
+            <div class="mdui-card workspace-card">
+              <div class="mdui-card-primary workspace-card-primary">
+                <div class="mdui-card-primary-title">最近日志事件</div>
+                <div class="mdui-card-primary-subtitle">直接复用日志 API 的最新分页数据</div>
+              </div>
+              <div class="mdui-card-content">
+                <div class="workspace-event-list" id="recent-log-list"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mdui-row">
+          <div class="mdui-col-xs-12 mdui-col-lg-4">
+            <div class="mdui-card workspace-card">
+              <div class="mdui-card-primary workspace-card-primary">
+                <div class="mdui-card-primary-title">Bot 账号概览</div>
+                <div class="mdui-card-primary-subtitle">来自登录信息、状态与在线客户端列表</div>
+              </div>
+              <div class="mdui-card-content" id="account-overview-box"></div>
+            </div>
+          </div>
+          <div class="mdui-col-xs-12 mdui-col-lg-8">
+            <div class="mdui-card workspace-card">
+              <div class="mdui-card-primary workspace-card-primary">
+                <div class="mdui-card-primary-title">最近会话</div>
+                <div class="mdui-card-primary-subtitle">基于 NapCat 的 recent contact 扩展接口渲染</div>
+              </div>
+              <div class="mdui-card-content">
+                <div class="workspace-contact-list" id="recent-contact-list"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="workspace-page" data-page="logs">
+        <div class="workspace-page-head">
+          <div>
+            <h1 class="workspace-page-title">日志中心</h1>
+            <div class="workspace-page-description">按级别、关键字与来源筛选日志，布局参考概念图但数据来源全部按 API 来</div>
+          </div>
+          <div class="workspace-page-tools">
+            <a href="javascript:;" class="mdui-btn mdui-btn-raised mdui-ripple" id="refresh-logs-btn">
+              <i class="mdui-icon material-icons mdui-icon-left">refresh</i>刷新日志
+            </a>
+          </div>
+        </div>
+
+        <div class="mdui-card workspace-card">
+          <div class="mdui-card-content">
+            <div class="workspace-filter-bar">
+              <div class="workspace-chip-row" id="log-level-filter"></div>
+              <div class="mdui-textfield workspace-search-box">
+                <i class="mdui-icon material-icons">search</i>
+                <input class="mdui-textfield-input" id="logs-search-input" type="text" placeholder="搜索关键字、模块名、群号">
+              </div>
+            </div>
+            <div class="workspace-inline-hint" id="logs-status-box">等待加载日志…</div>
+            <div class="workspace-log-console" id="logs-console-list"></div>
+            <div class="workspace-pagination-bar">
+              <span id="logs-pagination-info">第 1 页</span>
+              <div class="workspace-page-tools">
+                <a href="javascript:;" class="mdui-btn mdui-btn-icon" id="logs-prev-btn"><i class="mdui-icon material-icons">chevron_left</i></a>
+                <a href="javascript:;" class="mdui-btn mdui-btn-icon" id="logs-next-btn"><i class="mdui-icon material-icons">chevron_right</i></a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="workspace-page" data-page="groups">
+        <div class="workspace-page-head">
+          <div>
+            <h1 class="workspace-page-title" id="group-title">群聊工作台</h1>
+            <div class="workspace-page-description" id="group-subtitle">请先从左侧选择一个群组</div>
+          </div>
+          <div class="workspace-page-tools">
+            <a href="javascript:;" class="mdui-btn mdui-btn-raised mdui-ripple" id="refresh-group-workspace-btn">
+              <i class="mdui-icon material-icons mdui-icon-left">refresh</i>刷新当前群
+            </a>
+          </div>
+        </div>
+
+        <div class="mdui-row" id="group-metrics"></div>
+
+        <div class="mdui-row">
+          <div class="mdui-col-xs-12 mdui-col-lg-8">
+            <div class="mdui-card workspace-card workspace-chat-card">
+              <div class="mdui-card-primary workspace-card-primary">
+                <div class="mdui-card-primary-title">消息流</div>
+                <div class="mdui-card-primary-subtitle">优先使用 ORM，未开启时自动降级为 NapCat 历史消息 / 文本记录</div>
+              </div>
+              <div class="mdui-card-content">
+                <div class="workspace-toolbar-row">
+                  <div class="workspace-inline-hint" id="chat-status-box">等待选择群…</div>
+                  <div class="workspace-page-tools">
+                    <a href="javascript:;" class="mdui-btn workspace-btn-outline mdui-ripple" id="load-older-messages-btn">加载更早消息</a>
+                    <a href="javascript:;" class="mdui-btn workspace-btn-outline mdui-ripple" id="reload-latest-messages-btn">回到最新</a>
+                  </div>
+                </div>
+                <div class="workspace-chat-stream" id="chat-message-list"></div>
+                <div class="workspace-composer">
+                  <div class="mdui-textfield workspace-composer-input">
+                    <textarea class="mdui-textfield-input" id="group-message-input" rows="3" placeholder="输入要发送到当前群的消息"></textarea>
+                  </div>
+                  <a href="javascript:;" class="mdui-btn mdui-color-theme-accent mdui-ripple" id="send-group-message-btn">
+                    <i class="mdui-icon material-icons mdui-icon-left">send</i>发送
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            <div class="mdui-card workspace-card">
+              <div class="mdui-card-primary workspace-card-primary">
+                <div class="mdui-card-primary-title">群内资源</div>
+                <div class="mdui-card-primary-subtitle">公告、文件、精华和荣誉都来自扩展后的群工作台接口</div>
+              </div>
+              <div class="mdui-card-content">
+                <div class="mdui-tab mdui-tab-full-width" mdui-tab id="group-resource-tabs">
+                  <a href="#resource-tab-announcements">公告</a>
+                  <a href="#resource-tab-files">文件</a>
+                  <a href="#resource-tab-essence">精华</a>
+                  <a href="#resource-tab-honors">荣誉</a>
+                </div>
+                <div id="resource-tab-announcements" class="workspace-tab-panel">
+                  <div class="workspace-card-stack" id="announcement-list"></div>
+                </div>
+                <div id="resource-tab-files" class="workspace-tab-panel">
+                  <div id="file-system-summary"></div>
+                  <div class="mdui-table-fluid workspace-table-wrap">
+                    <table class="mdui-table mdui-table-hoverable">
+                      <thead>
+                        <tr>
+                          <th>文件名</th>
+                          <th>大小</th>
+                          <th>上传者</th>
+                          <th>上传时间</th>
+                        </tr>
+                      </thead>
+                      <tbody id="group-file-table-body"></tbody>
+                    </table>
+                  </div>
+                </div>
+                <div id="resource-tab-essence" class="workspace-tab-panel">
+                  <div class="workspace-card-stack" id="essence-list"></div>
+                </div>
+                <div id="resource-tab-honors" class="workspace-tab-panel">
+                  <div class="workspace-card-stack" id="honor-list"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="mdui-col-xs-12 mdui-col-lg-4">
+            <div class="mdui-card workspace-card">
+              <div class="mdui-card-primary workspace-card-primary">
+                <div class="mdui-card-primary-title">Operations &amp; Members</div>
+                <div class="mdui-card-primary-subtitle">右侧操作区按照 Bot 能力、功能开关和成员动作来组织</div>
+              </div>
+              <div class="mdui-card-content">
+                <div id="bot-profile-box"></div>
+                <div class="workspace-divider"></div>
+                <div class="workspace-subtitle">功能开关</div>
+                <div class="workspace-switch-list" id="feature-switch-list"></div>
+                <div class="workspace-divider"></div>
+                <div class="workspace-subtitle">群级动作</div>
+                <div class="workspace-switch-row">
+                  <span>全员禁言</span>
+                  <label class="mdui-switch">
+                    <input type="checkbox" id="whole-ban-toggle-input">
+                    <i class="mdui-switch-icon"></i>
+                  </label>
+                </div>
+                <div class="workspace-page-tools workspace-page-tools-wrap">
+                  <a href="javascript:;" class="mdui-btn workspace-btn-outline mdui-ripple" id="mark-read-btn">标记已读</a>
+                </div>
+                <div class="workspace-inline-hint" id="group-actions-status">等待选择群…</div>
+                <div class="workspace-divider"></div>
+                <div class="workspace-subtitle">选中成员</div>
+                <div id="selected-member-box" class="workspace-selected-member empty">请从下方列表中选择成员</div>
+                <div class="mdui-textfield workspace-inline-textfield">
+                  <label class="mdui-textfield-label">禁言时长（秒）</label>
+                  <input class="mdui-textfield-input" id="mute-duration-input" type="number" min="0" value="600">
+                </div>
+                <div class="mdui-textfield workspace-inline-textfield">
+                  <label class="mdui-textfield-label">设置专属头衔</label>
+                  <input class="mdui-textfield-input" id="special-title-input" type="text" placeholder="留空可清空头衔">
+                </div>
+                <div class="workspace-page-tools workspace-page-tools-wrap">
+                  <a href="javascript:;" class="mdui-btn mdui-btn-raised mdui-ripple" id="mute-member-btn">禁言</a>
+                  <a href="javascript:;" class="mdui-btn mdui-btn-raised mdui-ripple" id="set-title-btn">头衔</a>
+                  <a href="javascript:;" class="mdui-btn mdui-color-red-a200 mdui-ripple" id="kick-member-btn">踢出</a>
+                </div>
+              </div>
+            </div>
+
+            <div class="mdui-card workspace-card">
+              <div class="mdui-card-primary workspace-card-primary">
+                <div class="mdui-card-primary-title">Group Members</div>
+                <div class="mdui-card-primary-subtitle">角色优先排序，支持关键词过滤与点击选中</div>
+              </div>
+              <div class="mdui-card-content">
+                <div class="mdui-textfield workspace-inline-textfield">
+                  <label class="mdui-textfield-label">搜索成员昵称 / QQ / 名片</label>
+                  <input class="mdui-textfield-input" id="group-member-search-input" type="text">
+                </div>
+                <div class="workspace-inline-hint" id="member-status-box">等待选择群…</div>
+                <div class="mdui-list workspace-member-list" id="group-member-list"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="mdui-dialog" id="token-dialog">
+    <div class="mdui-dialog-title">设置 X-Admin-Token</div>
+    <div class="mdui-dialog-content">
+      <div class="mdui-textfield mdui-textfield-floating-label">
+        <label class="mdui-textfield-label">X-Admin-Token</label>
+        <input class="mdui-textfield-input" id="token-input" type="text" placeholder="若 API 开启鉴权，请在这里输入 Token">
+      </div>
+      <div class="workspace-inline-hint" id="token-hint-box">Token 仅保存在当前会话中，关闭浏览器或超过24小时后需重新输入。</div>
+    </div>
+    <div class="mdui-dialog-actions">
+      <a href="javascript:;" class="mdui-btn mdui-ripple" id="clear-token-btn">清除</a>
+      <a href="javascript:;" class="mdui-btn mdui-ripple" mdui-dialog-close>取消</a>
+      <a href="javascript:;" class="mdui-btn mdui-color-theme-accent mdui-ripple" id="save-token-btn">保存并刷新</a>
+    </div>
+  </div>
+
+  <script>
+    window.ADMIN_DASHBOARD_BOOTSTRAP = __ADMIN_DASHBOARD_BOOTSTRAP__;
+  </script>
+  <script src="https://unpkg.com/mdui@1.0.2/dist/js/mdui.min.js"></script>
+  <script src="__ADMIN_DASHBOARD_STATIC_PREFIX__/dashboard.js"></script>
+</body>
+</html>

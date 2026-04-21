@@ -1,0 +1,25 @@
+{
+  "name": "admin-web",
+  "private": true,
+  "version": "0.2.0",
+  "type": "module",
+  "description": "NoneBot2 admin dashboard frontend built with Vue 3, MDUI v1 and ECharts",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "echarts": "^6.0.0",
+    "mdui": "1.0.2",
+    "vue": "3.5.32",
+    "vue-echarts": "8.0.1"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "5.2.4",
+    "vite": "5.4.21"
+  },
+  "optionalDependencies": {
+    "@rollup/rollup-win32-x64-msvc": "^4.60.2"
+  }
+}

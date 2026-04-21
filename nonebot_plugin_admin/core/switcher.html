@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{ gid }} 开关状态</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --page-bg: linear-gradient(135deg, #f0f4f8 0%, #e8eff5 50%, #f5f0e8 100%);
+      --card-bg: rgba(255, 255, 255, 0.97);
+      --card-border: rgba(28, 55, 78, 0.08);
+      --text-main: #1a2b3c;
+      --text-muted: #5e7080;
+      --section-bg: rgba(240, 245, 250, 0.7);
+      --section-border: rgba(28, 55, 78, 0.06);
+      --shadow: 0 20px 50px rgba(20, 40, 60, 0.10);
+      --accent: #1a73e8;
+      --switch-on: #1a73e8;
+      --switch-off: #c4c9cf;
+      --switch-thumb: #fff;
+      --on-bg: rgba(26, 115, 232, 0.08);
+      --off-bg: rgba(0, 0, 0, 0.03);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      min-height: 100vh;
+      padding: 24px;
+      background: var(--page-bg);
+      color: var(--text-main);
+      font-family: "Microsoft YaHei", "PingFang SC", "Noto Sans SC", sans-serif;
+      text-rendering: geometricPrecision;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .switcher-card {
+      max-width: 560px;
+      border-radius: 20px;
+      border: 1px solid var(--card-border);
+      background: var(--card-bg);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .header {
+      padding: 22px 24px 16px;
+      background:
+        radial-gradient(circle at top left, rgba(26, 115, 232, 0.10), transparent 40%),
+        radial-gradient(circle at top right, rgba(232, 168, 56, 0.08), transparent 40%);
+      border-bottom: 1px solid var(--card-border);
+    }
+
+    .header h1 {
+      font-size: 26px;
+      font-weight: 700;
+      line-height: 1.3;
+    }
+
+    .header p {
+      margin-top: 6px;
+      font-size: 14px;
+      line-height: 1.6;
+      color: var(--text-muted);
+    }
+
+    .switch-list {
+      padding: 8px 0;
+    }
+
+    .switch-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 24px;
+      transition: background 0.15s;
+      gap: 12px;
+    }
+
+    .switch-row:hover {
+      background: rgba(26, 115, 232, 0.03);
+    }
+
+    .switch-row + .switch-row {
+      border-top: 1px solid var(--section-border);
+    }
+
+    .func-info {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .func-name {
+      font-size: 17px;
+      font-weight: 600;
+      line-height: 1.5;
+    }
+
+    .func-aliases {
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    .mdui-switch {
+      position: relative;
+      display: inline-block;
+      width: 48px;
+      height: 26px;
+      flex-shrink: 0;
+    }
+
+    .mdui-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .mdui-switch .track {
+      position: absolute;
+      cursor: pointer;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: var(--switch-off);
+      border-radius: 13px;
+      transition: background-color 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .mdui-switch .track::before {
+      content: "";
+      position: absolute;
+      height: 20px;
+      width: 20px;
+      left: 3px;
+      bottom: 3px;
+      background-color: var(--switch-thumb);
+      border-radius: 50%;
+      transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+    }
+
+    .mdui-switch input:checked + .track {
+      background-color: var(--switch-on);
+    }
+
+    .mdui-switch input:checked + .track::before {
+      transform: translateX(22px);
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 6px;
+      margin-left: 12px;
+      line-height: 1.5;
+    }
+
+    .status-on {
+      background: rgba(26, 115, 232, 0.10);
+      color: #1a73e8;
+    }
+
+    .status-off {
+      background: rgba(0, 0, 0, 0.05);
+      color: #9aa0a6;
+    }
+
+    .footer {
+      padding: 12px 24px;
+      border-top: 1px solid var(--card-border);
+      font-size: 13px;
+      color: var(--text-muted);
+      text-align: center;
+      line-height: 1.6;
+    }
+  </style>
+</head>
+<body>
+  <div class="switcher-card">
+    <header class="header">
+      <h1>功能开关</h1>
+      <p>发送【开关功能名】切换状态</p>
+    </header>
+
+    <div class="switch-list">
+    {% for key, value in funcs_status.items() %}
+      <div class="switch-row">
+        <div class="func-info">
+          <span class="func-name">{{ funcs_name[key][0] }}</span>
+          {% if funcs_name[key] | length > 1 %}
+          <span class="func-aliases">{{ funcs_name[key][1:] | join('、') }}</span>
+          {% endif %}
+        </div>
+        <div style="display:flex;align-items:center;">
+          {% if value %}
+          <span class="status-badge status-on">开启</span>
+          <label class="mdui-switch">
+            <input type="checkbox" checked disabled>
+            <span class="track"></span>
+          </label>
+          {% else %}
+          <span class="status-badge status-off">关闭</span>
+          <label class="mdui-switch">
+            <input type="checkbox" disabled>
+            <span class="track"></span>
+          </label>
+          {% endif %}
+        </div>
+      </div>
+    {% endfor %}
+    </div>
+
+    <footer class="footer">
+      发送【开关状态】查看本页 · 发送【群管菜单】查看所有命令
+    </footer>
+  </div>
+</body>
+</html>
