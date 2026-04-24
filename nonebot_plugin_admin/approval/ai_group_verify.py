@@ -97,8 +97,8 @@ async def _check_is_ad_bot(comment: str, custom_prompt: str = "") -> str:
     返回 "False" -> 可能是真人/无法确定（放行，交给人工处理）
     返回 "Agree" -> 确定是真人且符合条件（直接同意入群，仅自定义 prompt 下可能返回）
     """
-    if not comment:
-        return "True"
+    if not str(comment or "").strip():
+        return "False"
 
     if AsyncOpenAI is None or not AI_API_KEY:
         return "False"
@@ -238,9 +238,19 @@ async def _(bot: Bot, event: GroupRequestEvent, matcher: Matcher):
     if gid not in config or not config[gid].get("enabled", False):
         return
 
-    comment = event.comment
-    word_match = re.findall(re.compile("答案：(.*)"), comment)
-    actual_msg = word_match[0] if word_match else comment
+    comment = event.comment or ""
+    word_match = re.findall(re.compile(r"答案：?(.*)"), comment)
+    actual_msg = (word_match[0] if word_match else comment).strip()
+    if not actual_msg:
+        logger.info(f"群 {gid} [AI跳过] 加群验证消息为空，转交人工/后续逻辑。用户: {event.user_id}")
+        await record_oplog(
+            action="ai_approval",
+            group_id=gid,
+            user_id=str(event.user_id),
+            detail="AI跳过：加群验证消息为空，转交人工/后续逻辑",
+            extra={"result": "skipped_empty_comment", "comment": ""},
+        )
+        return
     custom_rule = config[gid].get("prompt", "")
 
     ai_result = await _check_is_ad_bot(actual_msg, custom_rule)
