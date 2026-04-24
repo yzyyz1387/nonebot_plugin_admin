@@ -14,10 +14,42 @@ from .html_snapshot import render_html_card_to_image
 from .path import *
 from .state_feedback import build_toggle_state_message
 from .utils import fi, log_fi
-from ..statistics.config_orm_store import orm_load_switcher, orm_save_switcher_group
+from ..statistics.config_orm_store import (
+    orm_load_ai_verify_config,
+    orm_load_switcher,
+    orm_save_ai_verify_config,
+    orm_save_switcher_group,
+)
 
 
 switcher = on_command('开关', priority=1, block=True, permission=SUPERUSER | GROUP_ADMIN | GROUP_OWNER)
+
+
+async def _load_ai_verify_enabled_fallbacks() -> dict[str, bool]:
+    """
+    加载旧AI审核启用状态
+    :return: dict[str, bool]
+    """
+    configs = await orm_load_ai_verify_config() or {}
+    return {
+        str(gid): bool(cfg.get("enabled", False))
+        for gid, cfg in configs.items()
+        if isinstance(cfg, dict)
+    }
+
+
+async def _sync_ai_verify_enabled(gid: str, enabled: bool) -> None:
+    """
+    同步AI审核旧配置启用状态
+    :param gid: 群号
+    :param enabled: 开关状态
+    :return: None
+    """
+    configs = await orm_load_ai_verify_config() or {}
+    prompt = ""
+    if isinstance(configs.get(str(gid)), dict):
+        prompt = str(configs[str(gid)].get("prompt", ""))
+    await orm_save_ai_verify_config(str(gid), bool(enabled), prompt)
 
 
 @switcher.handle()
@@ -83,7 +115,13 @@ async def _load_group_switcher(gid: str) -> dict:
     """
     group_data = dict(build_default_switchers())
     orm_data = await orm_load_switcher()
-    group_data.update(orm_data.get(gid, {}))
+    group_switches = orm_data.get(gid, {})
+    group_data.update(group_switches)
+    if AI_APPROVAL_SWITCH_KEY not in group_switches:
+        group_data[AI_APPROVAL_SWITCH_KEY] = (await _load_ai_verify_enabled_fallbacks()).get(
+            gid,
+            group_data[AI_APPROVAL_SWITCH_KEY],
+        )
     return group_data
 
 
@@ -109,14 +147,17 @@ async def switcher_integrity_check(bot: Bot):
     """
     g_list = await bot.get_group_list()
     orm_data = await orm_load_switcher()
+    ai_verify_fallbacks = await _load_ai_verify_enabled_fallbacks()
 
     for group in g_list:
         gid = str(group['group_id'])
         current = orm_data.get(gid, {})
-        normalized = {
-            func_name: bool(current.get(func_name, is_default_enabled(func_name)))
-            for func_name in admin_funcs
-        }
+        normalized = {}
+        for func_name in admin_funcs:
+            fallback = is_default_enabled(func_name)
+            if func_name == AI_APPROVAL_SWITCH_KEY:
+                fallback = ai_verify_fallbacks.get(gid, fallback)
+            normalized[func_name] = bool(current.get(func_name, fallback))
         if normalized != current:
             await orm_save_switcher_group(gid, normalized)
 
@@ -133,11 +174,14 @@ async def switcher_handle(gid, matcher, user_input_func_name):
         await fi(matcher, "请输入功能名，例如【开关消息记录】")
         return
 
+    normalized_input = user_input_func_name.casefold()
     for func in admin_funcs:
-        if user_input_func_name in admin_funcs[func]:
+        if normalized_input in [alias.casefold() for alias in admin_funcs[func]]:
             funcs_status = await _load_group_switcher(gid)
             funcs_status[func] = not funcs_status[func]
             await _save_group_switcher(gid, funcs_status)
+            if func == AI_APPROVAL_SWITCH_KEY:
+                await _sync_ai_verify_enabled(gid, funcs_status[func])
             display_name = get_func_display_name(func)
             await fi(
                 matcher,

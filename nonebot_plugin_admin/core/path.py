@@ -31,9 +31,12 @@ summary_path = config_path / "summary"
 kick_lock_path = config_path / "kick_lock"
 appr_bk = config_path / "加群验证信息黑名单.json"
 
+AI_APPROVAL_SWITCH_KEY = "ai_group_verify"
+
 admin_funcs = {
     "admin": ["管理", "踢", "禁", "撤", "基础群管"],
     "requests": ["审批", "加群审批", "加群", "自动审批"],
+    AI_APPROVAL_SWITCH_KEY: ["AI审批", "ai审批", "AI审核", "ai审核", "AI拒绝", "ai拒绝"],
     "wordcloud": ["群词云", "词云", "wordcloud"],
     "auto_ban": ["违禁词", "违禁词检测"],
     "img_check": ["图片检测", "图片鉴黄", "涩图检测", "色图检测"],
@@ -50,6 +53,7 @@ DEFAULT_DISABLED_FUNCS = frozenset(
     {
         "img_check",
         "auto_ban",
+        AI_APPROVAL_SWITCH_KEY,
         "group_msg",
         "particular_e_notice",
         "group_recall",
@@ -60,6 +64,7 @@ SILENT_DISABLED_NOTICE_FUNCS = frozenset(
     {
         "auto_ban",
         "img_check",
+        AI_APPROVAL_SWITCH_KEY,
         "particular_e_notice",
         "word_analyze",
         "group_recall",

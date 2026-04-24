@@ -356,6 +356,7 @@ async def run_checks():
         switcher_state = path_module.build_default_switchers()
         switcher_state.update(
             {
+                "ai_group_verify": True,
                 "auto_ban": True,
                 "img_check": True,
                 "particular_e_notice": True,
@@ -626,6 +627,10 @@ async def run_checks():
         feature_switch_group_payload = feature_switch_group_response.json()
         assert feature_switch_group_payload["enabled_count"] >= 1
         assert any(item["key"] == "admin" for item in feature_switch_group_payload["switches"])
+        assert any(
+            item["key"] == "ai_group_verify" and item["label"] == "AI审批" and item["enabled"]
+            for item in feature_switch_group_payload["switches"]
+        )
 
         toggle_feature_response = client.post(
             "/ops/api/groups/12345/feature-switches/admin",
@@ -634,6 +639,15 @@ async def run_checks():
         )
         assert toggle_feature_response.status_code == 200
         assert toggle_feature_response.json()["enabled"] is False
+
+        toggle_ai_feature_response = client.post(
+            "/ops/api/groups/12345/feature-switches/ai_group_verify",
+            headers=headers,
+            json={"enabled": False},
+        )
+        assert toggle_ai_feature_response.status_code == 200
+        assert toggle_ai_feature_response.json()["enabled"] is False
+        assert (await ai_verify_store.load_config())["12345"]["enabled"] is False
 
         bot_profile_response = client.get("/ops/api/groups/12345/bot-profile", headers=headers)
         assert bot_profile_response.status_code == 200

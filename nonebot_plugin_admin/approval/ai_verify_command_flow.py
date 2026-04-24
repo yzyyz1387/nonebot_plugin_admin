@@ -4,9 +4,9 @@ from nonebot.matcher import Matcher
 
 from . import ai_verify_store
 
-AI_VERIFY_ENABLED_TEXT = "本群 AI 自动拒绝广告账号功能已【开启】。"
-AI_VERIFY_DISABLED_TEXT = "本群 AI 自动拒绝广告账号功能已【关闭】。"
-AI_VERIFY_INVALID_TEXT = "指令错误，请发送：ai拒绝开 / ai拒绝关"
+AI_VERIFY_ENABLED_TEXT = "本群 AI审批已【开启】。"
+AI_VERIFY_DISABLED_TEXT = "本群 AI审批已【关闭】。"
+AI_VERIFY_INVALID_TEXT = "指令错误，请发送：开关AI审批 或 ai拒绝开 / ai拒绝关"
 AI_VERIFY_PROMPT_CLEARED_TEXT = "已清除自定义规则，仅拦截通用广告。"
 
 

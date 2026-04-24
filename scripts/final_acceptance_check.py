@@ -391,11 +391,13 @@ async def run_checks():
         switcher_12345 = await switcher_module._load_group_switcher("12345")
         assert switcher_12345["admin"] is False
         assert switcher_12345["requests"] is True
+        assert switcher_12345["ai_group_verify"] is True
         assert switcher_12345["img_check"] is True
         assert switcher_12345["group_recall"] is True
 
         switcher_34567 = await switcher_module._load_group_switcher("34567")
         assert switcher_34567["requests"] is False
+        assert switcher_34567["ai_group_verify"] is False
         assert switcher_34567["particular_e_notice"] is True
 
         assert await text_guard_flow.load_runtime_limit_rules() == [
