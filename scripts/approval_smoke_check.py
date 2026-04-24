@@ -850,6 +850,34 @@ async def run_checks():
         ai_config = await ai_verify_store.load_config()
         assert ai_config[gid]["enabled"] is True
         assert ai_config[gid]["prompt"] == "请填写来源"
+        assert await ai_group_verify._check_is_ad_bot("") == "False"
+
+        ai_called = False
+
+        async def _fail_if_ai_called(*args, **kwargs):
+            nonlocal ai_called
+            ai_called = True
+            raise AssertionError("空验证消息不应发起 AI 请求")
+
+        original_ai_checker = ai_group_verify._check_is_ad_bot
+        ai_group_verify._check_is_ad_bot = _fail_if_ai_called
+        try:
+            bot = FakeBot()
+            matcher = FakeMatcher()
+            await ai_group_verify._(
+                bot,
+                FakeGroupRequestEvent(
+                    group_id=int(gid),
+                    flag="flag-empty-ai-skip",
+                    user_id=20004,
+                    comment="",
+                ),
+                matcher,
+            )
+            assert ai_called is False
+            assert not bot.requests
+        finally:
+            ai_group_verify._check_is_ad_bot = original_ai_checker
 
         matcher = FakeMatcher()
         message = await capture_finish(
