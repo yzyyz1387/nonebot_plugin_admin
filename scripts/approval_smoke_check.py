@@ -368,6 +368,7 @@ async def run_checks():
         ai_verify_store = modules["ai_verify_store"]
         ai_verify_command_flow = modules["ai_verify_command_flow"]
         ai_group_verify = modules["ai_group_verify"]
+        switcher_module = modules["switcher"]
         notice = modules["notice"]
         requests = modules["requests"]
 
@@ -854,8 +855,13 @@ async def run_checks():
         message = await capture_finish(
             ai_verify_command_flow.handle_ai_switch_command(matcher, gid, "ai拒绝开")
         )
-        assert message == "本群 AI 自动拒绝广告账号功能已【开启】。"
+        assert message == "本群 AI审批已【开启】。"
         assert (await ai_verify_store.load_config())[gid]["enabled"] is True
+
+        matcher = FakeMatcher()
+        message = await capture_finish(switcher_module.switcher_handle(gid, matcher, "ai审批"))
+        assert "AI审批当前状态为：已关闭" in message
+        assert (await ai_verify_store.load_config())[gid]["enabled"] is False
 
         matcher = FakeMatcher()
         message = await capture_finish(

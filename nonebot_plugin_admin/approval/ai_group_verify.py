@@ -31,9 +31,9 @@ global_config = driver.config
 AI_API_KEY = getattr(global_config, "ai_verify_api_key", "")
 AI_BASE_URL = getattr(global_config, "ai_verify_base_url", "https://api.deepseek.com")
 AI_MODEL_NAME = getattr(global_config, "ai_verify_model", "deepseek-chat")
-AI_VERIFY_ENABLE_COMMAND = "ai拒绝开"
-AI_VERIFY_DISABLE_COMMAND = "ai拒绝关"
-AI_VERIFY_FEATURE_NAME = "AI 自动拒绝广告账号"
+AI_VERIFY_ENABLE_COMMAND = "开关AI审批"
+AI_VERIFY_DISABLE_COMMAND = "开关AI审批"
+AI_VERIFY_FEATURE_NAME = "AI审批"
 
 
 async def load_config() -> Dict:
@@ -196,7 +196,7 @@ async def _(event: GroupMessageEvent):
             )
         )
     else:
-        await ai_switch.finish("指令错误，请发送：ai拒绝开 / ai拒绝关")
+        await ai_switch.finish("指令错误，请发送：开关AI审批 或 ai拒绝开 / ai拒绝关")
 
 
 ai_prompt_set = on_command("ai拒绝prompt", priority=5, block=True, permission=SUPERUSER | GROUP_ADMIN | GROUP_OWNER)

@@ -678,7 +678,7 @@ async def _migrate_ai_verify_config(file_path: Path) -> MigrationResult:
     :param file_path: 文件路径
     :return: MigrationResult
     """
-    from ..statistics.config_orm_store import orm_save_ai_verify_config
+    from ..approval import ai_verify_store
     from ..statistics import models
 
     if not models.ORM_MODELS_AVAILABLE:
@@ -697,7 +697,14 @@ async def _migrate_ai_verify_config(file_path: Path) -> MigrationResult:
         if not isinstance(cfg, dict):
             continue
         try:
-            await orm_save_ai_verify_config(gid, cfg.get("enabled", False), cfg.get("prompt", ""))
+            await ai_verify_store.save_config(
+                {
+                    gid: {
+                        "enabled": cfg.get("enabled", False),
+                        "prompt": cfg.get("prompt", ""),
+                    }
+                }
+            )
             count += 1
         except Exception:
             pass

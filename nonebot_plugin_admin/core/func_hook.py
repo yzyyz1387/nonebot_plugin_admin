@@ -21,7 +21,7 @@ from nonebot.matcher import Matcher
 from nonebot.message import IgnoredException, run_preprocessor
 
 from .config import global_config, plugin_config
-from .path import admin_funcs, is_default_enabled
+from .path import AI_APPROVAL_SWITCH_KEY, admin_funcs, is_default_enabled
 from .switcher import switcher_integrity_check
 from ..statistics.config_orm_store import orm_load_switcher
 
@@ -63,6 +63,8 @@ async def _(matcher: Matcher, bot: Bot, event: Event):
         ),
     ):
         gid = str(event.group_id)
+        if which_module == AI_APPROVAL_SWITCH_KEY:
+            return
         try:
             if which_module in admin_funcs:
                 status = await check_func_status(which_module, gid)
@@ -79,7 +81,7 @@ async def _(matcher: Matcher, bot: Bot, event: Event):
         except ActionFailed:
             return
 
-    if isinstance(event, GroupRequestEvent) and which_module == 'requests':
+    if isinstance(event, GroupRequestEvent) and which_module in admin_funcs:
         gid = str(event.group_id)
         if event.sub_type != 'add':
             return
@@ -87,6 +89,12 @@ async def _(matcher: Matcher, bot: Bot, event: Event):
             status = await check_func_status(which_module, gid)
             if status:
                 return
+
+            if which_module != 'requests':
+                logger.info(
+                    f'群 {gid} 功能 {which_module} 已关闭，取消 matcher {module_name}'
+                )
+                raise IgnoredException('未开启此功能')
 
             logger.info(event.flag)
             notify_message = (

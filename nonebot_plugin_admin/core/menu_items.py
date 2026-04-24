@@ -31,7 +31,7 @@ def _register_all() -> None:
     _reg.register("审批管理", "分管+ @用户", "添加分群管理员", permission="管理员", aliases=["分管加"])
     _reg.register("审批管理", "分管- @用户", "移除分群管理员", permission="管理员", aliases=["分管减"])
     _reg.register("审批管理", "接收", "切换超管接收审批通知", permission="超管")
-    _reg.register("审批管理", "ai拒绝 开/关", "开关AI自动拒绝广告", permission="管理员")
+    _reg.register("审批管理", "开关AI审批", "开启/关闭AI审批", permission="管理员", aliases=["ai拒绝开", "ai拒绝关"])
     _reg.register("审批管理", "ai拒绝prompt 规则", "设置AI审核自定义规则", permission="管理员")
     _reg.register("审批管理", "请求 flag 同意/拒绝", "手动处理入群请求", permission="管理员")
 

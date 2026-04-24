@@ -12,10 +12,15 @@ from nonebot.adapters.onebot.v11 import Bot
 
 from ..broadcasting.broadcast_flow import fetch_group_catalog
 from ..core.config import plugin_config
-from ..core.path import build_default_switchers, get_func_display_name
+from ..core.path import AI_APPROVAL_SWITCH_KEY, build_default_switchers, get_func_display_name
 from .dashboard_oplog_service import record_oplog
 from ..statistics import models
-from ..statistics.config_orm_store import orm_load_switcher, orm_save_switcher_group
+from ..statistics.config_orm_store import (
+    orm_load_ai_verify_config,
+    orm_load_switcher,
+    orm_save_ai_verify_config,
+    orm_save_switcher_group,
+)
 from ..statistics.orm_bootstrap import ensure_statistics_orm_support
 from ..statistics.statistics_read_service import load_group_word_text_snapshot
 from ..statistics.statistics_store import is_group_record_enabled
@@ -1048,6 +1053,12 @@ async def set_group_feature_switch_action(group_id: int | str, switch_key: str, 
     group_switches.update(orm_snapshot.get(normalized_group_id, {}))
     group_switches[normalized_switch_key] = bool(enabled)
     await orm_save_switcher_group(normalized_group_id, group_switches)
+    if normalized_switch_key == AI_APPROVAL_SWITCH_KEY:
+        ai_configs = await orm_load_ai_verify_config() or {}
+        prompt = ""
+        if isinstance(ai_configs.get(normalized_group_id), dict):
+            prompt = str(ai_configs[normalized_group_id].get("prompt", ""))
+        await orm_save_ai_verify_config(normalized_group_id, bool(enabled), prompt)
     label = get_func_display_name(normalized_switch_key)
     await record_oplog(
         action="feature_switch",

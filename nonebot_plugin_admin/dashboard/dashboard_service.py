@@ -519,8 +519,13 @@ async def build_feature_switch_payload(group_id: int | str) -> list[dict[str, An
     normalized_group_id = normalize_group_id(group_id)
     switchers = dict(build_default_switchers())
     orm_snapshot = await orm_load_switcher()
+    group_switches = orm_snapshot.get(normalized_group_id, {})
     if normalized_group_id in orm_snapshot:
-        switchers.update(orm_snapshot[normalized_group_id])
+        switchers.update(group_switches)
+    if ai_verify_store.AI_APPROVAL_SWITCH_KEY not in group_switches:
+        ai_verify_config = (await ai_verify_store.load_config()).get(normalized_group_id, {})
+        if isinstance(ai_verify_config, dict) and ai_verify_config.get("enabled"):
+            switchers[ai_verify_store.AI_APPROVAL_SWITCH_KEY] = True
 
     return [
         {
@@ -1288,6 +1293,7 @@ async def build_group_approval_payload(group_id: int | str) -> dict[str, Any]:
     terms_by_group = await orm_load_approval_terms() or {}
     admins_by_group = await approval_store.g_admin_async()
     ai_verify_config = (await ai_verify_store.load_config()).get(normalized_group_id, {"enabled": False, "prompt": ""})
+    feature_switches = await build_feature_switch_payload(normalized_group_id)
     blacklist_terms = await approval_blacklist_store.get_group_blacklist(normalized_group_id)
     admin_ids = _normalize_member_ids(admins_by_group.get(normalized_group_id, []))
     admin_names = await fetch_member_display_names(normalized_group_id, admin_ids)
@@ -1303,7 +1309,7 @@ async def build_group_approval_payload(group_id: int | str) -> dict[str, Any]:
             for user_id in admin_ids
         ],
         "superuser_receive_enabled": str(admins_by_group.get("su", "True")) == "True",
-        "ai_verify_enabled": bool(ai_verify_config.get("enabled", False)),
+        "ai_verify_enabled": _is_switch_enabled(feature_switches, ai_verify_store.AI_APPROVAL_SWITCH_KEY),
         "ai_verify_prompt": str(ai_verify_config.get("prompt", "")),
     }
 
@@ -1317,16 +1323,20 @@ async def build_approval_overview_payload() -> dict[str, Any]:
     admins_by_group = await approval_store.g_admin_async()
     blacklist_by_group = await approval_blacklist_store.load_blacklist()
     ai_verify_config = await ai_verify_store.load_config()
-
-    ai_enabled_groups = sorted(
-        str(group_id)
-        for group_id, config in ai_verify_config.items()
-        if isinstance(config, dict) and config.get("enabled")
-    )
+    dashboard_group_ids = await collect_dashboard_group_ids()
+    ai_enabled_groups = [
+        group_id
+        for group_id in dashboard_group_ids
+        if _is_switch_enabled(
+            await build_feature_switch_payload(group_id),
+            ai_verify_store.AI_APPROVAL_SWITCH_KEY,
+        )
+    ]
 
     sample_group_ids = _sort_group_ids(
         set(str(group_id) for group_id in terms_by_group.keys())
         | set(str(group_id) for group_id in blacklist_by_group.keys())
+        | set(str(group_id) for group_id in ai_verify_config.keys())
         | set(ai_enabled_groups)
     )[:8]
 
