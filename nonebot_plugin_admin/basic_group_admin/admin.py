@@ -15,10 +15,45 @@ from nonebot.permission import SUPERUSER
 
 from .admin_role import DEPUTY_ADMIN
 from ..core.config import global_config
+from ..core.kick_event_store import pop_command_kick, remember_command_kick
 from ..core.message import msg_at, msg_reply, msg_text
 from ..core.utils import change_s_title, fi, log_fi, log_sd, mute_sb, sd
 
 su = global_config.superusers
+
+
+def _sender_name(event: GroupMessageEvent) -> str:
+    sender = event.sender
+    return str(getattr(sender, "card", "") or getattr(sender, "nickname", "") or event.user_id)
+
+
+async def _member_name(bot: Bot, group_id: int, user_id: int) -> str:
+    try:
+        member = await bot.get_group_member_info(group_id=group_id, user_id=user_id)
+        return str(member.get("card") or member.get("nickname") or user_id)
+    except Exception:
+        return str(user_id)
+
+
+async def _record_command_kick(event: GroupMessageEvent, target_id: int, target_name: str, *, reject_add_request: bool) -> None:
+    operator_name = _sender_name(event)
+    black_suffix = "并拉黑" if reject_add_request else ""
+    try:
+        from ..dashboard.dashboard_oplog_service import record_oplog
+
+        await record_oplog(
+            action="kick_member",
+            group_id=event.group_id,
+            user_id=event.user_id,
+            detail=f"{operator_name} 给 {target_name} 送上的 3个 飞机{black_suffix}，QQ: {target_id}",
+            extra={
+                "operator_id": str(event.user_id),
+                "target_id": str(target_id),
+                "reject_add_request": reject_add_request,
+            },
+        )
+    except Exception:
+        pass
 
 ban = on_command("禁", priority=2, block=True, permission=SUPERUSER | GROUP_ADMIN | GROUP_OWNER | DEPUTY_ADMIN)
 
@@ -138,7 +173,15 @@ async def _(bot: Bot, matcher: Matcher, event: GroupMessageEvent, sb: list = Dep
             if qq in su or str(qq) in su:
                 await sd(matcher, "超级用户不能被踢")
                 continue
-            await bot.set_group_kick(group_id=event.group_id, user_id=int(qq), reject_add_request=False)
+            target_id = int(qq)
+            target_name = await _member_name(bot, event.group_id, target_id)
+            remember_command_kick(event.group_id, target_id, event.user_id, reject_add_request=False)
+            try:
+                await bot.set_group_kick(group_id=event.group_id, user_id=target_id, reject_add_request=False)
+            except ActionFailed:
+                pop_command_kick(event.group_id, target_id)
+                raise
+            await _record_command_kick(event, target_id, target_name, reject_add_request=False)
         await log_fi(matcher, "踢人操作执行完毕")
     except ActionFailed:
         await fi(matcher, "权限不足")
@@ -159,7 +202,15 @@ async def _(bot: Bot, matcher: Matcher, event: GroupMessageEvent, sb: list = Dep
             if qq in su or str(qq) in su:
                 await sd(matcher, "超级用户不能被踢")
                 continue
-            await bot.set_group_kick(group_id=event.group_id, user_id=int(qq), reject_add_request=True)
+            target_id = int(qq)
+            target_name = await _member_name(bot, event.group_id, target_id)
+            remember_command_kick(event.group_id, target_id, event.user_id, reject_add_request=True)
+            try:
+                await bot.set_group_kick(group_id=event.group_id, user_id=target_id, reject_add_request=True)
+            except ActionFailed:
+                pop_command_kick(event.group_id, target_id)
+                raise
+            await _record_command_kick(event, target_id, target_name, reject_add_request=True)
         await log_fi(matcher, "踢人并拉黑操作执行完毕")
     except ActionFailed:
         await fi(matcher, "权限不足")

@@ -82,10 +82,14 @@ def patch_paths(modules: dict, temp_root: Path):
 class FakeCleanupBot:
     def __init__(self):
         self.kicks = []
-        self.stranger_levels = {20001: 1, 20002: 0, 20003: 4}
+        self.member_infos = {
+            20001: {"level": "1", "qq_level": 16, "last_sent_time": 0},
+            20002: {"level": "0", "qq_level": 0, "last_sent_time": 172800},
+            20003: {"level": "4", "qq_level": 108, "last_sent_time": 259200},
+        }
 
-    async def get_stranger_info(self, user_id: int, no_cache: bool = True):
-        return {"level": self.stranger_levels[user_id]}
+    async def get_group_member_info(self, group_id: int, user_id: int, no_cache: bool = True):
+        return self.member_infos[user_id]
 
     async def set_group_kick(self, group_id: int, user_id: int):
         self.kicks.append((group_id, user_id))
@@ -124,13 +128,18 @@ async def run_checks():
 
         assert flow.should_cancel("取消") is True
         assert flow.should_cancel("继续") is False
-        assert flow.build_category_prompt("1").startswith("等级")
-        assert flow.build_category_prompt("2").startswith("最后发言时间")
+        assert flow.build_category_prompt("1").startswith("群聊等级")
+        assert flow.build_category_prompt("2").startswith("QQ等级")
+        assert "⭐=1，🌙=4，☀️=16" in flow.build_category_prompt("2")
+        assert flow.build_category_prompt("3").startswith("最后发言时间")
 
         levels = {20001: 1, 20002: 0, 20003: 4}
         kick_list, zero_list = flow.filter_members_by_level(levels, 2)
         assert kick_list == [20001]
         assert zero_list == [20002]
+        group_kick_list, group_zero_list = flow.filter_members_by_level(levels, 2, include_zero=True)
+        assert group_kick_list == [20001, 20002]
+        assert group_zero_list == []
         assert "20002" in flow.build_zero_level_notice(zero_list)
 
         last_sent_map = {20001: 0, 20002: 172800}
@@ -138,10 +147,42 @@ async def run_checks():
         assert flow.filter_members_by_last_sent(last_sent_map, parsed_date) == [20001]
         assert flow.should_abort_for_remaining(5, 2) is True
         assert flow.should_abort_for_remaining(8, 2) is False
+        member_list = [
+            {"user_id": 10000, "role": "owner", "is_robot": False},
+            {"user_id": 10001, "role": "admin", "is_robot": False},
+            {"user_id": 10002, "role": "member", "is_robot": True},
+            {"user_id": 10003, "role": "member", "is_robot": False},
+            {"user_id": 10004, "role": "member", "is_robot": False},
+        ]
+        assert flow.build_protected_member_ids(member_list, 10002, [10003]) == {"10000", "10001", "10002", "10003"}
+        assert flow.get_targetable_member_ids(member_list, 10002, [10003]) == [10004]
+        assert flow.parse_cleanup_exclusions("1,3", 4) == [1, 3]
+        assert flow.parse_cleanup_exclusions("１，３", 4) == [1, 3]
+        assert flow.parse_cleanup_exclusions("0", 4) == []
+        assert flow.parse_cleanup_exclusions("5", 4) is None
+        assert flow.parse_cleanup_exclusions("abc", 4) is None
 
         fake_bot = FakeCleanupBot()
-        levels = await flow.get_member_levels(fake_bot, [20001, 20002, 20003])
+        progress = []
+
+        async def record_progress(done: int, total: int):
+            progress.append((done, total))
+
+        infos = await flow.get_member_info_map(
+            fake_bot,
+            12345,
+            [20001, 20002, 20003],
+            progress_callback=record_progress,
+            progress_interval=0,
+        )
+        assert set(infos) == {20001, 20002, 20003}
+        assert progress == [(1, 3), (2, 3), (3, 3)]
+        levels = await flow.get_member_levels(fake_bot, 12345, [20001, 20002, 20003], level_keys=flow.GROUP_LEVEL_KEYS, level_name="群聊等级")
         assert levels == {20001: 1, 20002: 0, 20003: 4}
+        qq_levels = await flow.get_member_levels(fake_bot, 12345, [20001, 20002, 20003], level_keys=flow.QQ_LEVEL_KEYS, level_name="QQ等级")
+        assert qq_levels == {20001: 16, 20002: 0, 20003: 108}
+        last_sent = await flow.get_member_last_sent_times(fake_bot, 12345, [20001, 20002, 20003])
+        assert last_sent == {20001: 0, 20002: 172800, 20003: 259200}
 
         success, fail = await flow.execute_member_cleanup(
             fake_bot,
@@ -155,8 +196,64 @@ async def run_checks():
         assert fail == []
         assert fake_bot.kicks == [(12345, 20001), (12345, 20003)]
 
-        preview = flow.build_cleanup_preview([20001], "1", {20001: 1})
+        preview = flow.build_cleanup_preview([20001], "1", {20001: 1}, "2")
         assert "20001" in preview
+        html = cleanup._build_cleanup_members_html(
+            [20001, 20002, 20003],
+            {
+                20001: {"level": "56", "title": "群主头衔", "role": "owner", "nickname": "owner"},
+                20002: {"level": "47", "title": "管理头衔", "role": "admin", "nickname": "admin"},
+                20003: {"level": "3", "title": "成员头衔", "role": "member", "nickname": "member"},
+            },
+        )
+        assert 'badge owner' in html and "LV56 群主头衔" in html
+        assert 'badge admin' in html and "LV47 管理头衔" in html
+        assert 'badge member' in html and "LV3 成员头衔" in html
+        default_title_html = cleanup._build_cleanup_members_html(
+            [20001, 20002],
+            {
+                20001: {"level": "56", "role": "owner", "nickname": "owner"},
+                20002: {"level": "47", "role": "admin", "nickname": "admin"},
+            },
+        )
+        assert "LV56 群主" in default_title_html
+        assert "LV47 管理员" in default_title_html
+        preview_ids = cleanup._pick_member_preview_ids(
+            [
+                {"user_id": 1},
+                {"user_id": 2},
+                {"user_id": 3},
+                {"user_id": 4},
+            ],
+            {
+                1: {"role": "member", "title": ""},
+                2: {"role": "admin", "title": ""},
+                3: {"role": "member", "title": "头衔"},
+                4: {"role": "member", "title": ""},
+            },
+            limit=3,
+        )
+        assert preview_ids == [2, 3, 1]
+        merged_infos = cleanup._merge_member_list_infos(
+            [
+                {"user_id": 1, "role": "admin", "nickname": "admin-from-list"},
+                {"user_id": 2, "role": "owner", "nickname": "owner-from-list"},
+                {"user_id": 3, "role": "admin", "nickname": "admin2-from-list"},
+                {"user_id": 4, "role": "member", "nickname": "member-from-list"},
+            ],
+            {
+                1: {"role": "member", "nickname": "admin-from-info"},
+                2: {"role": "admin", "nickname": "owner-from-info"},
+                4: {"role": "member", "title": "头衔"},
+            },
+        )
+        assert merged_infos[2]["role"] == "owner"
+        assert merged_infos[3]["role"] == "admin"
+        assert cleanup._pick_member_preview_ids(
+            [{"user_id": 1}, {"user_id": 2}, {"user_id": 3}, {"user_id": 4}],
+            merged_infos,
+            limit=4,
+        ) == [2, 1, 3, 4]
 
         assert_matcher_registered(cleanup.kick_by_rule, matcher_type="message", priority=2, block=True, module_suffix="kick_member_by_rule")
         assert_matcher_registered(cleanup.delete_lock_manually, matcher_type="message", priority=2, block=True, module_suffix="kick_member_by_rule")
