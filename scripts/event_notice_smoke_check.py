@@ -404,6 +404,7 @@ async def run_checks():
     assert resolve_bot.get_msg_calls == [39999]
 
     bot = FakeNoticeBot()
+    kick_event_store = sys.modules[f"{PKG_NAME}.core.kick_event_store"]
     poke_event = build_poke_event()
     honor_event = build_honor_event("performer", 20001)
     upload_event = build_upload_event()
@@ -427,15 +428,25 @@ async def run_checks():
     assert await event_notice_flow.build_honor_message(bot, build_honor_event("unknown", 20001)) == ""
 
     decrease_message = await event_notice_flow.build_member_decrease_message(bot, decrease_event)
-    assert "送走了" in str(decrease_message)
+    assert "送上的 3个 飞机" in str(decrease_message)
+    assert "管理甲 给 小明" in str(decrease_message)
     assert "小明" in str(decrease_message)
+    assert "QQ: 20001" in str(decrease_message)
     assert "q4.qlogo.cn" in str(decrease_message)
 
+    kick_event_store.remember_command_kick(12345, 20001, 20003, reject_add_request=True)
+    command_kick_message = await event_notice_flow.build_member_decrease_message(bot, build_decrease_event(10000, 20001))
+    assert "小红 给 小明" in str(command_kick_message)
+    assert "并拉黑" in str(command_kick_message)
+    assert "QQ: 20001" in str(command_kick_message)
+
     leave_message = await event_notice_flow.build_member_decrease_message(bot, build_decrease_event(20001, 20001, "leave"))
-    assert "离开了本群" in str(leave_message)
+    assert "离开了我们 ..." in str(leave_message)
+    assert "QQ: 20001" in str(leave_message)
+    assert "q4.qlogo.cn" in str(leave_message)
 
     increase_message = await event_notice_flow.build_member_increase_message(bot, increase_event)
-    assert "欢迎" in str(increase_message)
+    assert "小红(小红)加入本群，QQ: 20003. 欢迎 小红" in str(increase_message)
     assert "q4.qlogo.cn" in str(increase_message)
 
     assert await event_notice_flow.build_admin_change_message(bot, build_admin_event(20001, "set")) == "管理员变动\n恭喜 小明 成为管理员"
