@@ -1,15 +1,19 @@
 from __future__ import annotations
 
+import asyncio
 import datetime as dt
 import re
-from collections import deque
 from pathlib import Path
 from typing import Any
 
 from ..core import path as admin_path
 from ..core.config import plugin_config
 from ..core.utils import json_load_or_default
-from .dashboard_oplog_service import load_oplog_entries, _is_oplog_available
+from .dashboard_oplog_service import (
+    _is_oplog_available,
+    build_oplog_overview_payload,
+    load_oplog_entries,
+)
 
 LOG_LEVELS = ("ERROR", "WARNING", "INFO", "SUCCESS", "DEBUG")
 LOG_LINE_PATTERN = re.compile(
@@ -55,8 +59,19 @@ def _tail_lines(path: Path, *, limit: int = 600) -> list[str]:
     """
     if not path.exists() or not path.is_file():
         return []
-    with path.open("r", encoding="utf-8", errors="ignore") as file:
-        return list(deque(file, maxlen=max(limit, 1)))
+    target = max(limit, 1)
+    with path.open("rb") as file:
+        position = file.seek(0, 2)
+        chunks: list[bytes] = []
+        newline_count = 0
+        while position > 0 and newline_count <= target:
+            read_size = min(8192, position)
+            position -= read_size
+            file.seek(position)
+            chunk = file.read(read_size)
+            chunks.append(chunk)
+            newline_count += chunk.count(b"\n")
+    return b"".join(reversed(chunks)).decode("utf-8", errors="ignore").splitlines(keepends=True)[-target:]
 
 
 def load_runtime_log_entries(limit: int = 600) -> list[dict[str, Any]]:
@@ -203,9 +218,16 @@ async def build_logs_payload(
     normalized_keyword = str(keyword or "").strip().lower()
     normalized_source = str(source or "").strip().lower()
 
-    oplog_items = await load_oplog_entries(limit=0) if _is_oplog_available() else []
-    plugin_error_items = await load_plugin_error_entries()
-    items = [*load_runtime_log_entries(), *plugin_error_items, *oplog_items]
+    include_all = not normalized_source
+    runtime_task = asyncio.to_thread(load_runtime_log_entries) if include_all or normalized_source == "runtime_log" else None
+    plugin_task = load_plugin_error_entries() if include_all or normalized_source == "plugin_error" else None
+    oplog_task = load_oplog_entries(limit=600) if _is_oplog_available() and (include_all or normalized_source == "dashboard_oplog") else None
+    runtime_items, plugin_error_items, oplog_items = await asyncio.gather(
+        runtime_task or _empty_log_items(),
+        plugin_task or _empty_log_items(),
+        oplog_task or _empty_log_items(),
+    )
+    items = [*runtime_items, *plugin_error_items, *oplog_items]
     items.sort(key=lambda item: (item["timestamp"] or "", item["id"]), reverse=True)
 
     if normalized_level:
@@ -271,17 +293,19 @@ async def build_logs_overview_payload() -> dict[str, Any]:
     构建logsoverviewpayload
     :return: dict[str, Any]
     """
-    runtime_items = load_runtime_log_entries()
-    plugin_items = await load_plugin_error_entries()
-    oplog_items = await load_oplog_entries(limit=0) if _is_oplog_available() else []
-    all_items = [*runtime_items, *plugin_items, *oplog_items]
+    runtime_task = asyncio.to_thread(load_runtime_log_entries)
+    plugin_task = load_plugin_error_entries()
+    oplog_task = build_oplog_overview_payload() if _is_oplog_available() else _empty_oplog_overview()
+    runtime_items, plugin_items, oplog_overview = await asyncio.gather(runtime_task, plugin_task, oplog_task)
+    latest_items = [*runtime_items, *plugin_items, *(oplog_overview.get("latest") or [])]
+    latest_items.sort(key=lambda item: (item.get("timestamp") or "", item.get("id") or ""), reverse=True)
     return {
-        "total": len(all_items),
+        "total": len(runtime_items) + len(plugin_items) + int(oplog_overview.get("total") or 0),
         "runtime_log_enabled": bool(plugin_config.dashboard_log_file_path.strip()),
         "runtime_log_file_path": plugin_config.dashboard_log_file_path.strip() or None,
         "plugin_error_total": len(plugin_items),
         "runtime_log_total": len(runtime_items),
-        "oplog_total": len(oplog_items),
+        "oplog_total": int(oplog_overview.get("total") or 0),
         "oplog_enabled": _is_oplog_available(),
         "sources": [
             {
@@ -301,8 +325,19 @@ async def build_logs_overview_payload() -> dict[str, Any]:
             },
         ],
         "level_totals": {
-            level_name: sum(1 for item in all_items if str(item["level"]).upper() == level_name)
+            level_name: (
+                sum(1 for item in [*runtime_items, *plugin_items] if str(item["level"]).upper() == level_name)
+                + int((oplog_overview.get("level_totals") or {}).get(level_name, 0))
+            )
             for level_name in LOG_LEVELS
         },
-        "latest": all_items[:10],
+        "latest": latest_items[:10],
     }
+
+
+async def _empty_log_items() -> list[dict[str, Any]]:
+    return []
+
+
+async def _empty_oplog_overview() -> dict[str, Any]:
+    return {"total": 0, "level_totals": {}, "latest": []}

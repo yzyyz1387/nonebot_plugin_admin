@@ -45,47 +45,33 @@
       <div v-if="showMobileNav && !isDesktop" class="admin-sidebar-backdrop" @click="showMobileNav = false"></div>
 
       <main class="admin-app-main" :class="{ 'is-sidebar-collapsed': desktopSidebarCollapsed }">
-        <DashboardPage
-          v-show="currentPage === 'dashboard'"
+        <KeepAlive>
+          <component
+          :is="currentPageComponent"
+          :key="currentPage"
           :api-base="settings.apiBase"
           :token="settings.token"
-          :active="currentPage === 'dashboard'"
+          :active="true"
           :refresh-key="refreshKey"
           @notify="notify"
           @connection="updateConnection"
-        />
-        <LogsPage
-          v-show="currentPage === 'logs'"
-          :api-base="settings.apiBase"
-          :token="settings.token"
-          :active="currentPage === 'logs'"
-          :refresh-key="refreshKey"
-          @notify="notify"
-          @connection="updateConnection"
-        />
-        <WorkspacePage
-          v-show="currentPage === 'workspace'"
-          :api-base="settings.apiBase"
-          :token="settings.token"
-          :active="currentPage === 'workspace'"
-          :refresh-key="refreshKey"
-          @notify="notify"
-          @connection="updateConnection"
-        />
+          />
+        </KeepAlive>
       </main>
     </div>
   </div>
 </template>
 
 <script setup>
-import { computed, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
+import { computed, defineAsyncComponent, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
 import AppHeader from './components/common/AppHeader.vue'
 import ConfigDialog from './components/common/ConfigDialog.vue'
-import DashboardPage from './pages/DashboardPage.vue'
-import LogsPage from './pages/LogsPage.vue'
-import WorkspacePage from './pages/WorkspacePage.vue'
 import LoginPage from './pages/LoginPage.vue'
 import { DEFAULT_API_BASE, DEFAULT_DASHBOARD_TITLE, DASHBOARD_BOOTSTRAP, apiRequest, extractErrorMessage, normalizeApiBase } from './lib/api'
+
+const DashboardPage = defineAsyncComponent(() => import('./pages/DashboardPage.vue'))
+const LogsPage = defineAsyncComponent(() => import('./pages/LogsPage.vue'))
+const WorkspacePage = defineAsyncComponent(() => import('./pages/WorkspacePage.vue'))
 
 const STORAGE_KEYS = {
   apiBase: 'nb-admin-web:api-base',
@@ -103,6 +89,12 @@ const pages = [
   { key: 'logs', label: '日志中心', icon: 'description' },
   { key: 'workspace', label: '操作台', icon: 'forum' }
 ]
+
+const currentPageComponent = computed(() => ({
+  dashboard: DashboardPage,
+  logs: LogsPage,
+  workspace: WorkspacePage
+}[currentPage.value] || DashboardPage))
 
 function restoreSessionToken() {
   try {

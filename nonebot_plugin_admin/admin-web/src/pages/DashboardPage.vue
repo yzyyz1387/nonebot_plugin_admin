@@ -33,7 +33,7 @@
         </div>
         <div class="admin-bot-stat">
           <span class="admin-bot-stat-value">{{ formatNumber(manageableGroupCount) }}</span>
-          <span class="admin-bot-stat-label">可管理群</span>
+          <span class="admin-bot-stat-label">已记录群</span>
         </div>
         <div class="admin-bot-stat">
           <span class="admin-bot-stat-value">{{ formatNumber(account.client_count) }}</span>
@@ -154,7 +154,6 @@ const overview = reactive({
   daily_trend: [],
   generated_at: null
 })
-const operations = reactive({ manageable_group_count: 0 })
 const account = reactive({ available: false, online: false, nickname: '', self_id: '', friend_count: 0, client_count: 0 })
 const contacts = reactive({ items: [] })
 const logsOverview = reactive({ runtime_log_enabled: false, runtime_log_file_path: null, plugin_error_total: 0, runtime_log_total: 0, total: 0 })
@@ -168,10 +167,7 @@ const todayMessageTotal = computed(() => {
   const sum = sumBy(realGroups.value, 'today_message_count')
   return sum || Number(overview.today_message_count || 0)
 })
-const manageableGroupCount = computed(() => {
-  const raw = Number(operations.manageable_group_count || 0)
-  return visibleGroupCount.value ? Math.min(raw, visibleGroupCount.value) : raw
-})
+const manageableGroupCount = computed(() => Number(overview.record_enabled_groups || 0))
 const recentContacts = computed(() => (contacts.items || []).filter((item) => !isPlaceholderGroupName(item.title || item.peer_name || item.peerName || '')).slice(0, 8))
 const trendItems = computed(() => (overview.daily_trend || []).slice(-7))
 
@@ -246,8 +242,8 @@ const manageOption = computed(() => ({
       avoidLabelOverlap: false,
       label: { formatter: '{b}\n{c}' },
       data: [
-        { name: '可管理', value: Math.max(0, manageableGroupCount.value) },
-        { name: '其他', value: Math.max(0, visibleGroupCount.value - manageableGroupCount.value) }
+        { name: '已记录', value: Math.max(0, manageableGroupCount.value) },
+        { name: '未记录', value: Math.max(0, visibleGroupCount.value - manageableGroupCount.value) }
       ]
     }
   ]
@@ -256,21 +252,18 @@ const manageOption = computed(() => ({
 async function loadData() {
   loading.value = true
   try {
-    const [overviewPayload, operationsPayload, accountPayload, contactsPayload, logsPayload, groupsPayload] = await Promise.all([
-      apiRequest(props.apiBase, props.token, '/overview'),
-      apiRequest(props.apiBase, props.token, '/operations/overview'),
+    const [overviewPayload, accountPayload, contactsPayload, logsPayload] = await Promise.all([
+      apiRequest(props.apiBase, props.token, '/overview', { params: { compact: true } }),
       apiRequest(props.apiBase, props.token, '/account/overview'),
       apiRequest(props.apiBase, props.token, '/contacts/recent', { params: { count: 8 } }),
-      apiRequest(props.apiBase, props.token, '/logs/overview'),
-      apiRequest(props.apiBase, props.token, '/groups')
+      apiRequest(props.apiBase, props.token, '/logs/overview')
     ])
 
     Object.assign(overview, overviewPayload || {})
-    Object.assign(operations, operationsPayload || {})
     Object.assign(account, accountPayload || {})
     Object.assign(contacts, contactsPayload || {})
     Object.assign(logsOverview, logsPayload || {})
-    groups.value = Array.isArray(groupsPayload?.items) ? groupsPayload.items : []
+    groups.value = Array.isArray(overviewPayload?.groups) ? overviewPayload.groups : []
     emit('connection', '已连接')
   } catch (error) {
     emit('connection', '连接失败')

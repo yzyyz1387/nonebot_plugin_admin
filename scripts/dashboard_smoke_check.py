@@ -265,6 +265,11 @@ async def run_checks():
         broadcast_store = sys.modules[f"{PKG_NAME}.broadcasting.broadcast_store"]
         config_orm_store = sys.modules[f"{PKG_NAME}.statistics.config_orm_store"]
         dashboard_api = sys.modules[f"{PKG_NAME}.dashboard.dashboard_api"]
+        dashboard_log_service = sys.modules[f"{PKG_NAME}.dashboard.dashboard_log_service"]
+
+        tail_fixture = temp_root / "tail.log"
+        tail_fixture.write_text("old\nnew-1\nnew-2\n", encoding="utf-8")
+        assert [line.strip() for line in dashboard_log_service._tail_lines(tail_fixture, limit=2)] == ["new-1", "new-2"]
 
         await statistics_record_flow.handle_enable_group_recording("12345")
         await statistics_record_flow.record_group_message(
@@ -448,6 +453,13 @@ async def run_checks():
         assert overview_payload["cleanup_lock_count"] >= 1
         assert overview_payload["basic_admin_enabled_groups"] >= 1
         assert overview_payload["event_notice_enabled_groups"] >= 1
+        assert len(overview_payload["groups"]) == overview_payload["group_count"]
+
+        compact_overview_response = client.get("/ops/api/overview?compact=true", headers=headers)
+        assert compact_overview_response.status_code == 200
+        compact_overview_payload = compact_overview_response.json()
+        assert compact_overview_payload["history_message_count"] >= 3
+        assert len(compact_overview_payload["groups"]) == compact_overview_payload["group_count"]
 
         operations_overview_response = client.get("/ops/api/operations/overview", headers=headers)
         assert operations_overview_response.status_code == 200
@@ -565,6 +577,10 @@ async def run_checks():
         assert any(item["group_id"] == "12345" and item["anti_recall_enabled"] for item in groups_payload)
         assert any(item["group_id"] == "12345" and item["basic_admin_enabled"] for item in groups_payload)
         assert any(item["group_id"] == "12345" and item["deputy_admin_count"] >= 1 for item in groups_payload)
+
+        compact_groups_response = client.get("/ops/api/groups?compact=true", headers=headers)
+        assert compact_groups_response.status_code == 200
+        assert all("today_message_count" in item for item in compact_groups_response.json()["items"])
 
         detail_response = client.get("/ops/api/groups/12345", headers=headers)
         assert detail_response.status_code == 200
