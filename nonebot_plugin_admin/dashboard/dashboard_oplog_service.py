@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 import json
 from typing import Any
 
@@ -181,6 +182,19 @@ async def load_oplog_entries(
     return [_record_to_dict(record) for record in records]
 
 
+async def _load_oplog_counts() -> tuple[dict[str, int], dict[str, int]]:
+    action_keys = tuple(OPLOG_ACTION_LABELS)
+    level_keys = ("ERROR", "WARNING", "INFO", "DEBUG", "SUCCESS")
+    action_values, level_values = await asyncio.gather(
+        asyncio.gather(*[models.DashboardOplogRecord.filter(action=key).count() for key in action_keys]),
+        asyncio.gather(*[models.DashboardOplogRecord.filter(level=key).count() for key in level_keys]),
+    )
+    return (
+        {key: count for key, count in zip(action_keys, action_values) if count > 0},
+        {key: count for key, count in zip(level_keys, level_values) if count > 0},
+    )
+
+
 async def build_oplog_payload(
     *,
     page: int = 1,
@@ -229,24 +243,14 @@ async def build_oplog_payload(
     if normalized_keyword:
         query = query.filter(message__icontains=normalized_keyword)
 
-    total = await query.count()
-    total_pages = max(1, (total + normalized_page_size - 1) // normalized_page_size) if total else 1
     start = (normalized_page - 1) * normalized_page_size
-
-    records = await query.order_by("-created_at").offset(start).limit(normalized_page_size)
+    total, records, (action_counts, level_counts) = await asyncio.gather(
+        query.count(),
+        query.order_by("-created_at").offset(start).limit(normalized_page_size),
+        _load_oplog_counts(),
+    )
+    total_pages = max(1, (total + normalized_page_size - 1) // normalized_page_size) if total else 1
     items = [_record_to_dict(record) for record in records]
-
-    action_counts: dict[str, int] = {}
-    for act_key in OPLOG_ACTION_LABELS:
-        count = await models.DashboardOplogRecord.filter(action=act_key).count()
-        if count > 0:
-            action_counts[act_key] = count
-
-    level_counts: dict[str, int] = {}
-    for lv in ("ERROR", "WARNING", "INFO", "DEBUG", "SUCCESS"):
-        count = await models.DashboardOplogRecord.filter(level=lv).count()
-        if count > 0:
-            level_counts[lv] = count
 
     return {
         "items": items,
@@ -287,21 +291,11 @@ async def build_oplog_overview_payload() -> dict[str, Any]:
             "latest": [],
         }
 
-    total = await models.DashboardOplogRecord.all().count()
-
-    action_counts: dict[str, int] = {}
-    for act_key in OPLOG_ACTION_LABELS:
-        count = await models.DashboardOplogRecord.filter(action=act_key).count()
-        if count > 0:
-            action_counts[act_key] = count
-
-    level_counts: dict[str, int] = {}
-    for lv in ("ERROR", "WARNING", "INFO", "DEBUG", "SUCCESS"):
-        count = await models.DashboardOplogRecord.filter(level=lv).count()
-        if count > 0:
-            level_counts[lv] = count
-
-    recent_records = await models.DashboardOplogRecord.all().order_by("-created_at").limit(10)
+    total, (action_counts, level_counts), recent_records = await asyncio.gather(
+        models.DashboardOplogRecord.all().count(),
+        _load_oplog_counts(),
+        models.DashboardOplogRecord.all().order_by("-created_at").limit(10),
+    )
     latest = [_record_to_dict(record) for record in recent_records]
 
     return {

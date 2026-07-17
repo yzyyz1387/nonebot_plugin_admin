@@ -330,26 +330,25 @@ async def build_account_overview_payload() -> dict[str, Any]:
     group_list: list[Any] = []
     friend_list: list[Any] = []
 
-    try:
-        login_info = dict(await _call_bot_api(bot, "get_login_info") or {})
-    except Exception as err:
-        logger.debug(f"dashboard account overview get_login_info failed: {type(err).__name__}: {err}")
-    try:
-        status_info = dict(await _call_bot_api(bot, "get_status") or {})
-    except Exception as err:
-        logger.debug(f"dashboard account overview get_status failed: {type(err).__name__}: {err}")
-    try:
-        clients = list(await _call_bot_api(bot, "get_online_clients") or [])
-    except Exception as err:
-        logger.debug(f"dashboard account overview get_online_clients failed: {type(err).__name__}: {err}")
-    try:
-        group_list = list(await _call_bot_api(bot, "get_group_list") or [])
-    except Exception as err:
-        logger.debug(f"dashboard account overview get_group_list failed: {type(err).__name__}: {err}")
-    try:
-        friend_list = list(await _call_bot_api(bot, "get_friend_list") or [])
-    except Exception as err:
-        logger.debug(f"dashboard account overview get_friend_list failed: {type(err).__name__}: {err}")
+    async def load_account_data(api: str, default: Any) -> Any:
+        try:
+            return await _call_bot_api(bot, api)
+        except Exception as err:
+            logger.debug(f"dashboard account overview {api} failed: {type(err).__name__}: {err}")
+            return default
+
+    login_data, status_data, clients_data, groups_data, friends_data = await asyncio.gather(
+        load_account_data("get_login_info", {}),
+        load_account_data("get_status", {}),
+        load_account_data("get_online_clients", []),
+        load_account_data("get_group_list", []),
+        load_account_data("get_friend_list", []),
+    )
+    login_info = dict(login_data or {})
+    status_info = dict(status_data or {})
+    clients = list(clients_data or [])
+    group_list = list(groups_data or [])
+    friend_list = list(friends_data or [])
 
     return {
         "available": True,

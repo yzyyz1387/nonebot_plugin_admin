@@ -107,6 +107,7 @@ class _AsyncTTLCache:
 _RUNTIME_GROUP_SNAPSHOT_CACHE = _AsyncTTLCache(ttl_seconds=8.0)
 _DASHBOARD_GROUP_IDS_CACHE = _AsyncTTLCache(ttl_seconds=8.0)
 _DASHBOARD_GROUP_IDS_LIVE_CACHE = _AsyncTTLCache(ttl_seconds=5.0)
+_DASHBOARD_LIGHT_SUMMARIES_CACHE = _AsyncTTLCache(ttl_seconds=15.0)
 _GROUP_SUMMARY_CONCURRENCY = 6
 
 
@@ -675,9 +676,15 @@ async def build_global_daily_trend(group_ids: list[str], *, limit: int = 14) -> 
     :param limit: 数量限制
     :return: list[dict[str, Any]]
     """
+    semaphore = asyncio.Semaphore(_GROUP_SUMMARY_CONCURRENCY)
+
+    async def load_trend(group_id: str) -> list[dict[str, Any]]:
+        async with semaphore:
+            return await list_daily_trend(group_id, limit=max(limit * 3, limit))
+
     aggregated: dict[str, dict[str, Any]] = {}
-    for group_id in group_ids:
-        for item in await list_daily_trend(group_id, limit=max(limit * 3, limit)):
+    for group_trend in await asyncio.gather(*[load_trend(group_id) for group_id in group_ids]):
+        for item in group_trend:
             bucket = aggregated.setdefault(
                 item["date"],
                 {
@@ -1190,14 +1197,49 @@ async def _build_group_summaries(
     return list(await asyncio.gather(*[_build_one(group_id) for group_id in group_ids]))
 
 
-async def build_dashboard_overview_payload() -> dict[str, Any]:
+async def _build_dashboard_light_summaries() -> list[dict[str, Any]]:
+    group_ids = await collect_dashboard_group_ids_live()
+    profiles = await fetch_group_profiles(group_ids)
+    semaphore = asyncio.Semaphore(_GROUP_SUMMARY_CONCURRENCY)
+
+    async def build_one(group_id: str) -> dict[str, Any]:
+        async with semaphore:
+            history_stats, today_stats, record_enabled = await asyncio.gather(
+                load_history_message_stats_snapshot(group_id),
+                load_daily_message_stats_snapshot(group_id),
+                is_group_record_enabled(group_id),
+            )
+        profile = profiles.get(group_id, {})
+        return {
+            "group_id": group_id,
+            "group_name": profile.get("group_name") or f"? {group_id}",
+            "member_count": profile.get("member_count"),
+            "record_enabled": record_enabled,
+            "history_message_count": sum(history_stats.values()),
+            "today_message_count": sum(today_stats.values()),
+            "active_members": len(history_stats),
+            "today_active_members": len(today_stats),
+        }
+
+    return list(await asyncio.gather(*[build_one(group_id) for group_id in group_ids]))
+
+
+async def load_dashboard_light_summaries() -> list[dict[str, Any]]:
+    return await _DASHBOARD_LIGHT_SUMMARIES_CACHE.get_or_load(_build_dashboard_light_summaries)
+
+
+async def build_dashboard_overview_payload(*, compact: bool = False) -> dict[str, Any]:
     """
     构建面板overviewpayload
     :return: dict[str, Any]
     """
-    group_ids = await collect_dashboard_group_ids_live()
-    profiles = await fetch_group_profiles(group_ids)
-    group_summaries = await _build_group_summaries(group_ids, profiles=profiles)
+    if compact:
+        group_summaries = await load_dashboard_light_summaries()
+        group_ids = [item["group_id"] for item in group_summaries]
+    else:
+        group_ids = await collect_dashboard_group_ids_live()
+        profiles = await fetch_group_profiles(group_ids)
+        group_summaries = await _build_group_summaries(group_ids, profiles=profiles)
     top_groups = sorted(group_summaries, key=lambda item: item["today_message_count"], reverse=True)[:8]
 
     return {
@@ -1207,13 +1249,13 @@ async def build_dashboard_overview_payload() -> dict[str, Any]:
         "history_message_count": sum(item["history_message_count"] for item in group_summaries),
         "today_message_count": sum(item["today_message_count"] for item in group_summaries),
         "active_members": sum(item["active_members"] for item in group_summaries),
-        "stop_words_count": sum(item["stop_words_count"] for item in group_summaries),
-        "violation_event_count": sum(item["violation_event_count"] for item in group_summaries),
-        "cleanup_lock_count": sum(1 for item in group_summaries if item["cleanup_lock_active"]),
-        "event_notice_enabled_groups": sum(1 for item in group_summaries if item["event_notice_enabled"]),
-        "anti_recall_enabled_groups": sum(1 for item in group_summaries if item["anti_recall_enabled"]),
-        "basic_admin_enabled_groups": sum(1 for item in group_summaries if item["basic_admin_enabled"]),
-        "deputy_admin_count": sum(item["deputy_admin_count"] for item in group_summaries),
+        "stop_words_count": sum(item.get("stop_words_count", 0) for item in group_summaries),
+        "violation_event_count": sum(item.get("violation_event_count", 0) for item in group_summaries),
+        "cleanup_lock_count": sum(1 for item in group_summaries if item.get("cleanup_lock_active")),
+        "event_notice_enabled_groups": sum(1 for item in group_summaries if item.get("event_notice_enabled")),
+        "anti_recall_enabled_groups": sum(1 for item in group_summaries if item.get("anti_recall_enabled")),
+        "basic_admin_enabled_groups": sum(1 for item in group_summaries if item.get("basic_admin_enabled")),
+        "deputy_admin_count": sum(item.get("deputy_admin_count", 0) for item in group_summaries),
         "daily_trend": await build_global_daily_trend(group_ids),
         "top_groups": [
             {
@@ -1225,6 +1267,7 @@ async def build_dashboard_overview_payload() -> dict[str, Any]:
             }
             for item in top_groups
         ],
+        "groups": group_summaries,
         "dashboard_title": plugin_config.dashboard_title,
         "orm_enabled": plugin_config.statistics_orm_enabled,
         "generated_at": datetime.datetime.now().isoformat(timespec="seconds"),
@@ -1264,11 +1307,13 @@ async def build_operations_overview_payload() -> dict[str, Any]:
     }
 
 
-async def list_group_summaries_payload() -> list[dict[str, Any]]:
+async def list_group_summaries_payload(*, compact: bool = False) -> list[dict[str, Any]]:
     """
     列出群summariespayload
     :return: list[dict[str, Any]]
     """
+    if compact:
+        return await load_dashboard_light_summaries()
     group_ids = await collect_dashboard_group_ids_live()
     profiles = await fetch_group_profiles(group_ids)
     return await _build_group_summaries(group_ids, profiles=profiles)

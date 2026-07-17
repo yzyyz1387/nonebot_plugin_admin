@@ -206,12 +206,12 @@ def create_dashboard_api_router(base_path: str) -> APIRouter:
         }
 
     @router.get("/overview", dependencies=[Depends(verify_dashboard_token)])
-    async def get_dashboard_overview():
+    async def get_dashboard_overview(compact: bool = Query(default=False)):
         """
         获取面板overview
         :return: None
         """
-        return await build_dashboard_overview_payload()
+        return await build_dashboard_overview_payload(compact=compact)
 
     @router.get("/operations/overview", dependencies=[Depends(verify_dashboard_token)])
     async def get_operations_overview():
@@ -380,13 +380,13 @@ def create_dashboard_api_router(base_path: str) -> APIRouter:
         return await build_recent_contacts_payload(count=count)
 
     @router.get("/groups", dependencies=[Depends(verify_dashboard_token)])
-    async def list_dashboard_groups():
+    async def list_dashboard_groups(compact: bool = Query(default=False)):
         """
         列出面板群组
         :return: None
         """
         return {
-            "items": await list_group_summaries_payload(),
+            "items": await list_group_summaries_payload(compact=compact),
         }
 
     @router.get("/groups/{group_id}", dependencies=[Depends(verify_dashboard_token)])

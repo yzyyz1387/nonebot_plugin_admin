@@ -146,4 +146,4 @@ __usage__ = """
 
 __help_plugin_name__ = "简易群管"
 __permission__ = 1
-__help__version__ = "1.0.4"
+__help__version__ = "1.0.4.1"

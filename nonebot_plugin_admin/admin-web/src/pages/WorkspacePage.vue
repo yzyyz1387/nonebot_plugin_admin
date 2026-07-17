@@ -222,7 +222,7 @@
 </template>
 
 <script setup>
-import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
+import { computed, nextTick, onActivated, onBeforeUnmount, onDeactivated, onMounted, reactive, ref, watch } from 'vue'
 import GroupListPanel from '../components/workspace/GroupListPanel.vue'
 import ChatPanel from '../components/workspace/ChatPanel.vue'
 import MemberPanel from '../components/workspace/MemberPanel.vue'
@@ -234,7 +234,11 @@ import { apiRequest, extractErrorMessage } from '../lib/api'
 import { isPlaceholderGroupRecord, initials, parseMessageContent } from '../lib/format'
 
 const POLL_INTERVAL = 5000
+const MEMBER_SEARCH_DELAY = 300
 let pollTimer = null
+let memberSearchTimer = null
+let workspaceRequestKey = 0
+let polling = false
 
 const props = defineProps({
   apiBase: { type: String, required: true },
@@ -352,6 +356,10 @@ function resetWorkspace() {
   workspace.files = { files: [], folders: [] }
 }
 
+function isCurrentWorkspace(groupId, requestKey) {
+  return String(selectedGroupId.value) === String(groupId) && workspaceRequestKey === requestKey
+}
+
 function messageKey(item) {
   return String(item?.id ?? item?.message_id ?? item?.real_id ?? item?.real_seq ?? Math.random())
 }
@@ -367,7 +375,7 @@ function dedupeMessages(items) {
 async function loadGroups(autoSelect = false) {
   groupLoading.value = true
   try {
-    const payload = await apiRequest(props.apiBase, props.token, '/groups')
+    const payload = await apiRequest(props.apiBase, props.token, '/groups', { params: { compact: true } })
     allGroups.value = Array.isArray(payload?.items) ? payload.items : []
     emit('connection', '已连接')
 
@@ -392,13 +400,23 @@ async function loadGroups(autoSelect = false) {
 
 async function handleSelectGroup(groupId) {
   if (!groupId) return
+  clearTimeout(memberSearchTimer)
   selectedGroupId.value = String(groupId)
   memberSearch.value = ''
+  tabLoaded.announcements = false
+  tabLoaded.files = false
+  tabLoaded.essence = false
+  tabLoaded.honors = false
+  tabLoading.announcements = false
+  tabLoading.files = false
+  tabLoading.essence = false
+  tabLoading.honors = false
   closeMemberMenu()
   await loadWorkspace(groupId)
 }
 
 async function loadWorkspace(groupId) {
+  const requestKey = ++workspaceRequestKey
   workspaceLoading.value = true
   try {
     const [profilePayload, messagesPayload, membersPayload, detailPayload] = await Promise.all([
@@ -407,6 +425,7 @@ async function loadWorkspace(groupId) {
       apiRequest(props.apiBase, props.token, `/groups/${groupId}/members`, { params: { page: 1, page_size: 30 }, timeout: 30000 }).catch(() => ({ items: [], pagination: {} })),
       apiRequest(props.apiBase, props.token, `/groups/${groupId}/feature-switches`, { timeout: 30000 }).catch(() => [])
     ])
+    if (!isCurrentWorkspace(groupId, requestKey)) return
     workspace.group_profile = profilePayload || {}
     workspace.messages = messagesPayload || { items: [], pagination: {} }
     workspace.members = membersPayload || { items: [], pagination: {} }
@@ -414,8 +433,10 @@ async function loadWorkspace(groupId) {
     workspace.bot_profile = { capabilities: {} }
     try {
       const botProfile = await apiRequest(props.apiBase, props.token, `/groups/${groupId}/bot-profile`, { timeout: 15000 })
+      if (!isCurrentWorkspace(groupId, requestKey)) return
       workspace.bot_profile = botProfile || { capabilities: {} }
     } catch {}
+    if (!isCurrentWorkspace(groupId, requestKey)) return
     workspace.announcements = { items: [] }
     workspace.files = { files: [], folders: [] }
     workspace.essence = { items: [] }
@@ -433,31 +454,37 @@ async function loadWorkspace(groupId) {
     const errorMsg = error?.isTimeout ? '加载超时，该群数据量较大，请稍后重试' : extractErrorMessage(error)
     emit('notify', { message: `群工作台加载失败：${errorMsg}`, type: 'error' })
   } finally {
-    workspaceLoading.value = false
+    if (isCurrentWorkspace(groupId, requestKey)) workspaceLoading.value = false
   }
 }
 
 async function loadTabData(tabKey) {
   if (!selectedGroupId.value || tabLoaded[tabKey] || tabLoading[tabKey]) return
+  const groupId = selectedGroupId.value
+  const requestKey = workspaceRequestKey
   tabLoading[tabKey] = true
   await nextTick()
   window.mdui?.mutation?.()
   const startTime = Date.now()
   try {
     if (tabKey === 'announcements') {
-      const data = await apiRequest(props.apiBase, props.token, `/groups/${selectedGroupId.value}/announcements`, { timeout: 30000 })
+      const data = await apiRequest(props.apiBase, props.token, `/groups/${groupId}/announcements`, { timeout: 30000 })
+      if (!isCurrentWorkspace(groupId, requestKey)) return
       workspace.announcements = data || { items: [] }
       tabLoaded.announcements = true
     } else if (tabKey === 'files') {
-      const data = await apiRequest(props.apiBase, props.token, `/groups/${selectedGroupId.value}/files`, { timeout: 30000 })
+      const data = await apiRequest(props.apiBase, props.token, `/groups/${groupId}/files`, { timeout: 30000 })
+      if (!isCurrentWorkspace(groupId, requestKey)) return
       workspace.files = data || { files: [], folders: [] }
       tabLoaded.files = true
     } else if (tabKey === 'essence') {
-      const data = await apiRequest(props.apiBase, props.token, `/groups/${selectedGroupId.value}/essence`, { timeout: 30000 })
+      const data = await apiRequest(props.apiBase, props.token, `/groups/${groupId}/essence`, { timeout: 30000 })
+      if (!isCurrentWorkspace(groupId, requestKey)) return
       workspace.essence = data || { items: [] }
       tabLoaded.essence = true
     } else if (tabKey === 'honors') {
-      const data = await apiRequest(props.apiBase, props.token, `/groups/${selectedGroupId.value}/honors`, { timeout: 30000 })
+      const data = await apiRequest(props.apiBase, props.token, `/groups/${groupId}/honors`, { timeout: 30000 })
+      if (!isCurrentWorkspace(groupId, requestKey)) return
       workspace.honors = data || { sections: [] }
       tabLoaded.honors = true
     }
@@ -478,51 +505,62 @@ function handleTabChange(tabKey) {
     startPolling()
   } else {
     stopPolling()
-    console.log('Tab change to:', tabKey, 'tabLoaded:', tabLoaded[tabKey], 'tabLoading:', tabLoading[tabKey])
     loadTabData(tabKey)
   }
 }
 
 async function loadMembers(page = 1) {
   if (!selectedGroupId.value) return
+  const groupId = selectedGroupId.value
+  const requestKey = workspaceRequestKey
   memberLoading.value = true
   try {
-    workspace.members = await apiRequest(props.apiBase, props.token, `/groups/${selectedGroupId.value}/members`, {
+    const members = await apiRequest(props.apiBase, props.token, `/groups/${groupId}/members`, {
       params: {
         page,
         page_size: 30,
         keyword: memberSearch.value
       }
     })
+    if (!isCurrentWorkspace(groupId, requestKey)) return
+    workspace.members = members
   } catch (error) {
     emit('notify', { message: `成员加载失败：${extractErrorMessage(error)}`, type: 'error' })
   } finally {
-    memberLoading.value = false
+    if (isCurrentWorkspace(groupId, requestKey)) memberLoading.value = false
   }
 }
 
 async function loadLatestMessages() {
   if (!selectedGroupId.value) return
+  const groupId = selectedGroupId.value
+  const requestKey = workspaceRequestKey
   messagesLoading.value = true
   try {
-    workspace.messages = await apiRequest(props.apiBase, props.token, `/groups/${selectedGroupId.value}/messages`, {
+    const messages = await apiRequest(props.apiBase, props.token, `/groups/${groupId}/messages`, {
       params: { limit: 60 }
     })
+    if (!isCurrentWorkspace(groupId, requestKey)) return
+    workspace.messages = messages
   } catch (error) {
     emit('notify', { message: `消息刷新失败：${extractErrorMessage(error)}`, type: 'error' })
   } finally {
-    messagesLoading.value = false
+    if (isCurrentWorkspace(groupId, requestKey)) messagesLoading.value = false
   }
 }
 
 async function pollNewMessages() {
-  if (!selectedGroupId.value || centerActiveTab.value !== 'chat') return
+  if (polling || !selectedGroupId.value || centerActiveTab.value !== 'chat') return
+  const groupId = selectedGroupId.value
+  const requestKey = workspaceRequestKey
   const latestId = workspace.messages.pagination?.latest_id
   if (!latestId) return
+  polling = true
   try {
-    const result = await apiRequest(props.apiBase, props.token, `/groups/${selectedGroupId.value}/messages`, {
+    const result = await apiRequest(props.apiBase, props.token, `/groups/${groupId}/messages`, {
       params: { limit: 60, after_id: latestId }
     })
+    if (!isCurrentWorkspace(groupId, requestKey)) return
     const newItems = result?.items || []
     if (newItems.length > 0) {
       workspace.messages = {
@@ -531,7 +569,9 @@ async function pollNewMessages() {
         pagination: result.pagination || workspace.messages.pagination
       }
     }
-  } catch {}
+  } catch {} finally {
+    polling = false
+  }
 }
 
 function startPolling() {
@@ -757,7 +797,8 @@ function handleGroupSearch(value) {
 
 function handleMemberSearch(value) {
   memberSearch.value = value
-  loadMembers(1)
+  clearTimeout(memberSearchTimer)
+  memberSearchTimer = setTimeout(() => loadMembers(1), MEMBER_SEARCH_DELAY)
 }
 
 function changeGroupPage(offset) {
@@ -783,8 +824,17 @@ onMounted(() => {
   window.addEventListener('scroll', onGlobalPointer, true)
 })
 
+onActivated(() => {
+  if (selectedGroupId.value && centerActiveTab.value === 'chat') startPolling()
+})
+
+onDeactivated(() => {
+  stopPolling()
+})
+
 onBeforeUnmount(() => {
   stopPolling()
+  clearTimeout(memberSearchTimer)
   window.removeEventListener('click', onGlobalPointer)
   window.removeEventListener('resize', onGlobalPointer)
   window.removeEventListener('scroll', onGlobalPointer, true)
