@@ -16,11 +16,11 @@
             <div class="mdui-textfield admin-flat-field">
               <textarea id="welcome-word-input" v-model="draft" class="mdui-textfield-input" maxlength="1000" placeholder="留空后保存可删除欢迎词"></textarea>
             </div>
-            <div class="admin-switch-actions">
-              <button class="mdui-btn mdui-color-theme mdui-ripple" type="button" :disabled="saving" @click="$emit('save', draft)">
+            <div class="admin-welcome-actions">
+              <button class="admin-welcome-action is-primary" type="button" :disabled="saving" @click="$emit('save', draft)">
                 <i class="material-icons">save</i> 保存
               </button>
-              <button class="mdui-btn mdui-ripple" type="button" :disabled="saving || !draft.trim()" @click="$emit('remove')">
+              <button class="admin-welcome-action" type="button" :disabled="saving || !draft.trim()" @click="$emit('remove')">
                 <i class="material-icons">delete_outline</i> 删除
               </button>
             </div>
