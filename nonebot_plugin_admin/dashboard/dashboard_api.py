@@ -9,6 +9,10 @@ from fastapi import APIRouter, Depends, Header, HTTPException, Query, Response, 
 from pydantic import BaseModel, Field
 
 from ..core.config import plugin_config
+from ..statistics.config_orm_store import (
+    orm_delete_group_welcome_word,
+    orm_save_group_welcome_word,
+)
 from ..statistics.statistics_read_service import load_group_wordcloud_source
 from ..statistics.wordcloud_generate_flow import render_wordcloud_image
 from .dashboard_live_service import (
@@ -83,6 +87,10 @@ class DashboardSpecialTitleRequest(BaseModel):
 
 class DashboardFeatureSwitchRequest(BaseModel):
     enabled: bool
+
+
+class DashboardWelcomeWordRequest(BaseModel):
+    word: str = Field(default="", max_length=1000)
 
 
 class DashboardWholeBanRequest(BaseModel):
@@ -630,6 +638,22 @@ def create_dashboard_api_router(base_path: str) -> APIRouter:
         """
         normalized_group_id = await ensure_group_exists(group_id)
         return await build_group_event_notice_payload(normalized_group_id)
+
+    @router.post("/groups/{group_id}/event-notice/welcome-word", dependencies=[Depends(verify_dashboard_token)])
+    async def post_dashboard_group_welcome_word(group_id: str, payload: DashboardWelcomeWordRequest):
+        normalized_group_id = await ensure_group_exists(group_id)
+        word = payload.word.strip()
+        saved = (
+            await orm_save_group_welcome_word(normalized_group_id, word)
+            if word
+            else await orm_delete_group_welcome_word(normalized_group_id)
+        )
+        if not saved:
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail="Welcome word database is unavailable.",
+            )
+        return {"ok": True, "word": word}
 
     @router.get("/groups/{group_id}/announcements", dependencies=[Depends(verify_dashboard_token)])
     async def get_dashboard_group_announcements(group_id: str):

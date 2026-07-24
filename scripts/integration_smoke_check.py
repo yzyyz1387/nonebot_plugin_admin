@@ -238,6 +238,7 @@ async def run_checks():
             "dashboard.dashboard_web",
             "event_notice.group_recall",
             "event_notice.particular_e_notice",
+            "event_notice.welcome_word",
             "member_cleanup.kick_member_by_rule",
             "statistics.group_msg",
             "statistics.word_analyze",

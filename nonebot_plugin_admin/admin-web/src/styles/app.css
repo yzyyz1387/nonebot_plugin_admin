@@ -509,6 +509,102 @@ textarea {
   color: var(--admin-text);
 }
 
+.admin-collapse-toggle {
+  width: 100%;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  text-align: left;
+}
+
+.admin-collapse-toggle:focus-visible {
+  outline: 2px solid var(--admin-primary);
+  outline-offset: 3px;
+}
+
+.admin-collapse-toggle .admin-inline-stat {
+  margin-left: auto;
+}
+
+.admin-collapse-icon {
+  color: var(--admin-text-secondary);
+  transition: transform 0.22s ease;
+}
+
+.admin-collapse-icon.is-expanded {
+  transform: rotate(180deg);
+}
+
+.admin-collapse-content {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  transition: grid-template-rows 0.24s ease, opacity 0.18s ease;
+}
+
+.admin-collapse-content.is-expanded {
+  grid-template-rows: 1fr;
+  opacity: 1;
+}
+
+.admin-collapse-content-inner {
+  min-height: 0;
+  overflow: hidden;
+}
+
+.admin-welcome-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.admin-welcome-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 36px;
+  padding: 0 14px;
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius);
+  background: var(--admin-surface);
+  color: var(--admin-text);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.18s ease, border-color 0.18s ease, transform 0.18s ease;
+}
+
+.admin-welcome-action .material-icons {
+  font-size: 18px;
+}
+
+.admin-welcome-action.is-primary {
+  border-color: var(--admin-primary);
+  background: var(--admin-primary);
+  color: #ffffff;
+}
+
+.admin-welcome-action:hover:not(:disabled) {
+  transform: translateY(-1px);
+  border-color: var(--admin-border-strong);
+}
+
+.admin-welcome-action.is-primary:hover:not(:disabled) {
+  border-color: var(--admin-primary-dark);
+  background: var(--admin-primary-dark);
+}
+
+.admin-welcome-action:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
 .admin-inline-meta {
   font-size: 12px;
   color: var(--admin-text-secondary);

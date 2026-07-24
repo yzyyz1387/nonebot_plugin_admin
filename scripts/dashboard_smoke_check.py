@@ -692,6 +692,25 @@ async def run_checks():
         event_notice_group_response = client.get("/ops/api/groups/12345/event-notice", headers=headers)
         assert event_notice_group_response.status_code == 200
         assert event_notice_group_response.json()["anti_recall_enabled"] is True
+        assert event_notice_group_response.json()["welcome_word"] == ""
+        assert event_notice_group_response.json()["welcome_word_storage_available"] is True
+
+        save_welcome_word_response = client.post(
+            "/ops/api/groups/12345/event-notice/welcome-word",
+            headers=headers,
+            json={"word": "欢迎来到 Smoke Group"},
+        )
+        assert save_welcome_word_response.status_code == 200
+        assert save_welcome_word_response.json()["word"] == "欢迎来到 Smoke Group"
+        assert (await config_orm_store.orm_get_group_welcome_word("12345")) == "欢迎来到 Smoke Group"
+
+        delete_welcome_word_response = client.post(
+            "/ops/api/groups/12345/event-notice/welcome-word",
+            headers=headers,
+            json={"word": ""},
+        )
+        assert delete_welcome_word_response.status_code == 200
+        assert (await config_orm_store.orm_get_group_welcome_word("12345")) == ""
 
         image_response = client.get("/ops/api/groups/12345/wordcloud-card", headers=headers)
         assert image_response.status_code == 200

@@ -63,6 +63,8 @@ def _register_all() -> None:
 
     _reg.register("事件通知", "开关防撤回", "开启/关闭防撤回功能", permission="管理员")
     _reg.register("事件通知", "开关事件通知", "开启/关闭事件通知功能", permission="管理员")
+    _reg.register("事件通知", "欢迎词+ 内容", "设置本群入群欢迎词，已有内容需确认覆盖", permission="管理员")
+    _reg.register("事件通知", "欢迎词-", "删除本群入群欢迎词，需二次确认", permission="管理员")
 
     _reg.register("系统", "开关 功能名", "切换功能开关", permission="管理员")
     _reg.register("系统", "开关状态", "查看本群功能开关状态", permission="管理员")

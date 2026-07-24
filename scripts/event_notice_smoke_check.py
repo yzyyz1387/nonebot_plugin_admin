@@ -91,6 +91,14 @@ def load_event_notice_modules():
         f"{PKG_NAME}.statistics.models",
         PACKAGE_DIR / "statistics" / "models.py",
     )
+    modules["config_orm_store"] = load_module(
+        f"{PKG_NAME}.statistics.config_orm_store",
+        PACKAGE_DIR / "statistics" / "config_orm_store.py",
+    )
+    modules["welcome_word"] = load_module(
+        f"{PKG_NAME}.event_notice.welcome_word",
+        PACKAGE_DIR / "event_notice" / "welcome_word.py",
+    )
     modules["recall_archive_store"] = load_module(
         f"{PKG_NAME}.event_notice.recall_archive_store",
         PACKAGE_DIR / "event_notice" / "recall_archive_store.py",
@@ -135,7 +143,7 @@ class FakeNoticeBot:
             10000: {"user_id": 10000, "nickname": "bot", "card": ""},
             20001: {"user_id": 20001, "nickname": "小明", "card": ""},
             20002: {"user_id": 20002, "nickname": "管理员甲", "card": "管理甲"},
-            20003: {"user_id": 20003, "nickname": "小红", "card": ""},
+            20003: {"user_id": 20003, "nickname": "小红", "card": "", "qq_level": 85},
         }[user_id]
 
     async def get_stranger_info(self, *, user_id: int):
@@ -308,6 +316,7 @@ async def run_checks():
     modules = load_event_notice_modules()
     anti_recall_flow = modules["anti_recall_flow"]
     event_notice_flow = modules["event_notice_flow"]
+    welcome_word = modules["welcome_word"]
     group_recall = modules["group_recall"]
     recall_archive_store = modules["recall_archive_store"]
     orm_models = modules["models"]
@@ -324,6 +333,8 @@ async def run_checks():
     assert_matcher_registered(particular_notice.user_increase, matcher_type="notice", priority=50, block=False, module_suffix="particular_e_notice")
     assert_matcher_registered(particular_notice.admin_change, matcher_type="notice", priority=50, block=False, module_suffix="particular_e_notice")
     assert_matcher_registered(particular_notice.red_packet, matcher_type="notice", priority=50, block=False, module_suffix="particular_e_notice")
+    assert_matcher_registered(welcome_word.welcome_word_set, matcher_type="message", priority=2, block=True, module_suffix="welcome_word")
+    assert_matcher_registered(welcome_word.welcome_word_delete, matcher_type="message", priority=2, block=True, module_suffix="welcome_word")
 
     assert anti_recall_flow.should_forward_recall(20001, 20001, "member", ["10000"]) is True
     assert anti_recall_flow.should_forward_recall(20001, 20002, "member", ["10000"]) is False
@@ -445,8 +456,20 @@ async def run_checks():
     assert "QQ: 20001" in str(leave_message)
     assert "q4.qlogo.cn" in str(leave_message)
 
+    assert event_notice_flow.format_qq_level(85) == "👑☀️🌙⭐（85级）"
+    assert event_notice_flow.format_qq_level(89) == "👑☀️🌙🌙⭐（89级）"
+    assert event_notice_flow.format_qq_level(34) == "☀️☀️⭐⭐（34级）"
+
+    assert await welcome_word.get_welcome_word(12345) == ""
+    assert await welcome_word.save_welcome_word(12345, "测试测试") is True
+    assert await welcome_word.get_welcome_word(12345) == "测试测试"
+    assert await welcome_word.delete_welcome_word(12345) is True
+    assert await welcome_word.get_welcome_word(12345) == ""
+    assert await welcome_word.save_welcome_word(12345, "测试测试") is True
     increase_message = await event_notice_flow.build_member_increase_message(bot, increase_event)
-    assert "小红(小红)加入本群，QQ: 20003. 欢迎 小红" in str(increase_message)
+    assert "小红加入本群，欢迎" in str(increase_message)
+    assert "QQ:20003  QQ等级：👑☀️🌙⭐（85级）" in str(increase_message)
+    assert "测试测试" in str(increase_message)
     assert "q4.qlogo.cn" in str(increase_message)
 
     assert await event_notice_flow.build_admin_change_message(bot, build_admin_event(20001, "set")) == "管理员变动\n恭喜 小明 成为管理员"

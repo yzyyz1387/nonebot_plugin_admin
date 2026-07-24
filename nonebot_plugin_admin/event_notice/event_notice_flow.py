@@ -19,6 +19,7 @@ from nonebot.adapters.onebot.v11 import (
 from nonebot.typing import T_State
 
 from ..core.kick_event_store import pop_command_kick
+from .welcome_word import get_welcome_word
 
 
 async def is_poke(_: Bot, event: Event, __: T_State) -> bool:
@@ -189,15 +190,37 @@ async def build_member_increase_message(bot: Bot, event: GroupIncreaseNoticeEven
     :return: Message
     """
     await asyncio.sleep(1)
-    member = await bot.get_group_member_info(group_id=event.group_id, user_id=event.user_id)
+    try:
+        member = await bot.get_group_member_info(group_id=event.group_id, user_id=event.user_id)
+    except Exception:
+        member = {}
     name = member.get("card") or member.get("nickname") or str(event.user_id)
-    nickname = member.get("nickname") or name
-    return Message(
+    qq_level = format_qq_level(member.get("qq_level", member.get("qqLevel", 0)))
+    message = Message(
         [
-            MessageSegment.text(f"成员变动\n{name}({nickname})加入本群，QQ: {event.user_id}. 欢迎 {name}\n"),
+            MessageSegment.text(f"成员变动\n{name}加入本群，欢迎 "),
+            MessageSegment.at(event.user_id),
+            MessageSegment.text(f"\n【QQ:{event.user_id}  QQ等级：{qq_level}】\n"),
             MessageSegment.image(get_avatar_url(event.user_id)),
         ]
     )
+    welcome_word = await get_welcome_word(event.group_id)
+    if welcome_word:
+        message += MessageSegment.text("\n") + MessageSegment.at(event.user_id) + MessageSegment.text(f"，{welcome_word}")
+    return message
+
+
+def format_qq_level(level: object) -> str:
+    try:
+        value = max(0, int(level))
+    except (TypeError, ValueError):
+        value = 0
+    remaining = value
+    icons = []
+    for level_value, icon in ((64, "👑"), (16, "☀️"), (4, "🌙"), (1, "⭐")):
+        count, remaining = divmod(remaining, level_value)
+        icons.append(icon * count)
+    return f"{''.join(icons) or '⭐'}（{value}级）"
 
 
 async def build_admin_change_message(bot: Bot, event: GroupAdminNoticeEvent) -> str:

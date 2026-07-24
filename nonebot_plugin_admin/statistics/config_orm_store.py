@@ -15,6 +15,7 @@ from .models import (
     ContentGuardRule,
     DeputyAdmin,
     GlobalConfig,
+    GroupWelcomeWord,
     GroupFeatureSwitch,
     StatisticsDailyMessageStat,
     StatisticsGroupRecordSetting,
@@ -469,6 +470,41 @@ async def orm_delete_ai_verify_config(gid: str) -> None:
         await AIVerifyConfig.filter(group_id=gid).delete()
     except Exception as e:
         logger.error(f"ORM 删除AI审核配置失败: {e}")
+
+
+async def orm_get_group_welcome_word(gid: str) -> Optional[str]:
+    if not _is_orm_enabled():
+        return None
+    try:
+        row = await GroupWelcomeWord.filter(group_id=str(gid)).first()
+        return str(row.word) if row is not None else ""
+    except Exception as e:
+        logger.error(f"ORM 读取群欢迎词失败: {e}")
+        return None
+
+
+async def orm_save_group_welcome_word(gid: str, word: str) -> bool:
+    if not _is_orm_enabled():
+        return False
+    try:
+        await GroupWelcomeWord.update_or_create(
+            group_id=str(gid), defaults={"word": str(word).strip()}
+        )
+        return True
+    except Exception as e:
+        logger.error(f"ORM 保存群欢迎词失败: {e}")
+        return False
+
+
+async def orm_delete_group_welcome_word(gid: str) -> bool:
+    if not _is_orm_enabled():
+        return False
+    try:
+        await GroupWelcomeWord.filter(group_id=str(gid)).delete()
+        return True
+    except Exception as e:
+        logger.error(f"ORM 删除群欢迎词失败: {e}")
+        return False
 
 
 async def orm_load_broadcast_exclusions() -> Optional[Dict[str, List[str]]]:

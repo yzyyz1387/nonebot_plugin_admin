@@ -25,6 +25,7 @@ from .dashboard.dashboard_command import dashboard_url_cmd as _dashboard_url_cmd
 from .dashboard.dashboard_oplog_service import record_oplog
 from .event_notice import group_recall as _event_notice_group_recall
 from .event_notice import particular_e_notice as _event_notice_particular_notice
+from .event_notice import welcome_word as _event_notice_welcome_word
 from .member_cleanup import kick_member_by_rule as _member_cleanup_kick_rule
 from .migration import notify_legacy_text_upgrade, run_migration_check
 from .statistics.orm_bootstrap import ensure_statistics_orm_support as _ensure_statistics_orm_support
@@ -146,4 +147,4 @@ __usage__ = """
 
 __help_plugin_name__ = "简易群管"
 __permission__ = 1
-__help__version__ = "1.0.4.2"
+__help__version__ = "1.0.4.3"
