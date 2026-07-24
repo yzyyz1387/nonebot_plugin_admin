@@ -13,15 +13,21 @@ from ..core.func_hook import check_func_status
 from .group_message_config import GroupMessageConfig
 
 Period = Literal["morning", "night"]
+HITOKOTO_TIMEOUT = 8
 
 
-def fetch_hitokoto_message(request_get: Callable[[str], object] = requests.get) -> str:
+def fetch_hitokoto_message(
+    request_get: Callable[..., object] = requests.get,
+) -> str:
     """
     拉取hitokoto消息
     :param request_get: request_get 参数
     :return: str
     """
-    response = request_get("https://v1.hitokoto.cn?c=a&c=b&c=c&c=d&c=h")
+    response = request_get(
+        "https://v1.hitokoto.cn?c=a&c=b&c=c&c=d&c=h",
+        timeout=HITOKOTO_TIMEOUT,
+    )
     data = json.loads(response.text)
     message = data["hitokoto"]
     suffix = ""
@@ -34,7 +40,7 @@ def fetch_hitokoto_message(request_get: Callable[[str], object] = requests.get) 
     return message
 
 
-def build_group_message_content(
+async def build_group_message_content(
     config: GroupMessageConfig,
     period: Period,
     *,
@@ -55,7 +61,11 @@ def build_group_message_content(
             logger.error(f"{period} 自定义消息为空，跳过发送")
             return None
         return choice_func(sentences)
-    return hitokoto_fetcher()
+    try:
+        return await asyncio.to_thread(hitokoto_fetcher)
+    except (requests.RequestException, json.JSONDecodeError, KeyError, TypeError) as err:
+        logger.warning("一言获取失败，跳过本次群聊推送: {}", err)
+        return None
 
 
 async def send_group_messages_once(
@@ -77,7 +87,12 @@ async def send_group_messages_once(
     :param hitokoto_fetcher: hitokoto_fetcher 参数
     :return: int
     """
-    content = build_group_message_content(config, period, choice_func=choice_func, hitokoto_fetcher=hitokoto_fetcher)
+    content = await build_group_message_content(
+        config,
+        period,
+        choice_func=choice_func,
+        hitokoto_fetcher=hitokoto_fetcher,
+    )
     if content is None:
         return 0
 
