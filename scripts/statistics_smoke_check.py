@@ -13,6 +13,7 @@ from pathlib import Path
 from typing import List, Optional
 
 import nonebot
+import requests
 from nonebot.adapters.onebot.v11 import GroupMessageEvent as OBGroupMessageEvent
 from nonebot.consts import CMD_ARG_KEY, CMD_KEY, PREFIX_KEY, RAW_CMD_KEY, SHELL_ARGS, SHELL_ARGV
 
@@ -798,23 +799,50 @@ async def run_checks():
         assert (config.night_hour, config.night_minute) == ("23", "15")
 
         hitokoto_message = group_message_send_flow.fetch_hitokoto_message(
-            request_get=lambda _url: FakeResponse('{"hitokoto":"测试一言","from":"测试作品","from_who":"测试作者"}')
+            request_get=lambda _url, **_kwargs: FakeResponse('{"hitokoto":"测试一言","from":"测试作品","from_who":"测试作者"}')
         )
         assert hitokoto_message == "测试一言\n——《测试作品》测试作者"
 
-        custom_message = group_message_send_flow.build_group_message_content(
+        custom_message = await group_message_send_flow.build_group_message_content(
             config,
             "morning",
             choice_func=lambda items: items[0],
         )
         assert custom_message == "早上好"
 
-        api_message = group_message_send_flow.build_group_message_content(
+        api_message = await group_message_send_flow.build_group_message_content(
             GroupMessageConfig(group_ids=["10001"], mode=2),
             "night",
             hitokoto_fetcher=lambda: "来自接口",
         )
         assert api_message == "来自接口"
+
+        slow_fetch_started = asyncio.Event()
+
+        def slow_hitokoto_fetcher():
+            slow_fetch_started.set()
+            import time
+
+            time.sleep(0.05)
+            return "慢接口消息"
+
+        slow_fetch_task = asyncio.create_task(
+            group_message_send_flow.build_group_message_content(
+                GroupMessageConfig(group_ids=["10001"], mode=2),
+                "night",
+                hitokoto_fetcher=slow_hitokoto_fetcher,
+            )
+        )
+        await asyncio.wait_for(slow_fetch_started.wait(), timeout=0.02)
+        assert slow_fetch_task.done() is False
+        assert await slow_fetch_task == "慢接口消息"
+
+        failed_message = await group_message_send_flow.build_group_message_content(
+            GroupMessageConfig(group_ids=["10001"], mode=2),
+            "night",
+            hitokoto_fetcher=lambda: (_ for _ in ()).throw(requests.RequestException("network failed")),
+        )
+        assert failed_message is None
 
         fake_send_bot = FakeSendBot()
         sent_count = await group_message_send_flow.send_group_messages_once(
