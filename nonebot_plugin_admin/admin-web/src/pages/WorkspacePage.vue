@@ -155,6 +155,14 @@
             :loading="workspaceLoading"
             @toggle="toggleSwitch"
           />
+          <WelcomeWordPanel
+            v-if="selectedGroupId"
+            :word="workspace.event_notice.welcome_word"
+            :storage-available="workspace.event_notice.welcome_word_storage_available"
+            :saving="savingWelcomeWord"
+            @save="saveWelcomeWord"
+            @remove="removeWelcomeWord"
+          />
         </div>
 
         <MemberPanel
@@ -227,6 +235,7 @@ import GroupListPanel from '../components/workspace/GroupListPanel.vue'
 import ChatPanel from '../components/workspace/ChatPanel.vue'
 import MemberPanel from '../components/workspace/MemberPanel.vue'
 import FeatureSwitchPanel from '../components/workspace/FeatureSwitchPanel.vue'
+import WelcomeWordPanel from '../components/workspace/WelcomeWordPanel.vue'
 import MemberContextMenu from '../components/workspace/MemberContextMenu.vue'
 import TabPanel from '../components/workspace/TabPanel.vue'
 import EmptyState from '../components/common/EmptyState.vue'
@@ -259,6 +268,7 @@ const selectedGroupId = ref('')
 const sending = ref(false)
 const memberLoading = ref(false)
 const savingSwitchKey = ref('')
+const savingWelcomeWord = ref(false)
 const composer = ref('')
 const memberSearch = ref('')
 const allGroups = ref([])
@@ -301,7 +311,8 @@ const workspace = reactive({
   announcements: { items: [] },
   essence: { items: [] },
   honors: { sections: [] },
-  files: { files: [], folders: [] }
+  files: { files: [], folders: [] },
+  event_notice: { welcome_word: '', welcome_word_storage_available: true }
 })
 
 const memberMenu = reactive({ open: false, x: 0, y: 0, member: null })
@@ -354,6 +365,7 @@ function resetWorkspace() {
   workspace.essence = { items: [] }
   workspace.honors = { sections: [] }
   workspace.files = { files: [], folders: [] }
+  workspace.event_notice = { welcome_word: '', welcome_word_storage_available: true }
 }
 
 function isCurrentWorkspace(groupId, requestKey) {
@@ -419,17 +431,19 @@ async function loadWorkspace(groupId) {
   const requestKey = ++workspaceRequestKey
   workspaceLoading.value = true
   try {
-    const [profilePayload, messagesPayload, membersPayload, detailPayload] = await Promise.all([
+    const [profilePayload, messagesPayload, membersPayload, detailPayload, eventNoticePayload] = await Promise.all([
       apiRequest(props.apiBase, props.token, `/groups/${groupId}/profile`, { timeout: 30000 }).catch(() => ({})),
       apiRequest(props.apiBase, props.token, `/groups/${groupId}/messages`, { params: { limit: 60 }, timeout: 30000 }).catch(() => ({ items: [], pagination: {} })),
       apiRequest(props.apiBase, props.token, `/groups/${groupId}/members`, { params: { page: 1, page_size: 30 }, timeout: 30000 }).catch(() => ({ items: [], pagination: {} })),
-      apiRequest(props.apiBase, props.token, `/groups/${groupId}/feature-switches`, { timeout: 30000 }).catch(() => [])
+      apiRequest(props.apiBase, props.token, `/groups/${groupId}/feature-switches`, { timeout: 30000 }).catch(() => []),
+      apiRequest(props.apiBase, props.token, `/groups/${groupId}/event-notice`, { timeout: 15000 }).catch(() => ({}))
     ])
     if (!isCurrentWorkspace(groupId, requestKey)) return
     workspace.group_profile = profilePayload || {}
     workspace.messages = messagesPayload || { items: [], pagination: {} }
     workspace.members = membersPayload || { items: [], pagination: {} }
     workspace.detail.feature_switches = Array.isArray(detailPayload) ? detailPayload : (detailPayload?.switches || [])
+    workspace.event_notice = eventNoticePayload || { welcome_word: '', welcome_word_storage_available: true }
     workspace.bot_profile = { capabilities: {} }
     try {
       const botProfile = await apiRequest(props.apiBase, props.token, `/groups/${groupId}/bot-profile`, { timeout: 15000 })
@@ -684,6 +698,27 @@ async function toggleSwitch(item, enabled) {
   } finally {
     savingSwitchKey.value = ''
   }
+}
+
+async function saveWelcomeWord(word) {
+  if (!selectedGroupId.value) return
+  savingWelcomeWord.value = true
+  try {
+    const result = await apiRequest(props.apiBase, props.token, `/groups/${selectedGroupId.value}/event-notice/welcome-word`, {
+      method: 'POST',
+      body: { word: String(word || '').trim() }
+    })
+    workspace.event_notice = { ...workspace.event_notice, welcome_word: result.word || '', welcome_word_storage_available: true }
+    emit('notify', { message: result.word ? '欢迎词已保存。' : '欢迎词已删除。', type: 'success' })
+  } catch (error) {
+    emit('notify', { message: `保存欢迎词失败：${extractErrorMessage(error)}`, type: 'error' })
+  } finally {
+    savingWelcomeWord.value = false
+  }
+}
+
+function removeWelcomeWord() {
+  saveWelcomeWord('')
 }
 
 function openMemberMenu(member, event) {

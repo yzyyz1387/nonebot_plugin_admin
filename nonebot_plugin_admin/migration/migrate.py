@@ -121,6 +121,10 @@ def _collect_migration_targets() -> list[tuple[str, Path, str]]:
     if ai_verify_cfg.exists():
         targets.append(("ai_verify_config.json", ai_verify_cfg, "ai_verify_config"))
 
+    welcome_word_cfg = admin_path.config_path / "welcome_words.json"
+    if welcome_word_cfg.exists():
+        targets.append(("welcome_words.json", welcome_word_cfg, "welcome_words"))
+
     if admin_path.broadcast_avoid_path.exists():
         targets.append(("广播排除群聊.json", admin_path.broadcast_avoid_path, "broadcast_exclusion"))
 
@@ -712,6 +716,31 @@ async def _migrate_ai_verify_config(file_path: Path) -> MigrationResult:
     return True, count
 
 
+async def _migrate_welcome_words(file_path: Path) -> MigrationResult:
+    from ..statistics.config_orm_store import orm_save_group_welcome_word
+    from ..statistics import models
+
+    if not models.ORM_MODELS_AVAILABLE:
+        return False, 0
+
+    try:
+        data = json.loads(file_path.read_text(encoding="utf-8"))
+    except Exception:
+        return False, 0
+
+    if not isinstance(data, dict):
+        return False, 0
+
+    count = 0
+    for gid, word in data.items():
+        text = str(word).strip()
+        if not text:
+            continue
+        if await orm_save_group_welcome_word(str(gid), text):
+            count += 1
+    return True, count
+
+
 async def _migrate_broadcast_exclusion(file_path: Path) -> MigrationResult:
     """
     迁移broadcastexclusion
@@ -821,6 +850,8 @@ async def _execute_migration(data_type: str, abs_path: Path) -> MigrationResult:
         return await _migrate_approval_blacklist(abs_path)
     if data_type == "ai_verify_config":
         return await _migrate_ai_verify_config(abs_path)
+    if data_type == "welcome_words":
+        return await _migrate_welcome_words(abs_path)
     if data_type == "broadcast_exclusion":
         return await _migrate_broadcast_exclusion(abs_path)
     if data_type == "user_violations":

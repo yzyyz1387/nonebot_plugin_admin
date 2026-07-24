@@ -204,7 +204,7 @@ async def build_member_increase_message(bot: Bot, event: GroupIncreaseNoticeEven
             MessageSegment.image(get_avatar_url(event.user_id)),
         ]
     )
-    welcome_word = get_welcome_word(event.group_id)
+    welcome_word = await get_welcome_word(event.group_id)
     if welcome_word:
         message += MessageSegment.text("\n") + MessageSegment.at(event.user_id) + MessageSegment.text(f"，{welcome_word}")
     return message

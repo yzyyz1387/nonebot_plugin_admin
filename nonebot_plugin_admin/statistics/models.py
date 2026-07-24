@@ -231,6 +231,16 @@ if ORM_MODELS_AVAILABLE:
             table = "admin_ai_verify_config"
             indexes = (("group_id",),)
 
+    class GroupWelcomeWord(Model):
+        id = fields.IntField(pk=True)
+        group_id = fields.CharField(max_length=32, unique=True)
+        word = fields.TextField(default="")
+        updated_at = fields.DatetimeField(auto_now=True)
+
+        class Meta:
+            table = "admin_group_welcome_word"
+            indexes = (("group_id",),)
+
     class BroadcastExclusion(Model):
         id = fields.IntField(pk=True)
         user_id = fields.CharField(max_length=32)
@@ -283,6 +293,7 @@ else:
     ApprovalBlacklistTerm = None
     ContentGuardRule = None
     AIVerifyConfig = None
+    GroupWelcomeWord = None
     BroadcastExclusion = None
     UserViolation = None
     ViolationRecord = None

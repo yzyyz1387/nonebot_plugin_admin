@@ -5,7 +5,6 @@ import asyncio
 import datetime
 import importlib.util
 import sys
-import tempfile
 import types
 import warnings
 from pathlib import Path
@@ -88,13 +87,17 @@ def load_event_notice_modules():
     modules["config"].plugin_config.statistics_orm_enabled = True
     modules["path"] = load_module(f"{PKG_NAME}.core.path", PACKAGE_DIR / "core" / "path.py")
     modules["utils"] = load_module(f"{PKG_NAME}.core.utils", PACKAGE_DIR / "core" / "utils.py")
-    modules["welcome_word"] = load_module(
-        f"{PKG_NAME}.event_notice.welcome_word",
-        PACKAGE_DIR / "event_notice" / "welcome_word.py",
-    )
     modules["models"] = load_module(
         f"{PKG_NAME}.statistics.models",
         PACKAGE_DIR / "statistics" / "models.py",
+    )
+    modules["config_orm_store"] = load_module(
+        f"{PKG_NAME}.statistics.config_orm_store",
+        PACKAGE_DIR / "statistics" / "config_orm_store.py",
+    )
+    modules["welcome_word"] = load_module(
+        f"{PKG_NAME}.event_notice.welcome_word",
+        PACKAGE_DIR / "event_notice" / "welcome_word.py",
     )
     modules["recall_archive_store"] = load_module(
         f"{PKG_NAME}.event_notice.recall_archive_store",
@@ -457,21 +460,17 @@ async def run_checks():
     assert event_notice_flow.format_qq_level(89) == "👑☀️🌙🌙⭐（89级）"
     assert event_notice_flow.format_qq_level(34) == "☀️☀️⭐⭐（34级）"
 
-    original_welcome_path = welcome_word.WELCOME_WORD_PATH
-    with tempfile.TemporaryDirectory() as temp_dir:
-        welcome_word.WELCOME_WORD_PATH = Path(temp_dir) / "welcome_words.json"
-        assert welcome_word.get_welcome_word(12345) == ""
-        welcome_word.save_welcome_word(12345, "测试测试")
-        assert welcome_word.get_welcome_word(12345) == "测试测试"
-        welcome_word.delete_welcome_word(12345)
-        assert welcome_word.get_welcome_word(12345) == ""
-        welcome_word.save_welcome_word(12345, "测试测试")
-        increase_message = await event_notice_flow.build_member_increase_message(bot, increase_event)
-        assert "小红加入本群，欢迎" in str(increase_message)
-        assert "QQ:20003  QQ等级：👑☀️🌙⭐（85级）" in str(increase_message)
-        assert "测试测试" in str(increase_message)
-        assert "q4.qlogo.cn" in str(increase_message)
-    welcome_word.WELCOME_WORD_PATH = original_welcome_path
+    assert await welcome_word.get_welcome_word(12345) == ""
+    assert await welcome_word.save_welcome_word(12345, "测试测试") is True
+    assert await welcome_word.get_welcome_word(12345) == "测试测试"
+    assert await welcome_word.delete_welcome_word(12345) is True
+    assert await welcome_word.get_welcome_word(12345) == ""
+    assert await welcome_word.save_welcome_word(12345, "测试测试") is True
+    increase_message = await event_notice_flow.build_member_increase_message(bot, increase_event)
+    assert "小红加入本群，欢迎" in str(increase_message)
+    assert "QQ:20003  QQ等级：👑☀️🌙⭐（85级）" in str(increase_message)
+    assert "测试测试" in str(increase_message)
+    assert "q4.qlogo.cn" in str(increase_message)
 
     assert await event_notice_flow.build_admin_change_message(bot, build_admin_event(20001, "set")) == "管理员变动\n恭喜 小明 成为管理员"
     assert await event_notice_flow.build_admin_change_message(bot, build_admin_event(10000, "unset")) == "管理员变动\n我 不再是本群管理员"

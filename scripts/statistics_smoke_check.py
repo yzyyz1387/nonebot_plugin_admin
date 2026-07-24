@@ -1039,6 +1039,10 @@ async def run_checks():
         )
 
         modules["path"].limit_word_path.write_text("广告\t$撤回\n刷单\t$禁言\n", encoding="utf-8")
+        (modules["path"].config_path / "welcome_words.json").write_text(
+            json.dumps({"30001": "欢迎来到本群"}, ensure_ascii=False),
+            encoding="utf-8",
+        )
         (modules["path"].words_contents_path / "30001.txt").write_text("旧词料A\n旧词料B\n", encoding="utf-8")
         (modules["path"].words_contents_path / "30002.txt").write_text("旧词料C\n", encoding="utf-8")
         (modules["path"].group_message_data_path / "30002").mkdir(parents=True, exist_ok=True)
@@ -1083,11 +1087,16 @@ async def run_checks():
             (record.group_id, record.user_id, record.label, record.content)
             for record in orm_models.ViolationRecord._records
         }
+        assert ("30001", "欢迎来到本群") in {
+            (record.group_id, record.word)
+            for record in orm_models.GroupWelcomeWord._records
+        }
         migrated_paths = {record.file_path for record in orm_models.MigrationManifest._records}
         assert "违禁词.txt" in migrated_paths
         assert "words/30001.txt" in migrated_paths
         assert "words/30002.txt" in migrated_paths
         assert "word_config.txt" in migrated_paths
+        assert "welcome_words.json" in migrated_paths
         assert "开关.json" not in migrated_paths
 
         user_violation_targets = {
@@ -1100,6 +1109,7 @@ async def run_checks():
         assert not (modules["path"].words_contents_path / "30001.txt").exists()
         assert not (modules["path"].words_contents_path / "30002.txt").exists()
         assert not modules["path"].word_path.exists()
+        assert not (modules["path"].config_path / "welcome_words.json").exists()
         assert not modules["path"].user_violation_info_path.exists()
         backup_root = modules["path"].legacy_backup_path
         assert backup_root.exists()
@@ -1107,6 +1117,7 @@ async def run_checks():
         assert list(backup_root.rglob("30002.txt"))
         assert list(backup_root.rglob(modules["path"].word_path.name))
         assert list(backup_root.rglob(modules["path"].limit_word_path.name))
+        assert list(backup_root.rglob("welcome_words.json"))
         assert list(backup_root.rglob("40001.json"))
 
     print("statistics smoke check passed")

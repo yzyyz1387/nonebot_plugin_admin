@@ -9,29 +9,28 @@ from nonebot.params import CommandArg
 from nonebot.permission import SUPERUSER
 from nonebot.typing import T_State
 
-from ..core.path import config_path
-from ..core.utils import json_load_or_default, json_upload
+from ..statistics.config_orm_store import (
+    orm_delete_group_welcome_word,
+    orm_get_group_welcome_word,
+    orm_save_group_welcome_word,
+)
 
 
-WELCOME_WORD_PATH = config_path / "welcome_words.json"
 EXIT_WORDS = {"0", "取消", "退出"}
 CONFIRM_WORDS = {"1", "确认"}
+DATABASE_UNAVAILABLE_MESSAGE = "欢迎词数据库不可用，请检查 ORM 配置后重试。"
 
 
-def get_welcome_word(group_id: int) -> str:
-    return str(json_load_or_default(WELCOME_WORD_PATH, {}).get(str(group_id), "")).strip()
+async def get_welcome_word(group_id: int) -> str | None:
+    return await orm_get_group_welcome_word(str(group_id))
 
 
-def save_welcome_word(group_id: int, word: str) -> None:
-    words = json_load_or_default(WELCOME_WORD_PATH, {})
-    words[str(group_id)] = word
-    json_upload(WELCOME_WORD_PATH, words)
+async def save_welcome_word(group_id: int, word: str) -> bool:
+    return await orm_save_group_welcome_word(str(group_id), word)
 
 
-def delete_welcome_word(group_id: int) -> None:
-    words = json_load_or_default(WELCOME_WORD_PATH, {})
-    words.pop(str(group_id), None)
-    json_upload(WELCOME_WORD_PATH, words)
+async def delete_welcome_word(group_id: int) -> bool:
+    return await orm_delete_group_welcome_word(str(group_id))
 
 
 welcome_word_set = on_command(
@@ -48,18 +47,21 @@ async def _(event: GroupMessageEvent, matcher: Matcher, state: T_State, args: Me
     if not word:
         await matcher.finish("请输入欢迎词内容。")
 
-    old_word = get_welcome_word(event.group_id)
+    old_word = await get_welcome_word(event.group_id)
+    if old_word is None:
+        await matcher.finish(DATABASE_UNAVAILABLE_MESSAGE)
     state["welcome_word"] = word
     state["welcome_group_id"] = event.group_id
     if old_word:
         await matcher.send(
             f"本群已有欢迎词“{old_word}”，确认覆盖吗？\n"
-            "回复【1、确认】以覆盖\n"
+            "回复【1 / 确认】以覆盖\n"
             "回复【0 / 取消 / 退出】来退出。"
         )
         await matcher.pause()
 
-    save_welcome_word(event.group_id, word)
+    if not await save_welcome_word(event.group_id, word):
+        await matcher.finish(DATABASE_UNAVAILABLE_MESSAGE)
     await matcher.finish("本群欢迎词已设置。")
 
 
@@ -71,8 +73,9 @@ async def _(event: GroupMessageEvent, matcher: Matcher, state: T_State):
     if reply in EXIT_WORDS:
         await matcher.finish("已取消设置欢迎词。")
     if reply not in CONFIRM_WORDS:
-        await matcher.reject("请回复【1、确认】以覆盖，或回复【0 / 取消 / 退出】来退出。")
-    save_welcome_word(state["welcome_group_id"], state["welcome_word"])
+        await matcher.reject("请回复【1 / 确认】以覆盖，或回复【0 / 取消 / 退出】来退出。")
+    if not await save_welcome_word(state["welcome_group_id"], state["welcome_word"]):
+        await matcher.finish(DATABASE_UNAVAILABLE_MESSAGE)
     await matcher.finish("本群欢迎词已覆盖。")
 
 
@@ -86,7 +89,9 @@ welcome_word_delete = on_command(
 
 @welcome_word_delete.handle()
 async def _(event: GroupMessageEvent, matcher: Matcher, state: T_State):
-    word = get_welcome_word(event.group_id)
+    word = await get_welcome_word(event.group_id)
+    if word is None:
+        await matcher.finish(DATABASE_UNAVAILABLE_MESSAGE)
     if not word:
         await matcher.finish("本群尚未设置欢迎词。")
     state["welcome_group_id"] = event.group_id
@@ -107,5 +112,6 @@ async def _(event: GroupMessageEvent, matcher: Matcher, state: T_State):
         await matcher.finish("已取消删除欢迎词。")
     if reply not in CONFIRM_WORDS:
         await matcher.reject("请回复【1、确认】以删除，或回复【0 / 取消 / 退出】来退出。")
-    delete_welcome_word(state["welcome_group_id"])
+    if not await delete_welcome_word(state["welcome_group_id"]):
+        await matcher.finish(DATABASE_UNAVAILABLE_MESSAGE)
     await matcher.finish("本群欢迎词已删除。")

@@ -27,6 +27,7 @@ from ..statistics.config_orm_store import (
     orm_load_switcher, orm_load_approval_terms,
     orm_load_group_violation_snapshot,
     orm_load_daily_trend,
+    orm_get_group_welcome_word,
 )
 from ..statistics import models as orm_models
 from ..statistics.statistics_read_service import (
@@ -947,6 +948,7 @@ async def build_group_event_notice_payload(group_id: int | str) -> dict[str, Any
     switch_map = await _build_event_notice_switch_map(normalized_group_id)
     particular_enabled = switch_map.get("particular_e_notice", False)
     anti_recall_enabled = switch_map.get("group_recall", False)
+    welcome_word = await orm_get_group_welcome_word(normalized_group_id)
 
     event_types = [
         {
@@ -962,6 +964,8 @@ async def build_group_event_notice_payload(group_id: int | str) -> dict[str, Any
         "active_notice_types": sum(1 for item in event_types if item["enabled"] and item["active"]),
         "listener_only_types": sum(1 for item in event_types if item["enabled"] and not item["active"]),
         "event_types": event_types,
+        "welcome_word": welcome_word or "",
+        "welcome_word_storage_available": welcome_word is not None,
     }
 
 
