@@ -31,6 +31,8 @@ class FakeBot:
     def __init__(self):
         self.self_id = 10000
         self.sent_messages = []
+        self.config = types.SimpleNamespace(superusers={"10000"})
+        self.adapter = types.SimpleNamespace(get_name=lambda: "OneBot V11")
 
     async def get_group_list(self):
         return [{"group_id": 12345}, {"group_id": 23456}]
@@ -40,6 +42,11 @@ class FakeBot:
         return kwargs
 
     async def send_group_msg(self, **kwargs):
+        self.sent_messages.append(kwargs)
+        return kwargs
+
+    async def send_private_msg(self, **kwargs):
+        self.sent_messages.append(kwargs)
         return kwargs
 
 
@@ -50,6 +57,7 @@ def bootstrap_package():
         host="127.0.0.1",
         port=8080,
         send_group_id="[""12345""]",
+        nickname={"bot"},
         send_switch_morning=False,
         send_switch_night=False,
         statistics_orm_enabled=True,
@@ -177,7 +185,13 @@ def build_command_state(command: str, arg: str = "") -> dict:
     }
 
 
-def build_group_message_event(raw_message: str, user_id: int, role: str = "member", group_id: int = 12345):
+def build_group_message_event(
+    raw_message: str,
+    user_id: int,
+    role: str = "member",
+    group_id: int = 12345,
+    to_me: bool = False,
+):
     return OBGroupMessageEvent.parse_obj(
         {
             "time": 0,
@@ -192,7 +206,7 @@ def build_group_message_event(raw_message: str, user_id: int, role: str = "membe
             "raw_message": raw_message,
             "font": 0,
             "sender": {"user_id": user_id, "nickname": "tester", "card": "", "role": role},
-            "to_me": False,
+            "to_me": to_me,
             "group_id": group_id,
             "anonymous": None,
         }
@@ -234,6 +248,7 @@ async def run_checks():
             "content_guard.auto_ban",
             "content_guard.img_check",
             "core.func_hook",
+            "core.restart_command",
             "core.switcher",
             "dashboard.dashboard_web",
             "event_notice.group_recall",
@@ -302,6 +317,84 @@ async def run_checks():
             build_group_message_event("开关状态123", 10000, role="admin"),
             build_command_state("开关状态"),
         ) is False
+        restart_command = sys.modules[f"{PKG_NAME}.core.restart_command"]
+        assert restart_command.bot_restart.priority == 1
+        assert await restart_command.bot_restart.check_rule(
+            fake_bot,
+            build_group_message_event("BOT重启", 10000),
+            {},
+        ) is True
+        assert await restart_command.bot_restart.check_rule(
+            fake_bot,
+            build_group_message_event(" B O T 重启\u200b", 10000),
+            {},
+        ) is True
+        assert await restart_command.bot_restart.check_rule(
+            fake_bot,
+            build_group_message_event("重启", 10000, to_me=True),
+            {},
+        ) is True
+        assert await restart_command.bot_restart.check_rule(
+            fake_bot,
+            build_group_message_event("重启", 10000),
+            {},
+        ) is False
+        assert await restart_command.bot_restart.check_rule(
+            fake_bot,
+            build_group_message_event("重启现在", 10000, to_me=True),
+            {},
+        ) is False
+        assert restart_command.is_restart_superuser(
+            fake_bot,
+            build_group_message_event("bot重启", 10000),
+        ) is True
+        assert restart_command.is_restart_superuser(
+            fake_bot,
+            build_group_message_event("bot重启", 20001),
+        ) is False
+        pending_restart = restart_command.prepare_restart_notice(
+            fake_bot.self_id,
+            build_group_message_event("bot重启", 10000),
+            "self",
+        )
+        assert pending_restart is not None
+        assert await restart_command.notify_pending_restart(fake_bot) is True
+        assert fake_bot.sent_messages[-1] == {"group_id": 12345, "message": "BOT 重启完成。"}
+        assert restart_command._read_pending_restart_notice(fake_bot.self_id) is None
+
+        managed_restart = restart_command.PendingRestartNotice(
+            request_id="managed-restart",
+            bot_id=str(fake_bot.self_id),
+            target_type="group",
+            target_id="12345",
+            mode="managed",
+            requested_at=0,
+        )
+        restart_calls = []
+        original_sleep = restart_command.asyncio.sleep
+        original_getpid = restart_command.os.getpid
+        original_kill = restart_command.os.kill
+        original_signal = restart_command.signal.signal
+
+        async def no_sleep(_seconds):
+            return None
+
+        try:
+            restart_command.asyncio.sleep = no_sleep
+            restart_command.os.getpid = lambda: 4242
+            restart_command.os.kill = lambda pid, sig: restart_calls.append(("kill", pid, sig))
+            restart_command.signal.signal = lambda sig, handler: restart_calls.append(("signal", sig, handler))
+            await restart_command._restart_after_response(fake_bot, managed_restart)
+        finally:
+            restart_command.asyncio.sleep = original_sleep
+            restart_command.os.getpid = original_getpid
+            restart_command.os.kill = original_kill
+            restart_command.signal.signal = original_signal
+
+        assert restart_calls == [
+            ("signal", restart_command.signal.SIGTERM, restart_command.signal.SIG_DFL),
+            ("kill", 4242, restart_command.signal.SIGTERM),
+        ]
 
         switcher_data = await sys.modules[f"{PKG_NAME}.statistics.config_orm_store"].orm_load_switcher()
         for gid in ("12345", "23456"):

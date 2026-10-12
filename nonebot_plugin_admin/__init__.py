@@ -23,6 +23,7 @@ from .core.config import Config
 from .dashboard import dashboard_web as _dashboard_web
 from .dashboard.dashboard_command import dashboard_url_cmd as _dashboard_url_cmd
 from .dashboard.dashboard_oplog_service import record_oplog
+from .core import restart_command as _core_restart_command
 from .event_notice import group_recall as _event_notice_group_recall
 from .event_notice import particular_e_notice as _event_notice_particular_notice
 from .event_notice import welcome_word as _event_notice_welcome_word
@@ -72,6 +73,7 @@ async def _(bot: nonebot.adapters.Bot):
         detail=f"Bot [{bot_id}] 已连接",
         extra={"bot_id": bot_id},
     )
+    await _core_restart_command.notify_pending_restart(bot)
     await utils.init()
     await switcher.switcher_integrity_check(bot)
     await run_migration_check()
@@ -143,6 +145,9 @@ __usage__ = """
 
 【Dashboard】
   面板地址 / 获取面板 / dashboard地址
+
+【系统】
+  bot重启
 """
 
 __help_plugin_name__ = "简易群管"

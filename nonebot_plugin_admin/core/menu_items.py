@@ -70,6 +70,7 @@ def _register_all() -> None:
     _reg.register("系统", "开关状态", "查看本群功能开关状态", permission="管理员")
     _reg.register("系统", "面板地址", "获取Web管理面板地址", permission="超管", aliases=["获取面板"])
     _reg.register("系统", "数据库地址", "获取ORM数据库地址", permission="超管")
+    _reg.register("系统", "@机器人 重启 / 机器人昵称重启", "重启 BOT，需确认是否有进程守护工具", permission="超管")
     _reg.register("系统", "群管菜单", "显示本菜单", permission="所有人")
 
 
